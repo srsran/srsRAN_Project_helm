@@ -1,0 +1,3 @@
+[submodule "images/srsgnb"]
+	path = images/srsgnb
+	url = ../../srsgnb.git
