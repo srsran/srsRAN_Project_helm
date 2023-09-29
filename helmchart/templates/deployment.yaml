@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "srsran-5g.fullname" . }}
+  labels:
+    {{- include "srsran-5g.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "srsran-5g.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "srsran-5g.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "srsran-5g.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostNetwork: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: srsgnb-configmap
+        - name: hugepage-1gi
+          emptyDir:
+            medium: HugePages-1Gi
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          command: ["gnb", "-c", "/etc/config/gnb-config.yml"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - mountPath: /hugepages-1Gi
+              name: hugepage-1gi
+          resources:
+            limits:
+              hugepages-1Gi: 8Gi
+              memory: 8Gi
+            requests:
+              memory: 8Gi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
