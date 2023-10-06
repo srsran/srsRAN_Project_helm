@@ -1,0 +1,62 @@
+include:
+  - project: softwareradiosystems/ci/tools
+    ref: "12"
+    file: .gitlab/ci-shared/setup/all.yml
+  - project: softwareradiosystems/ci/tools
+    ref: "12"
+    file: .gitlab/ci-shared/tools/docker.yml
+
+stages:
+  - test
+  - publish
+  - manifest
+
+variables:
+  CT_VERSION: "1.0.0"
+
+.docker-builder-linuxptp:
+  extends: .docker-builder
+  variables:
+    CONTEXT: images/linuxptp
+    VERSION: "${LINUXPTP_VERSION}_${CT_VERSION}"
+    BUILD_ARGS: "LINUXPTP_VERSION=${LINUXPTP_VERSION}"
+    NAME: linuxptp
+    MULTI_ARCH_BUILD: "true"
+  parallel:
+    matrix:
+      - PLATFORM: ["arm64", "amd64"]
+
+only-build-linuxptp:
+  stage: test
+  extends: .docker-builder-linuxptp
+  rules:
+    - if: $ON_MR
+  variables:
+    MODE: test
+
+build-and-publish-linuxptp:
+  stage: publish
+  extends: .docker-builder-linuxptp
+  rules:
+    - if: $ON_DEFAULT_BRANCH
+    - if: $ON_MR
+      when: manual
+      allow_failure: true
+  variables:
+    MODE: publish
+
+docker manifest ubuntu 22.04:
+  extends: .docker manifest
+  stage: manifest
+  variables:
+    VERSION: "${LINUXPTP_VERSION}_${CT_VERSION}"
+  needs:
+    - job: build-and-publish-linuxptp
+      optional: false
+  script:
+    - |
+      docker manifest create \
+        ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION} \
+        --amend ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION}-amd64 \
+        --amend ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION}-arm64
+      docker manifest push ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION}
