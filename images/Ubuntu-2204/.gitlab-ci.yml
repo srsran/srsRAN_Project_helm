@@ -14,12 +14,10 @@ stages:
   extends: .docker-builder
   variables:
     CONTEXT: images/Ubuntu-2204
-    VERSION: "${CT_VERSION}"
+    VERSION: "${SRSRAN_VERSION}_${SOFTWARE_USED}_${CPU_FLAGS}_${CT_VERSION}"
     BUILD_ARGS: "CR_REGISTRY_URI=${CR_REGISTRY_URI};UHD_VERSION=${UHD_VERSION};DPDK_VERSION=${DPDK_VERSION}"
     GIT_SUBMODULE_STRATEGY: recursive
-    NAME: srsran-cudu-${SRSRAN_VERSION}-${SOFTWARE_USED}-${CPU_FLAGS}
-  before_script:
-    - export NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
+    NAME: srsran-project
 
 only-build-amd64-avx512:
   stage: test
