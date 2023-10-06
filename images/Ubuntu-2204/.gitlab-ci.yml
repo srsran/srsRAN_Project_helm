@@ -14,7 +14,7 @@ stages:
   extends: .docker-builder
   variables:
     CONTEXT: images/Ubuntu-2204
-    VERSION: "${SRSRAN_VERSION}_${SOFTWARE_USED}_${CPU_FLAGS}_${CT_VERSION}"
+    VERSION: "${SRSRAN_VERSION}_${SOFTWARE_USED}_${CPU_FLAGS}_${CT_VERSION}-${PLATFORM}"
     BUILD_ARGS: "CR_REGISTRY_URI=${CR_REGISTRY_URI};UHD_VERSION=${UHD_VERSION};DPDK_VERSION=${DPDK_VERSION}"
     GIT_SUBMODULE_STRATEGY: recursive
     NAME: srsran-project
@@ -29,6 +29,7 @@ only-build-amd64-avx512:
   variables:
     MODE: test
     CPU_FLAGS: avx512
+    PLATFORM: amd64
     # EXTRA_CMAKE_ARGS: "-DAUTO_DETECT_ISA=OFF\ -DHAVE_AVX512=ON\ -DHAVE_AVX2=ON\ -DHAVE_AVX=ON\ -DHAVE_SSE=ON\ -DHAVE_FMA=ON"
 
 build-and-publish-amd64-avx512:
@@ -44,6 +45,7 @@ build-and-publish-amd64-avx512:
   variables:
     MODE: publish
     CPU_FLAGS: avx512
+    PLATFORM: amd64
     # EXTRA_CMAKE_ARGS: "-DAUTO_DETECT_ISA=OFF -DHAVE_AVX512=ON -DHAVE_AVX2=ON -DHAVE_AVX=ON -DHAVE_SSE=ON -DHAVE_FMA=ON"
 
 only-build-amd64-avx2:
@@ -54,6 +56,7 @@ only-build-amd64-avx2:
   variables:
     MODE: test
     CPU_FLAGS: avx2
+    PLATFORM: amd64
     # EXTRA_CMAKE_ARGS: "-DAUTO_DETECT_ISA=OFF -DHAVE_AVX2=ON -DHAVE_AVX=ON -DHAVE_SSE=ON -DHAVE_FMA=ON"
 
 build-and-publish-amd64-avx2:
@@ -67,6 +70,7 @@ build-and-publish-amd64-avx2:
   variables:
     MODE: publish
     CPU_FLAGS: avx2
+    PLATFORM: amd64
     # EXTRA_CMAKE_ARGS: "-DAUTO_DETECT_ISA=OFF -DHAVE_AVX2=ON -DHAVE_AVX=ON -DHAVE_SSE=ON -DHAVE_FMA=ON"
 
 only-build-arm64-neon:
