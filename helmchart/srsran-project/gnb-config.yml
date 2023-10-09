@@ -1,7 +1,7 @@
 gnb_id: 1
 amf:
-  addr: 192.168.20.30                 # The address or hostname of the AMF.
-  bind_addr: 192.168.20.10              # A local IP that the gNB binds to for traffic from the AMF.
+  addr: 192.168.20.210                  # The address or hostname of the AMF.
+  bind_addr: 192.168.20.201             # A local IP that the gNB binds to for traffic from the AMF.
 
 ru_ofh:
   t1a_max_cp_dl: 470
