@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "srsran-5g.name" -}}
+{{- define "srsran-cudu.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "srsran-5g.fullname" -}}
+{{- define "srsran-cudu.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "srsran-5g.chart" -}}
+{{- define "srsran-cudu.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "srsran-5g.labels" -}}
-helm.sh/chart: {{ include "srsran-5g.chart" . }}
-{{ include "srsran-5g.selectorLabels" . }}
+{{- define "srsran-cudu.labels" -}}
+helm.sh/chart: {{ include "srsran-cudu.chart" . }}
+{{ include "srsran-cudu.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "srsran-5g.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "srsran-5g.name" . }}
+{{- define "srsran-cudu.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "srsran-cudu.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "srsran-5g.serviceAccountName" -}}
+{{- define "srsran-cudu.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "srsran-5g.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "srsran-cudu.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

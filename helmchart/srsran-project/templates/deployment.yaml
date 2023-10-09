@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "srsran-5g.fullname" . }}
+  name: {{ include "srsran-cudu.fullname" . }}
   labels:
-    {{- include "srsran-5g.labels" . | nindent 4 }}
+    {{- include "srsran-cudu.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "srsran-5g.selectorLabels" . | nindent 6 }}
+      {{- include "srsran-cudu.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -15,9 +15,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "srsran-5g.selectorLabels" . | nindent 8 }}
+        {{- include "srsran-cudu.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ include "srsran-5g.serviceAccountName" . }}
+      serviceAccountName: {{ include "srsran-cudu.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       hostNetwork: true
