@@ -46,3 +46,5 @@ tolerations: {}
   #   effect: "NoSchedule"
 
 affinity: {}
+
+interfaceName: "enp1s0f0"
