@@ -48,7 +48,7 @@ Ubuntu-22.04-UHD:
         compare_to: refs/tags/latest
   variables:
     DOCKERFILE: "images/Ubuntu-2204/UHD"
-    CT_VERSION: "1.0.0"
+    CT_VERSION: "1.0.2"
     SOFTWARE_USED: $UHD_VERSION
 
 Ubuntu-22.04-OFH:
@@ -67,14 +67,14 @@ Ubuntu-22.04-OFH:
         compare_to: refs/tags/latest
   variables:
     DOCKERFILE: "images/Ubuntu-2204/OFH"
-    CT_VERSION: "1.0.0"
+    CT_VERSION: "1.0.2"
     SOFTWARE_USED: $DPDK_VERSION
 
 linuxptp:
   stage: child
   variables:
     LINUXPTP_VERSION: "v4.1"
-    CT_VERSION: "1.0.0"
+    CT_VERSION: "1.0.2"
   rules:
     - if: $ON_MR
       changes:
