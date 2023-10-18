@@ -11,9 +11,6 @@ stages:
   - publish
   - manifest
 
-variables:
-  CT_VERSION: "1.0.0"
-
 .docker-builder-linuxptp:
   extends: .docker-builder
   variables:
