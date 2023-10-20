@@ -14,7 +14,7 @@ fullnameOverride: "srsran-project-cudu-chart"
 serviceAccount:
   create: true
   annotations: {}
-  name: "srsadmin"
+  name: "srsadmin-gnb"
 
 podAnnotations: {}
 
