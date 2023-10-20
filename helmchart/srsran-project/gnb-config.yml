@@ -1,14 +1,14 @@
 gnb_id: 1
 amf:
-  addr: 192.168.20.210                  # The address or hostname of the AMF.
-  bind_addr: 192.168.20.201             # A local IP that the gNB binds to for traffic from the AMF.
+  addr: 127.0.0.5                 # The address or hostname of the AMF.
+  bind_addr: 127.0.0.123              # A local IP that the gNB binds to for traffic from the AMF.
 
 ru_ofh:
   t1a_max_cp_dl: 470
   t1a_min_cp_dl: 258
-  t1a_max_cp_ul: 300
+  t1a_max_cp_ul: 429
   t1a_min_cp_ul: 285
-  t1a_max_up: 350
+  t1a_max_up: 196
   t1a_min_up: 50
 #  ta4_max: 150                                                    # Maximum Ta4 on User-Plane in microseconds.
 #  ta4_min: 25  
@@ -21,26 +21,29 @@ ru_ofh:
   compr_bitwidth_dl: 9
   compr_method_prach: bfp
   compr_bitwidth_prach: 9
-  enable_ul_static_compr_hdr: true
-  enable_dl_static_compr_hdr: true
-  iq_scaling: 6.5
-  enable_dl_parallelization: true
+  enable_ul_static_compr_hdr: false
+  enable_dl_static_compr_hdr: false
+  iq_scaling: 0.8
   cells:
-  - network_interface: enp1s0f0
-    ru_mac_addr: B8:CE:F6:38:25:4B
-    du_mac_addr: 00:11:22:33:44:66
-    vlan_tag: 1
-    prach_port_id: [8, 9]
-    dl_port_id: [0, 1, 2, 3]
+  - network_interface: enp4s0f0
+    ru_mac_addr: 6c:ad:ad:00:08:c4
+    du_mac_addr: 80:61:5f:09:04:87
+    vlan_tag: 2
+    prach_port_id: [4, 5, 6, 7]
+    dl_port_id: [0, 1]
     ul_port_id: [0, 1, 2, 3]
 
+cu_cp:
+  rrc:
+    force_reestablishment_fallback: true
+
 cell_cfg:
-  dl_arfcn: 625000                  # ARFCN of the downlink carrier (center frequency).
+  dl_arfcn: 640000                  # ARFCN of the downlink carrier (center frequency).
   band: 78                          # The NR band.
-  channel_bandwidth_MHz: 100         # Bandwith in MHz. Number of PRBs will be automatically derived.
+  channel_bandwidth_MHz: 100        # Bandwith in MHz. Number of PRBs will be automatically derived.
   common_scs: 30                    # Subcarrier spacing in kHz used for data.
-  plmn: "00101"                     # PLMN broadcasted by the gNB.
-  tac: 7                            # Tracking area code (needs to match the core configuration).
+  plmn: "99970"                     # PLMN broadcasted by the gNB.
+  tac: 1                            # Tracking area code (needs to match the core configuration).
   pci: 1                            # Physical cell ID.
   prach:
     prach_config_index: 159
@@ -50,27 +53,39 @@ cell_cfg:
   ssb:
     ssb_period: 20
   pucch:
-   sr_period_ms: 20
+   sr_period_ms: 10
    f1_nof_cell_res_sr: 30
+   min_k1: 2
   csi:
-    csi_rs_period: 40
+    csi_rs_period: 80
   pdsch:
+   olla_target_bler: 0.1
    mcs_table: qam256
-   nof_ports: 1
+   dc_offset: center
+   # max_alloc_attempts: 6
   pusch:
+   olla_target_bler: 0.1
+   olla_max_snr_offset: 10
    mcs_table: qam256
-  nof_antennas_dl: 4
-  nof_antennas_ul: 1
+   # max_alloc_attempts: 6
+   min_k2: 2
+  nof_antennas_dl: 2
+  nof_antennas_ul: 2
   tdd_ul_dl_cfg:
-    nof_dl_slots: 6
-#    nof_dl_symbols: 7
-    nof_ul_slots: 3
+    nof_dl_slots: 7
+    nof_dl_symbols: 7
+    nof_ul_slots: 2
+
 log:
   filename: /tmp/gnb.log            # Path of the log file.
-  all_level: info                # Logging level applied to all layers.
-  mac_level: debug
-  phy_level: debug
-#  gtpu_level: debug
+  all_level: warning               # Logging level applied to all layers.
+#  pdcp_level: error
+#  all_level: info               # Logging level applied to all layers.
+#  mac_level: debug
+#  rlc_level: info
+#  pdcp_level: info
+#  phy_level: info
+#  gtpu_level: info
 #  lib_level: debug
 #  cu_level: debug
 #  f1ap_level: debug
@@ -80,22 +95,52 @@ log:
 pcap:
   mac_enable: false                 # Set to true to enable MAC-layer PCAPs.
   mac_filename: /tmp/gnb_mac.pcap   # Path where the MAC PCAP is stored.
-#  ngap_enable: true                # Set to true to enable NGAP PCAPs.
+  ngap_enable: true                # Set to true to enable NGAP PCAPs.
 #  ngap_filename: /tmp/gnb_ngap.pcap # Path where the NGAP PCAP is stored.
-#  f1ap_enable: true
+  f1ap_enable: true
 #  e1ap_enable: true
 
-expert:
-  enable_tuned_affinity_profile: true
-  number_of_threads_per_cpu: 1
-  number_of_reserved_cores: 4
-
-expert_phy:
-  nof_ul_threads: 3
-  nof_pdsch_threads: 4
-  nof_dl_threads: 2
-  max_proc_delay: 5
-  pdsch_processor_type: concurrent
+# expert_execution:
+#  threads:
+#   upper_phy:
+#    nof_ul_threads: 1
+#    # nof_pusch_decoder_threads: 1
+#    nof_pdsch_threads: 3
+#    nof_dl_threads: 2
+#   ofh:
+#    enable_dl_parallelization: true
+# expert_phy:
+#  max_proc_delay: 5
 
 hal:
   eal_args: "--lcores (0-1)@(0-15)"
+
+qos:
+  -
+    five_qi: 9
+    rlc:
+     mode: am
+     am:
+       tx:
+         sn: 18
+         t-poll-retransmit: 40
+         max-retx-threshold: 32
+         poll-pdu: 16
+         poll-byte: -1
+       rx:
+         sn: 18
+         t-reassembly: 20
+         t-status-prohibit: 10
+    pdcp:
+      tx:
+        sn: 18
+        discard_timer: -1
+        status_report_required: false
+      rx:
+        sn: 18
+        t_reordering: 200
+        out_of_order_delivery: false
+    f1u_du:
+      backoff_timer: 10
+    f1u_cu_up:
+      backoff_timer: 10
