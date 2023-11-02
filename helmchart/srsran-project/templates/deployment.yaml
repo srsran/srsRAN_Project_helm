@@ -40,14 +40,8 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
-            - mountPath: /hugepages-1Gi
-              name: hugepage-1gi
-          resources:
-            limits:
-              hugepages-1Gi: 8Gi
-              memory: 8Gi
-            requests:
-              memory: 8Gi
+            - name: hugepage-1gi
+              mountPath: /hugepages-1Gi
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
