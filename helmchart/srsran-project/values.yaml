@@ -28,13 +28,15 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources: {}
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+resources:
+  limits:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 8Gi
+  requests:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 8Gi
 
 nodeSelector: {}
 #   kubernetes.io/hostname: hp-oran
