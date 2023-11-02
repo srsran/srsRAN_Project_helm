@@ -7,7 +7,7 @@ ARG EXTRA_CMAKE_ARGS=""
 RUN apt-get update && apt-get install -y \
     cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev \
     libyaml-cpp-dev libgtest-dev libnuma-dev python3-pip curl pciutils iproute2 \
-    net-tools nano && \
+    net-tools nano git && \
     pip3 install meson ninja pyelftools
 
 ### Install DPDK 23.07 LTS
@@ -20,11 +20,12 @@ RUN mkdir -p /opt/dpdk && cd /opt/dpdk && \
     meson install && \
     ldconfig
 
-### Build srsGNB
-COPY srsgnb /builder/srsgnb
-RUN cd /builder/srsgnb && \
-    mkdir -p /builder/srsgnb/build /opt/srsgnb && \
+### Build srsRAN Project
+RUN mkdir -p /builder && \
+    git clone https://github.com/srsran/srsRAN_Project /builder/srsran && \
+    cd /builder/srsran && \
+    mkdir -p /builder/srsran/build /opt/srsran && \
     cd build && \
-    cmake -DBUILD_TESTS=False -DCMAKE_INSTALL_PREFIX=/opt/srsgnb -DENABLE_DPDK=ON ${EXTRA_CMAKE_ARGS} ../ && \
+    cmake -DBUILD_TESTS=False -DCMAKE_INSTALL_PREFIX=/opt/srsran -DENABLE_DPDK=ON ${EXTRA_CMAKE_ARGS} ../ && \
     make -j`nproc` && make -j`nproc` install && \
-    ln -s /builder/srsgnb/build/apps/gnb/gnb /usr/bin/gnb
+    ln -s /builder/srsran/build/apps/gnb/gnb /usr/bin/gnb
