@@ -20,6 +20,7 @@ RUN git clone https://github.com/EttusResearch/uhd &&\
     cd host/build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_PYTHON_API=OFF -DENABLE_EXAMPLES=OFF -DENABLE_TESTS=OFF .. && \
     make -j`nproc` && make -j`nproc` install && \
+    /usr/local/lib/uhd/utils/uhd_images_downloader.py && \
     ldconfig
 
 ### Build srsGNB
