@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: 166552988672.dkr.ecr.eu-west-1.amazonaws.com/ci/srsgnb_k8s/srsran-project
+  repository: softwareradiosystems/srsran-cu-du-ub2204
   pullPolicy: IfNotPresent
   tag: "2023.5_dpdk-23.07_avx2_1.0.2-amd64"
 
@@ -28,18 +28,18 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources:
-  limits:
-    cpu: 12
-    memory: 16Gi
-    hugepages-1Gi: 8Gi
-  requests:
-    cpu: 12
-    memory: 16Gi
-    hugepages-1Gi: 8Gi
+resources: {}
+  # limits:
+  #   cpu: 16
+  #   memory: 16Gi
+  #   hugepages-1Gi: 8Gi
+  # requests:
+  #   cpu: 16
+  #   memory: 16Gi
+  #   hugepages-1Gi: 8Gi
 
 nodeSelector: {}
-#   kubernetes.io/hostname: hp-oran
+  # kubernetes.io/hostname: node1
 
 tolerations: {}
   # - key: "purpose"

@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: 166552988672.dkr.ecr.eu-west-1.amazonaws.com/ci/srsgnb_k8s/linuxptp
+  repository: softwareradiosystems/linuxptp-agent
   pullPolicy: IfNotPresent
   tag: "v4.1_1.0.2"
 
@@ -28,16 +28,16 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources:
-  limits:
-    cpu: 16
-    memory: 32Gi
-  requests:
-    cpu: 16
-    memory: 32Gi
+resources: {}
+  # limits:
+  #   cpu: 1
+  #   memory: 500Mi
+  # requests:
+  #   cpu: 1
+  #   memory: 500Mi
 
 nodeSelector: {}
-  # kubernetes.io/hostname: sdr6
+  # kubernetes.io/hostname: node1
 
 tolerations: {}
   # - key: "purpose"
