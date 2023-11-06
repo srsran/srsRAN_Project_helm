@@ -21,15 +21,15 @@ ru_ofh:
   iq_scaling: 1.0                                                 # IQ samples scaling factor applied before compression, should be a positive value smaller than 1.
   ignore_ecpri_payload_size: true
   cells:
-    - network_interface: enp4s0f0
+    - network_interface: enp1s0f0
       ru_mac_addr: 6c:ad:ad:00:08:c0
       du_mac_addr: 80:61:5f:09:04:86
       vlan_tag: 2                                                 # VLAN tag value.
       prach_port_id: [4, 5, 6, 7]                                 # PRACH eAxC port values.
-      dl_port_id: [0, 1]                                    # Downlink eAxC port values.
+      dl_port_id: [0, 1, 2, 3]                                    # Downlink eAxC port values.
       ul_port_id: [0, 1, 2, 3]                                    # Uplink eAxC port values.
-hal:                                                              # HAL configuration.
-  eal_args: "--lcores (0-1)@(1-7,9-15)"                               # EAL configuration parameters used to initialize DPDK.
+# hal:                                                              # HAL configuration.
+#   eal_args: "--lcores (0-1)@(1-7,9-15)"                               # EAL configuration parameters used to initialize DPDK.
 
 cu_cp:
   rrc:
@@ -43,8 +43,8 @@ cell_cfg:
   plmn: "00101"                                                   # PLMN broadcasted by the gNB.
   tac: 1                                                          # Tracking area code (needs to match the core configuration).
   pci: 0                                                         # Physical cell ID.
-  nof_antennas_dl: 2
-  nof_antennas_ul: 1
+  nof_antennas_dl: 4
+  nof_antennas_ul: 4
   prach:
     prach_config_index: 159                                       # PRACH configuration index.
     prach_root_sequence_index: 1                                  # PRACH root sequence index.
