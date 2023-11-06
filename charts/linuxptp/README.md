@@ -1,53 +1,48 @@
-# LinuxPTP Helm Chart
+# linuxptp-agent
 
-This Helm chart allows you to easily deploy a LinuxPTP container on your Kubernetes cluster. LinuxPTP is a Linux-based Precision Time Protocol (PTP) implementation that can be used to synchronize the clocks of networked computers.
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
-## Prerequisites
-
-Before you begin, ensure you have met the following requirements:
-
-- Kubernetes cluster up and running.
-- Helm installed on your local machine and initialized in your cluster.
-- [LinuxPTP](http://linuxptp.sourceforge.net/) container image or source code available.
+A Helm chart for Linuxptp Agent
 
 ## Installing the Chart
 
-To install the LinuxPTP Helm chart, follow these steps:
+To install the chart with the release name `my-release`:
 
-1. Clone this GitHub repository to your local machine or download the chart files directly.
+```console
+cd charts/linuxptp
+helm install my-release ./
+```
 
-2. Navigate to the directory containing the Helm chart:
+## Uninstalling the Chart
 
-   ```shell
-   cd path/to/linuxptp-helm-chart
+To uninstall/delete the my-release deployment:
 
-3. Install the Helm chart with a release name of your choice. Replace my-linuxptp-release with your desired release name:
+```console
+helm delete my-release
+```
 
-    ```shell
-    helm install my-linuxptp-release ./ -n default
-
-
-## Configuration
-
-
-Before a deployment you need to adjust the default values of the chart. You can override these values by providing a `values.yaml` file or by specifying them using the `--set` flag when installing the chart.
+The command removes all the Kubernetes components associated with the chart and deletes the release.
 
 
-For example, to override the default image repository and tag, create a `values.yaml` file with the following content:
+## Values
 
-    ```yaml
-    image:
-        repository: 166552988672.dkr.ecr.eu-west-1.amazonaws.com/ci/srsgnb_k8s/linuxptp
-        tag: v4.1_1.0.0
-
-Then, install the chart with your custom values:
-    ```shell
-    helm install my-linuxptp-release ./ -f values.yaml
-
-For an overview of available tags have a look here: https://eu-west-1.console.aws.amazon.com/ecr/repositories/private/166552988672/ci/srsgnb_k8s/linuxptp?region=eu-west-1
-
-
-## Additional Resources
-
-- [LinuxPTP Documentation](http://linuxptp.sourceforge.net/)
-- [Helm Documentation](https://helm.sh/docs/)
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| affinity | object | `{}` | Pod affinity configuration |
+| annotations | object | `{}` | Annotations for the Deployment |
+| securityContext | object | `{}` | Container security context (allowPrivilegeEscalation, etc.) |
+| fullnameOverride | string | `""` | Overrides the chart's computed fullname |
+| interfaceName | string | `{}` | Name of the interface to be used for ptp4l |
+| image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| image.pullSecrets | list | `[]` | Image pull secrets |
+| image.repository | string | `"srsran/linuxptp-agent"` | Image repository |
+| image.tag | string | `"v0.1.0"` | Image tag |
+| nameOverride | string | `""` | Overrides the chart's name |
+| nodeSelector | object | `{}` | nodeSelector configuration |
+| podAnnotations | object | `{}` | Annotations for the Deployment Pods |
+| podSecurityContext | object | `{}` | Pod security context (runAsUser, etc.) |
+| resources | object | `{}` | Resource limits and requests config |
+| serviceAccount.annotations | object | `{}` | Annotations for service account |
+| serviceAccount.create | bool | `true` | Toggle to create ServiceAccount |
+| serviceAccount.name | string | `nil` | Service account name |
+| tolerations | list | `[]` | Tolerations applied to Pods |
