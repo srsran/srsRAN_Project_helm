@@ -24,8 +24,8 @@ RUN git clone https://github.com/EttusResearch/uhd &&\
     ldconfig
 
 ### Build srsGNB
-COPY srsgnb /builder/srsgnb
-RUN cd /builder/srsgnb && \
+RUN mkdir -p /builder && \
+    git clone https://github.com/srsran/srsRAN_Project /builder/srsran && \
     mkdir -p /builder/srsgnb/build /opt/srsgnb && \
     cd build && \
     cmake -DBUILD_TESTS=False -DCMAKE_INSTALL_PREFIX=/opt/srsgnb -DUHD_ENABLE=ON ${EXTRA_CMAKE_ARGS} ../ && \
