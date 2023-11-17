@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: softwareradiosystems/linuxptp-agent
+  repository: 166552988672.dkr.ecr.eu-west-1.amazonaws.com/ci/srsgnb_k8s/linuxptp
   pullPolicy: IfNotPresent
   tag: "v4.1_1.0.2"
 

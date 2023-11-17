@@ -46,3 +46,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | serviceAccount.create | bool | `true` | Toggle to create ServiceAccount |
 | serviceAccount.name | string | `nil` | Service account name |
 | tolerations | list | `[]` | Tolerations applied to Pods |
+| config | section | `[]` | Configuration for the linuxptp daemon |
+
+For more information about the values of the config sectoin please refer to the  [LinuxPTP Documentation](https://linuxptp.nwtime.org/documentation/default/).
