@@ -3,11 +3,130 @@ kind: ConfigMap
 metadata:
   name: linuxptp-configmap
 data:
-  linuxptp.cfg: {{ tpl (.Files.Get "linuxptp.cfg") . | quote }}
+  linuxptp.cfg: |
+    [global]
+    #
+    # Default Data Set
+    #
+    twoStepFlag             {{ .Values.config.twoStepFlag | default 1 }}
+    clientOnly              {{ .Values.config.clientOnly | default 0 }}
+    socket_priority         {{ .Values.config.socket_priority | default 0 }}
+    priority1               {{ .Values.config.priority1 | default 128 }}
+    priority2               {{ .Values.config.priority2 | default 128 }}
+    domainNumber            {{ .Values.config.domainNumber | default 0 }}
+    clockClass              {{ .Values.config.clockClass | default 248 }}
+    clockAccuracy           {{ .Values.config.clockAccuracy | default "0xFE" }}
+    offsetScaledLogVariance {{ .Values.config.offsetScaledLogVariance | default "0xFFFF" }}
+    free_running            {{ .Values.config.free_running | default 0 }}
+    freq_est_interval       {{ .Values.config.freq_est_interval | default 1 }}
+    dscp_event              {{ .Values.config.dscp_event | default 0 }}
+    dscp_general            {{ .Values.config.dscp_general | default 0 }}
+    dataset_comparison      {{ .Values.config.dataset_comparison | default "ieee1588" }}
+    maxStepsRemoved         {{ .Values.config.maxStepsRemoved | default 255 }}
+    #
+    # Port Data Set
+    #
+    logAnnounceInterval     {{ .Values.config.logAnnounceInterval | default 1 }}
+    logSyncInterval         {{ .Values.config.logSyncInterval | default 0 }}
+    operLogSyncInterval     {{ .Values.config.operLogSyncInterval | default 0 }}
+    logMinDelayReqInterval  {{ .Values.config.logMinDelayReqInterval | default 0 }}
+    logMinPdelayReqInterval {{ .Values.config.logMinPdelayReqInterval | default 0 }}
+    operLogPdelayReqInterval {{ .Values.config.operLogPdelayReqInterval | default 0 }}
+    announceReceiptTimeout  {{ .Values.config.announceReceiptTimeout | default 3 }}
+    syncReceiptTimeout      {{ .Values.config.syncReceiptTimeout | default 0 }}
+    delay_response_timeout  {{ .Values.config.delay_response_timeout | default 0 }}
+    delayAsymmetry          {{ .Values.config.delayAsymmetry | default 0 }}
+    fault_reset_interval    {{ .Values.config.fault_reset_interval | default 4 }}
+    neighborPropDelayThresh {{ .Values.config.neighborPropDelayThresh | default 20000000 }}
+    serverOnly              {{ .Values.config.serverOnly | default 0 }}
+    asCapable               {{ .Values.config.asCapable | default "auto" }}
+    BMCA                    {{ .Values.config.BMCA | default "ptp" }}
+    inhibit_announce        {{ .Values.config.inhibit_announce | default 0 }}
+    inhibit_delay_req       {{ .Values.config.inhibit_delay_req | default 0 }}
+    ignore_source_id        {{ .Values.config.ignore_source_id | default 0 }}
+    #
+    # Run time options
+    #
+    assume_two_step         {{ .Values.config.assume_two_step | default 0 }}
+    logging_level           {{ .Values.config.logging_level | default 6 }}
+    path_trace_enabled      {{ .Values.config.path_trace_enabled | default 0 }}
+    follow_up_info          {{ .Values.config.follow_up_info | default 0 }}
+    hybrid_e2e              {{ .Values.config.hybrid_e2e | default 0 }}
+    inhibit_multicast_service       {{ .Values.config.inhibit_multicast_service | default 0 }}
+    net_sync_monitor        {{ .Values.config.net_sync_monitor | default 0 }}
+    tc_spanning_tree        {{ .Values.config.tc_spanning_tree | default 0 }}
+    tx_timestamp_timeout    {{ .Values.config.tx_timestamp_timeout | default 10 }}
+    unicast_listen          {{ .Values.config.unicast_listen | default 0 }}
+    unicast_master_table    {{ .Values.config.unicast_master_table | default 0 }}
+    unicast_req_duration    {{ .Values.config.unicast_req_duration | default 3600 }}
+    use_syslog              {{ .Values.config.use_syslog | default 1 }}
+    verbose                 {{ .Values.config.verbose | default 0 }}
+    summary_interval        {{ .Values.config.summary_interval | default 0 }}
+    kernel_leap             {{ .Values.config.kernel_leap | default 1 }}
+    check_fup_sync          {{ .Values.config.check_fup_sync | default 0 }}
+    clock_class_threshold   {{ .Values.config.clock_class_threshold | default 248 }}
+    #
+    # Servo Options
+    #
+    pi_proportional_const   {{ .Values.config.pi_proportional_const | default 0.0 }}
+    pi_integral_const       {{ .Values.config.pi_integral_const | default 0.0 }}
+    pi_proportional_scale   {{ .Values.config.pi_proportional_scale | default 0.0 }}
+    pi_proportional_exponent        {{ .Values.config.pi_proportional_exponent | default -0.3 }}
+    pi_proportional_norm_max        {{ .Values.config.pi_proportional_norm_max | default 0.7 }}
+    pi_integral_scale       {{ .Values.config.pi_integral_scale | default 0.0 }}
+    pi_integral_exponent    {{ .Values.config.pi_integral_exponent | default 0.4 }}
+    pi_integral_norm_max    {{ .Values.config.pi_integral_norm_max | default 0.3 }}
+    step_threshold          {{ .Values.config.step_threshold | default 0.0 }}
+    first_step_threshold    {{ .Values.config.first_step_threshold | default 0.00002 }}
+    max_frequency           {{ .Values.config.max_frequency | default 900000000 }}
+    clock_servo             {{ .Values.config.clock_servo | default "pi" }}
+    sanity_freq_limit       {{ .Values.config.sanity_freq_limit | default 200000000 }}
+    refclock_sock_address   {{ .Values.config.refclock_sock_address | default "/var/run/refclock.ptp.sock" }}
+    ntpshm_segment          {{ .Values.config.ntpshm_segment | default 0 }}
+    msg_interval_request    {{ .Values.config.msg_interval_request | default 0 }}
+    servo_num_offset_values {{ .Values.config.servo_num_offset_values | default 10 }}
+    servo_offset_threshold  {{ .Values.config.servo_offset_threshold | default 0 }}
+    write_phase_mode        {{ .Values.config.write_phase_mode | default 0 }}
+    #
+    # Transport options
+    #
+    transportSpecific       {{ .Values.config.transportSpecific | default 0x0 }}
+    ptp_dst_mac             {{ .Values.config.ptp_dst_mac | default "01:1B:19:00:00:00" }}
+    p2p_dst_mac             {{ .Values.config.p2p_dst_mac | default "01:80:C2:00:00:0E" }}
+    udp_ttl                 {{ .Values.config.udp_ttl | default 1 }}
+    udp6_scope              {{ .Values.config.udp6_scope | default 0x0E }}
+    uds_address             {{ .Values.config.uds_address | default "/var/run/ptp4l" }}
+    uds_file_mode           {{ .Values.config.uds_file_mode | default "0660" }}
+    uds_ro_address          {{ .Values.config.uds_ro_address | default "/var/run/ptp4lro" }}
+    uds_ro_file_mode        {{ .Values.config.uds_ro_file_mode | default 0666 }}
+    #
+    # Default interface options
+    #
+    clock_type              {{ .Values.config.clock_type | default "OC" }}
+    network_transport       {{ .Values.config.network_transport | default "UDPv4" }}
+    delay_mechanism         {{ .Values.config.delay_mechanism | default "E2E" }}
+    time_stamping           {{ .Values.config.time_stamping | default "hardware" }}
+    tsproc_mode             {{ .Values.config.tsproc_mode | default "filter" }}
+    delay_filter            {{ .Values.config.delay_filter | default "moving_median" }}
+    delay_filter_length     {{ .Values.config.delay_filter_length | default 10 }}
+    egressLatency           {{ .Values.config.egressLatency | default 0 }}
+    ingressLatency          {{ .Values.config.ingressLatency | default 0 }}
+    boundary_clock_jbod     {{ .Values.config.boundary_clock_jbod | default 0 }}
+    phc_index               {{ .Values.config.phc_index | default -1 }}
+    #
+    # Clock description
+    #
+    productDescription      {{ .Values.config.productDescription | default ";;" }}
+    revisionData            {{ .Values.config.revisionData | default ";;" }}
+    manufacturerIdentity    {{ .Values.config.manufacturerIdentity | default "00:00:00" }}
+    userDescription         {{ .Values.config.userDescription | default ";" }}
+    timeSource              {{ .Values.config.timeSource | default 0xA0 }}
+
+
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: linuxptp-entrypoint-configmap
 data:
-  entrypoint.sh: {{ tpl (.Files.Get "entrypoint.sh") . | quote }}
+  entrypoint.sh: {{ tpl (.Files.Get "resources/entrypoint.sh") . | quote | default 000 }}
