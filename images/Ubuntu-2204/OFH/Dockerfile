@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:22.04 as builder
 
 ARG DPDK_VERSION=dpdk-23.07
 ARG EXTRA_CMAKE_ARGS=""
@@ -11,21 +11,32 @@ RUN apt-get update && apt-get install -y \
     pip3 install meson ninja pyelftools
 
 ### Install DPDK 23.07 LTS
-RUN mkdir -p /opt/dpdk && cd /opt/dpdk && \
-    curl -L "https://fast.dpdk.org/rel/${DPDK_VERSION}.tar.xz" | tar xJf - && \
+WORKDIR /builder/dpdk
+RUN curl -L "https://fast.dpdk.org/rel/${DPDK_VERSION}.tar.xz" | tar xJf - && \
     cd dpdk-23.07 && \
     meson setup build && \
     cd build && \
     ninja && \
-    meson install && \
-    ldconfig
+    DESTDIR=/builder/dpdk/dpdk-build meson install
 
 ### Build srsRAN Project
-RUN mkdir -p /builder && \
-    git clone https://github.com/srsran/srsRAN_Project /builder/srsran && \
-    cd /builder/srsran && \
-    mkdir -p /builder/srsran/build /opt/srsran && \
+WORKDIR /builder/srs
+RUN git clone https://github.com/srsran/srsRAN_Project srsran && \
+    cd srsran && \
+    mkdir -p ./build && \
     cd build && \
-    cmake -DBUILD_TESTS=False -DCMAKE_INSTALL_PREFIX=/opt/srsran -DENABLE_DPDK=ON ${EXTRA_CMAKE_ARGS} ../ && \
-    make -j`nproc` && make -j`nproc` install && \
-    ln -s /builder/srsran/build/apps/gnb/gnb /usr/bin/gnb
+    cmake -DBUILD_TESTS=False -DCMAKE_INSTALL_PREFIX=/builder/srs/srsran-build -DENABLE_DPDK=ON ${EXTRA_CMAKE_ARGS} ../ && \
+    make -j `nproc` && make -j `nproc` install
+
+FROM ubuntu:22.04
+
+COPY --from=builder /builder/srs/srsran-build /usr/local
+COPY --from=builder /builder/dpdk/dpdk-build/usr/local /usr/local
+
+### Install dependencies
+RUN apt-get update && apt-get install -y \
+    libfftw3-dev libmbedtls-dev libsctp-dev iproute2 \
+    libyaml-cpp-dev libnuma-dev python3-pip pciutils && \
+    apt clean && \
+    pip3 install pyelftools && \
+    ldconfig
