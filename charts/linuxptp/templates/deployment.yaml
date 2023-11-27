@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "linuxptp.fullname" . }}
+  name: {{ include "linuxptp.fullname" . }}-ptp4l
   labels:
     {{- include "linuxptp.labels" . | nindent 4 }}
 spec:
@@ -29,6 +29,12 @@ spec:
           configMap:
             name: linuxptp-entrypoint-configmap
             defaultMode: 0777
+        - name: phc2sys-volume
+          hostPath:
+            path: /dev
+        - name: ptp4l-run-volume
+          hostPath:
+            path: "/var/run"
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -37,12 +43,95 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: ["/etc/entrypoint/entrypoint.sh", {{ .Values.interfaceName }}]
+          command: [ "/usr/local/sbin/ptp4l" ]
+          args: [ "-2", "-i", "{{ .Values.interfaceName }}", "-f", "/etc/config/linuxptp.cfg", "-m" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
             - name: entrypoint-volume
               mountPath: /etc/entrypoint
+            - name: phc2sys-volume
+              mountPath: /dev
+              readOnly: false
+            - name: ptp4l-run-volume
+              mountPath: "/var/run"
+              readOnly: false
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "linuxptp.fullname" . }}-phc2sys
+  labels:
+    {{- include "linuxptp.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "linuxptp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "linuxptp.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "linuxptp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostNetwork: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: linuxptp-configmap
+        - name: entrypoint-volume
+          configMap:
+            name: linuxptp-entrypoint-configmap
+            defaultMode: 0777
+        - name: phc2sys-volume
+          hostPath:
+            path: /dev
+        - name: ptp4l-run-volume
+          hostPath:
+            path: /var/run
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          command: [ "/usr/local/sbin/phc2sys" ]
+          args: [ "-s" ,"{{ .Values.interfaceName }}", "-w", "-m", "-R 8", "-f", "/etc/config/linuxptp.cfg" ]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: entrypoint-volume
+              mountPath: /etc/entrypoint
+            - name: phc2sys-volume
+              mountPath: /dev
+              readOnly: false
+            - name: ptp4l-run-volume
+              mountPath: /var/run
+              readOnly: false
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
