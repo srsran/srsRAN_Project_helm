@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: 166552988672.dkr.ecr.eu-west-1.amazonaws.com/ci/srsgnb_k8s/linuxptp
+  repository: ninjab3s/linuxptp
   pullPolicy: IfNotPresent
-  tag: "v4.1_1.0.2"
+  tag: "v4.1_1.0.7"
 
 imagePullSecrets:
   - name: regcred
@@ -14,7 +14,7 @@ fullnameOverride: "linuxptp-chart"
 serviceAccount:
   create: true
   annotations: {}
-  name: "srsadmin"
+  name: "srsadmin-gnb"
 
 podAnnotations: {}
 
@@ -47,7 +47,22 @@ tolerations: {}
 
 affinity: {}
 
-interfaceName: "enp1s0f1"
+interfaceName: "ens3f1np1"
+
+startupProbe:
+  enabled: true
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 5
 
 config:
   dataset_comparison: "G.8275.x"
