@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "linuxptp.fullname" . }}-ptp4l
+  name: {{ include "linuxptp.fullname" . }}
   labels:
     {{- include "linuxptp.labels" . | nindent 4 }}
 spec:
@@ -25,113 +25,104 @@ spec:
         - name: config-volume
           configMap:
             name: linuxptp-configmap
-        - name: entrypoint-volume
+        - name: entrypoint-volume-phc2sys
           configMap:
-            name: linuxptp-entrypoint-configmap
+            name: linuxptp-phc2sys-entrypoint-configmap
             defaultMode: 0777
-        - name: phc2sys-volume
-          hostPath:
-            path: /dev
         - name: ptp4l-run-volume
           hostPath:
             path: "/var/run"
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-ptp4l
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: [ "/usr/local/sbin/ptp4l" ]
+          # command: [ "/etc/entrypoint/entrypoint-ptp4l.sh" ]
+          # args: [ "{{ .Values.interfaceName }}" ]
+          command: [ "/usr/local/bin/ptp4l" ]
           args: [ "-2", "-i", "{{ .Values.interfaceName }}", "-f", "/etc/config/linuxptp.cfg", "-m" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
-            - name: entrypoint-volume
-              mountPath: /etc/entrypoint
-            - name: phc2sys-volume
-              mountPath: /dev
-              readOnly: false
             - name: ptp4l-run-volume
               mountPath: "/var/run"
               readOnly: false
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
----
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "linuxptp.fullname" . }}-phc2sys
-  labels:
-    {{- include "linuxptp.labels" . | nindent 4 }}
-spec:
-  selector:
-    matchLabels:
-      {{- include "linuxptp.selectorLabels" . | nindent 6 }}
-  template:
-    metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      labels:
-        {{- include "linuxptp.selectorLabels" . | nindent 8 }}
-    spec:
-      serviceAccountName: {{ include "linuxptp.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      hostNetwork: true
-      volumes:
-        - name: config-volume
-          configMap:
-            name: linuxptp-configmap
-        - name: entrypoint-volume
-          configMap:
-            name: linuxptp-entrypoint-configmap
-            defaultMode: 0777
-        - name: phc2sys-volume
-          hostPath:
-            path: /dev
-        - name: ptp4l-run-volume
-          hostPath:
-            path: /var/run
-      containers:
-        - name: {{ .Chart.Name }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/liveness-ptp4l.sh 
+              - "25"  # max rms 25ns
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            exec:
+              command:
+              - /usr/local/bin/liveness-ptp4l.sh
+              - "25"  # max rms 25ns
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/liveness-ptp4l.sh 
+              - "25"  # max rms 25ns
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          {{- end }}
+        - name: {{ .Chart.Name }}-phc2sys
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: [ "/usr/local/sbin/phc2sys" ]
-          args: [ "-s" ,"{{ .Values.interfaceName }}", "-w", "-m", "-R 8", "-f", "/etc/config/linuxptp.cfg" ]
+          command: [ "/etc/entrypoint/entrypoint-phc2sys.sh" ]
+          args: [ "{{ .Values.interfaceName }}" ]
+          # command: [ "/usr/local/bin/phc2sys" ]
+          # args: [ "-s" ,"{{ .Values.interfaceName }}", "-w", "-m", "-R 8", "-f", "/etc/config/linuxptp.cfg" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
-            - name: entrypoint-volume
+            - name: entrypoint-volume-phc2sys
               mountPath: /etc/entrypoint
-            - name: phc2sys-volume
-              mountPath: /dev
-              readOnly: false
             - name: ptp4l-run-volume
-              mountPath: /var/run
+              mountPath: "/var/run"
               readOnly: false
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/phc2sys-healthy
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/phc2sys-healthy
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/phc2sys-healthy
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

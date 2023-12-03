@@ -121,12 +121,10 @@ data:
     manufacturerIdentity    {{ .Values.config.manufacturerIdentity | default "00:00:00" }}
     userDescription         {{ .Values.config.userDescription | default ";" }}
     timeSource              {{ .Values.config.timeSource | default 0xA0 }}
-
-
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: linuxptp-entrypoint-configmap
+  name: linuxptp-phc2sys-entrypoint-configmap
 data:
-  entrypoint.sh: {{ tpl (.Files.Get "resources/entrypoint.sh") . | quote | default 000 }}
+  entrypoint-phc2sys.sh: {{ tpl (.Files.Get "resources/entrypoint-phc2sys.sh") . | quote | default 000 }}
