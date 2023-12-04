@@ -39,11 +39,13 @@ resources: {}
 nodeSelector: {}
   # kubernetes.io/hostname: node1
 
-tolerations: {}
-  # - key: "purpose"
-  #   value: "retina"
-  #   operator: "Equal"
-  #   effect: "NoSchedule"
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoExecute
+    operator: Exists
 
 affinity: {}
 
