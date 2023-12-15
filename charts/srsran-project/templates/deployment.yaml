@@ -44,7 +44,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: ["gnb", "-c", "/etc/config/gnb-config.yml"]
+          command: [ "gnb" ]
+          args: [ "-c", "/etc/config/gnb-config.yml", "--autostart_stdout_metrics" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
