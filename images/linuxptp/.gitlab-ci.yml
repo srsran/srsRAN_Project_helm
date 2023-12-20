@@ -27,6 +27,7 @@ stages:
     BUILD_ARGS: "LINUXPTP_VERSION=${LINUXPTP_VERSION}"
     NAME: linuxptp
     MULTI_ARCH_BUILD: "true"
+    IMAGE_NAME: ${PUBLIC_CT_REGISTRY_URI}/linuxptp:${VERSION}
   parallel:
     matrix:
       - PLATFORM: ["arm64", "amd64"]
@@ -61,7 +62,7 @@ docker manifest ubuntu 22.04:
   script:
     - |
       docker manifest create \
-        ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION} \
-        --amend ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION}-amd64 \
-        --amend ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION}-arm64
-      docker manifest push ${CR_REGISTRY_URI}${CI_PROJECT_NAMESPACE#'softwareradiosystems'}/${CI_PROJECT_NAME}/linuxptp:${VERSION}
+        ${PUBLIC_CT_REGISTRY_URI}/linuxptp:${VERSION} \
+        --amend ${PUBLIC_CT_REGISTRY_URI}/linuxptp:${VERSION}-amd64 \
+        --amend ${PUBLIC_CT_REGISTRY_URI}/linuxptp:${VERSION}-arm64
+      docker manifest push ${PUBLIC_CT_REGISTRY_URI}/linuxptp:${VERSION}
