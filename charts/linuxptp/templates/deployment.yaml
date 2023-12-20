@@ -49,8 +49,6 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          # command: [ "/etc/entrypoint/entrypoint-ptp4l.sh" ]
-          # args: [ "{{ .Values.interfaceName }}" ]
           command: [ "/usr/local/bin/ptp4l" ]
           args: [ "-2", "-i", "{{ .Values.interfaceName }}", "-f", "/etc/config/linuxptp.cfg", "-m" ]
           volumeMounts:
