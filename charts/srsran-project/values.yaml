@@ -9,7 +9,8 @@
 replicaCount: 1
 
 image:
-  repository: 166552988672.dkr.ecr.eu-west-1.amazonaws.com/ci/srsgnb_k8s/srsran-project
+  # Check https://hub.docker.com/u/softwareradiosystems for available images
+  repository: softwareradiosystems/srsran-project-ub-2204
   pullPolicy: IfNotPresent
   tag: "2023.5_dpdk-23.07_avx512_1.0.2-amd64"
 
