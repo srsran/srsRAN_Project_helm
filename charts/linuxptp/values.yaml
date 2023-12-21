@@ -11,7 +11,7 @@ replicaCount: 1
 image:
   repository: softwareradiosystems/linuxptp
   pullPolicy: IfNotPresent
-  tag: "v4.1_1.0.7"
+  tag: "v4.1_1.0.3"
 
 imagePullSecrets:
   - name: regcred
