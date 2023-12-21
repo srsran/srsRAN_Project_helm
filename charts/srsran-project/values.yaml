@@ -12,7 +12,7 @@ image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
   repository: ninjab3s/srsran-5g-gnb
   pullPolicy: IfNotPresent
-  tag: "preskit"
+  tag: "2023.11_dpdk-23.07_avx2_1.0.3-amd64"
 
 imagePullSecrets:
   - name: regcred
