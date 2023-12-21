@@ -12,7 +12,16 @@ image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
   repository: ninjab3s/srsran-5g-gnb
   pullPolicy: IfNotPresent
-  tag: "2023.11_dpdk-23.07_avx2_1.0.3-amd64"
+  tag: "oran-worker6"
+
+nodeSelector:
+  kubernetes.io/hostname: oran-worker0
+
+tolerations:
+  - key: "purpose"
+    value: "manual-testing"
+    operator: "Equal"
+    effect: "NoSchedule"
 
 imagePullSecrets:
   - name: regcred
@@ -33,38 +42,43 @@ securityContext:
   capabilities:
     add: ["SYS_NICE", "NET_ADMIN"]
   privileged: true
+  hostNetwork: true
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources: {}
-  # limits:
-  #   cpu: 12
-  #   memory: 16Gi
-  #   hugepages-1Gi: 2Gi
-  # requests:
-  #   cpu: 12
-  #   memory: 16Gi
-  #   hugepages-1Gi: 2Gi
-
-nodeSelector: {}
-  # kubernetes.io/hostname: node1
-
-tolerations: {}
-  # - key: "purpose"
-  #   value: "manual-testing"
-  #   operator: "Equal"
-  #   effect: "NoSchedule"
+resources:
+  limits:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 4Gi
+  requests:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 4Gi
 
 affinity: {}
 
-config:
-  gnb_id: 1                             # Optional UINT (411). Sets the numerical ID associated with the gNB.
-  # gnb_id_bit_length:                      # Optional UNIT. Sets the bit length of the gnb_id above. Format: integer between [22 - 32]
+# externalConnectivity:
+#   instance: srsran-cudu-ext
+#   type: LoadBalancer
+#   ports:
+#     ngap:
+#       port: 38412
+#       protocol: SCTP
+#     n3:
+#       port: 2152
+#       protocol: UDP
 
+config:
   amf:
-    addr: 10.233.3.84                                              # The address or hostname of the AMF.
-    bind_addr: 127.0.0.1                                            # A local IP that the gNB binds to for traffic from the AMF.
+    addr: 10.233.18.96                                              # The address or hostname of the AMF.
+    bind_addr: 192.168.1.86                                         # A local IP that the gNB binds to for traffic from the AMF. Will be replaced by Helm with the IP of the container!
+  
+  slicing:                                                          # Optional TEXT. Configure network slicing options. This can only be set via the configuration file.
+    -
+      sst: 1                                                        # Optional UINT (1). Sets the Slice Service Type. Supported: [0 - 255].
+      sd: "0x1"       
 
   ru_ofh:
     ru_bandwidth_MHz: 100                                           # RU instantaneous bandwidth.
@@ -85,15 +99,16 @@ config:
     compr_bitwidth_prach: 9                                         # PRACH IQ samples bitwidth after compression.
     enable_ul_static_compr_hdr: true                                # Configures if the compression header is present for uplink User-Plane messages (false) or not present (true).
     enable_dl_static_compr_hdr: true                                # Configures if the compression header is present for downlink User-Plane messages (false) or not present (true).
-    iq_scaling: 5.5                                                # IQ samples scaling factor applied before compression, should be a positive value smaller than 10.
+    iq_scaling: 5.5                                                 # IQ samples scaling factor applied before compression, should be a positive value smaller than 10.
     cells:
-      network_interface: enp1s0f0                                 # Ethernet interface name used to communicate with the RU.
-      ru_mac_addr: 70:b3:d5:e1:5b:06                              # RU MAC address.
-      du_mac_addr: 80:61:5f:0d:df:aa                              # DU MAC address.
-      vlan_tag: 5                                                 # VLAN tag value.
-      prach_port_id: [4]                                          # PRACH eAxC port value.
-      dl_port_id: [0, 1]                                          # Downlink eAxC port values.
-      ul_port_id: [0, 1]                                          # Uplink eAxC port values.
+    -  network_interface: enp8s0f0                                  # Ethernet interface name used to communicate with the RU.
+       ru_mac_addr: 70:b3:d5:e1:5b:06                               # RU MAC address.
+       du_mac_addr: 80:61:5f:0d:df:aa                               # DU MAC address.
+       vlan_tag_up: 2                                               # VLAN tag used for uplink traffic.
+       vlan_tag_cp: 2                                               # VLAN tag used for control-plane traffic.
+       prach_port_id: "[4]"                                           # PRACH eAxC port value.
+       dl_port_id: "[0, 1]"                                           # Downlink eAxC port values.
+       ul_port_id: "[0, 1]"                                           # Uplink eAxC port values.
 
   cell_cfg:
     dl_arfcn: 637212                                                # ARFCN of the downlink carrier (center frequency).
@@ -101,7 +116,7 @@ config:
     channel_bandwidth_MHz: 100                                      # Bandwith in MHz. Number of PRBs will be automatically derived.
     common_scs: 30                                                  # Subcarrier spacing in kHz used for data.
     plmn: "00101"                                                   # PLMN broadcasted by the gNB.
-    tac: 7                                                          # Tracking area code (needs to match the core configuration).
+    tac: 1                                                          # Tracking area code (needs to match the core configuration).
     pci: 1                                                          # Physical cell ID.
     nof_antennas_dl: 2                                              # Downlink number of antennas.
     nof_antennas_ul: 2                                              # Uplink number of anntennas.
@@ -110,6 +125,8 @@ config:
       prach_root_sequence_index: 1                                  # PRACH root sequence index.
       zero_correlation_zone: 0                                      # Zero correlation zone.
       prach_frequency_start: 0                                      # Offset in PRBs of lowest PRACH transmission occasion in frequency domain respective to PRB 0.
+
+  ru_dummy: true
 
   log:
     filename: /tmp/gnb.log                                          # Path of the log file.
@@ -120,3 +137,10 @@ config:
     mac_filename: /tmp/gnb_mac.pcap                                 # Path where the MAC PCAP is stored.
     ngap_enable: false                                              # Set to true to enable NGAP PCAPs.
     ngap_filename: /tmp/gnb_ngap.pcap                               # Path where the NGAP PCAP is stored.
+
+  metrics:
+    autostart_stdout_metrics: true                                  # Enable reporting metrics in stdout
+    enable_json_metrics: true                                       # Enable reporting metrics in JSON format
+    # addr: metrics-srsran-metrics-server.srsran                      # Metrics-server IP/Hostname
+    addr: 10.233.38.70                                             # Metrics-server IP/Hostname
+    port: 55555                                                     # Metrics-server Port

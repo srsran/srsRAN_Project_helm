@@ -1,0 +1,12 @@
+dependencies:
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 8.0.1
+- name: influxdb2
+  repository: https://helm.influxdata.com/
+  version: 2.1.2
+- name: metrics-server
+  repository: file://../metrics_server
+  version: 0.1.0
+digest: sha256:68346889d402bc94e67cfae0a7376f31ce6514a44413ffad7c2389debc28c897
+generated: "2024-06-10T13:02:27.584364309+02:00"

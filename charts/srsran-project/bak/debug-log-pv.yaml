@@ -1,0 +1,17 @@
+{{- if .Values.debugging.enabled -}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: srs-persistent-storage-pv
+  labels:
+    data: logs
+spec:
+  persistentVolumeReclaimPolicy: Retain
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    # storage: {{ .Values.debugging.storageCapacity }}
+    storage: 500Mi
+  hostPath:
+    path: {{ .Values.debugging.hostPath }}
+{{- end }}

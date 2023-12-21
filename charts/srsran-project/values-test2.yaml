@@ -1,0 +1,243 @@
+#
+# Copyright 2021-2023 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+replicaCount: 1
+
+image:
+  # Check https://hub.docker.com/u/softwareradiosystems for available images
+  repository: ninjab3s/srsran-5g-gnb
+  pullPolicy: IfNotPresent
+  tag: "oran-worker3"
+
+imagePullSecrets:
+  - name: regcred
+
+nameOverride: "srsran-project-cudu"
+fullnameOverride: "srsran-project-cudu-chart"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "srsadmin-gnb"
+
+podAnnotations: {}
+  # k8s.v1.cni.cncf.io/networks: sriov-net1
+
+podSecurityContext: {}
+
+securityContext:
+  capabilities:
+    add: ["SYS_NICE", "NET_ADMIN"]
+  privileged: true
+  hostNetwork: true
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 2Gi
+    # intel.com/intel_sriov_dpdk: 1
+  requests:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 2Gi
+    # intel.com/intel_sriov_dpdk: 1
+nodeSelector: {}
+  # kubernetes.io/hostname: node1
+
+tolerations: {}
+  # - key: "purpose"
+  #   value: "manual-testing"
+  #   operator: "Equal"
+  #   effect: "NoSchedule"
+
+affinity: {}
+
+debugging:
+  enabled: true
+  hostPath: "/mnt/srs"
+  containerPath: "/tmp"
+
+config:
+  metrics:
+    autostart_stdout_metrics: true   # Enable reporting metrics in stdout
+    enable_json_metrics: true        # Enable reporting metrics in JSON format
+    addr: 10.233.31.134               # Metrics-server IP
+    port: 55555                      # Metrics-server Port
+
+  gnb_id: 1
+  cu_cp:
+    inactivity_timer: 3000
+    pdu_session_setup_timeout: 10
+    rrc:
+      force_reestablishment_fallback: false
+  
+  buffer_pool: 
+  #  nof_segments: 1048576
+    segment_size: 4096
+  
+  cu_up: 
+    gtpu_queue_size: 32768
+    warn_on_drop: false
+    gtpu_reordering_timer: 50
+    
+  cell_cfg:
+    dl_arfcn: 640000                  # ARFCN of the downlink carrier (center frequency).
+    band: 78                          # The NR band.
+    channel_bandwidth_MHz: 100         # Bandwith in MHz. Number of PRBs will be automatically derived.
+    common_scs: 30                    # Subcarrier spacing in kHz used for data.
+    tdd_ul_dl_cfg:
+      nof_dl_symbols: 6
+      nof_ul_symbols: 4
+      nof_dl_slots: 7
+      nof_ul_slots: 2
+    plmn: "00101"                     # PLMN broadcasted by the gNB.
+    tac: 7                            # Tracking area code (needs to match the core configuration).
+    sib:
+      t301: 2000
+      t311: 3000
+    ssb:
+      ssb_period: 10
+    pucch:
+      sr_period_ms: 20
+      f1_nof_cell_res_sr: 30
+      p0_nominal: -96
+      min_k1: 2
+      max_consecutive_kos: 10000
+    ul_common:
+      max_pucchs_per_slot: 14
+      max_ul_grants_per_slot: 16
+    csi:
+      csi_rs_period: 20
+    pdsch:
+      mcs_table: qam256
+      max_pdschs_per_slot: 1
+      olla_target_bler: 0.1
+      olla_cqi_inc_step: 0.05
+      olla_max_cqi_offset: 20
+      dmrs_additional_position: 2
+      max_consecutive_kos: 10000
+    pusch:
+      mcs_table: qam64
+      p0_nominal_with_grant: -86
+      min_k2: 2
+      max_puschs_per_slot: 1
+      olla_target_bler: 0.1
+      olla_snr_inc_step: 0.05
+      olla_max_snr_offset: 30
+      max_consecutive_kos: 10000
+      dmrs_additional_position: 2
+    nof_antennas_dl: 2
+    nof_antennas_ul: 2
+    prach:
+      prach_root_sequence_index: 1
+      zero_correlation_zone: 0
+
+  ru_ofh:
+    t1a_max_cp_dl: 470                                            
+    t1a_min_cp_dl: 419                                            
+    t1a_max_cp_ul: 336                                            
+    t1a_min_cp_ul: 285                                            
+    t1a_max_up: 345                                               
+    t1a_min_up: 294
+    ta4_max: 200                                                  
+    ta4_min: 0                                                    
+    is_prach_cp_enabled: true
+    compr_method_ul: bfp
+    compr_bitwidth_ul: 9
+    compr_method_dl: bfp
+    compr_bitwidth_dl: 9
+    compr_method_prach: bfp
+    compr_bitwidth_prach: 9
+    enable_ul_static_compr_hdr: true
+    enable_dl_static_compr_hdr: true
+    iq_scaling: 8.5                                     
+    cells:                                
+    - network_interface: enp8s0f1v0
+      ru_mac_addr: 70:b3:d5:e1:5c:89      
+      du_mac_addr: 80:61:5f:0d:df:ab
+      vlan_tag_up: 6                            
+      vlan_tag_cp: 6                            
+      prach_port_id: [4,5]                   
+      dl_port_id: [0,1]                  
+      ul_port_id: [0,1]
+    - network_interface: enp8s0f1v1
+      ru_mac_addr: 70:b3:d5:e1:5c:82      
+      du_mac_addr: 80:61:5f:0d:df:a1
+      vlan_tag_up: 6                            
+      vlan_tag_cp: 6                            
+      prach_port_id: [4,5]                   
+      dl_port_id: [0,1]                  
+      ul_port_id: [0,1]
+    - network_interface: enp8s0f1v2
+      ru_mac_addr: 70:b3:d5:e1:5c:81      
+      du_mac_addr: 80:61:5f:0d:df:a2
+      vlan_tag_up: 6                            
+      vlan_tag_cp: 6                            
+      prach_port_id: [4,5]                   
+      dl_port_id: [0,1]                  
+      ul_port_id: [0,1]
+
+  cells:
+  # Foxconn 1 cell
+    - pci: 1
+      prach:
+        prach_config_index: 159
+        prach_frequency_start: 12
+      pusch:
+        p0_nominal_with_grant: -90
+      pucch:
+        p0_nominal: -96
+  
+  # Foxconn 2 cell
+    - pci: 2
+      prach:
+        prach_config_index: 159
+        prach_frequency_start: 12
+      pusch:
+        p0_nominal_with_grant: -90
+      pucch:
+        p0_nominal: -96
+        
+  # Benetel cell
+    - pci: 3
+      prach:
+        prach_config_index: 7 # Long PRACH
+        prach_frequency_start: 0
+      pusch:
+        p0_nominal_with_grant: -90
+      pucch:
+        p0_nominal: -96
+  expert_phy:
+    max_request_headroom_slots: 3
+    max_proc_delay: 6
+    pusch_dec_max_iterations: 4
+  
+  log:
+    filename: /tmp/gnb.log            # Path of the log file.
+    all_level: warning               # Logging level applied to all layers.
+  
+  test_mode:
+    test_ue:
+      rnti: 1
+      pdsch_active: true
+      pusch_active: true
+      cqi: 15
+      ri: 1
+      pmi: 0
+      i_1_1: 0
+      i_1_3: 0
+      i_2: 0
+
+  ru_dummy:
+
+  amf:
+    no_core: true

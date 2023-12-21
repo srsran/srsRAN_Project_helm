@@ -1,0 +1,12 @@
+{{- if .Values.debugging.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: srs-persistent-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.debugging.storageCapacity }}
+{{- end }}

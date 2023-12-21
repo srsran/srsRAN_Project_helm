@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cudu-svc-{{ .Values.externalConnectivity.instance }}
+  labels:
+    nf-type: cudu-{{ .Values.externalConnectivity.instance }}
+spec:
+  type: {{ .Values.externalConnectivity.type }}
+  ports:
+    - name: ngap
+      port: {{ .Values.externalConnectivity.ports.ngap.port }}
+      targetPort: {{ .Values.externalConnectivity.ports.ngap.port }}
+      protocol: {{ .Values.externalConnectivity.ports.ngap.protocol }}
+    - name: n3
+      port: {{ .Values.externalConnectivity.ports.n3.port }}
+      targetPort: {{ .Values.externalConnectivity.ports.n3.port }}
+      protocol: {{ .Values.externalConnectivity.ports.n3.protocol }}
+  selector:
+    nf-type: cudu-{{ .Values.externalConnectivity.instance }}

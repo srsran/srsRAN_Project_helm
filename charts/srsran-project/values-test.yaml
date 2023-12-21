@@ -12,7 +12,7 @@ image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
   repository: ninjab3s/srsran-5g-gnb
   pullPolicy: IfNotPresent
-  tag: "2023.11_dpdk-23.07_avx2_1.0.3-amd64"
+  tag: "3600x-3"
 
 imagePullSecrets:
   - name: regcred
@@ -26,6 +26,7 @@ serviceAccount:
   name: "srsadmin-gnb"
 
 podAnnotations: {}
+  # k8s.v1.cni.cncf.io/networks: sriov-net1
 
 podSecurityContext: {}
 
@@ -33,20 +34,22 @@ securityContext:
   capabilities:
     add: ["SYS_NICE", "NET_ADMIN"]
   privileged: true
+  hostNetwork: true
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources: {}
-  # limits:
-  #   cpu: 12
-  #   memory: 16Gi
-  #   hugepages-1Gi: 2Gi
-  # requests:
-  #   cpu: 12
-  #   memory: 16Gi
-  #   hugepages-1Gi: 2Gi
-
+resources:
+  limits:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 2Gi
+    # intel.com/intel_sriov_dpdk: 1
+  requests:
+    cpu: 12
+    memory: 16Gi
+    hugepages-1Gi: 2Gi
+    # intel.com/intel_sriov_dpdk: 1
 nodeSelector: {}
   # kubernetes.io/hostname: node1
 
@@ -58,13 +61,25 @@ tolerations: {}
 
 affinity: {}
 
-config:
-  gnb_id: 1                             # Optional UINT (411). Sets the numerical ID associated with the gNB.
-  # gnb_id_bit_length:                      # Optional UNIT. Sets the bit length of the gnb_id above. Format: integer between [22 - 32]
+debugging:
+  enabled: true
+  hostPath: "/mnt/srs"
+  containerPath: "/tmp"
 
+config:
   amf:
-    addr: 10.233.3.84                                              # The address or hostname of the AMF.
-    bind_addr: 127.0.0.1                                            # A local IP that the gNB binds to for traffic from the AMF.
+    addr: open5gs-amf-ngap.open5gs.svc.srs-k8s-lab                     # The address or hostname of the AMF.
+    bind_addr: 192.168.1.86                                            # A local IP that the gNB binds to for traffic from the AMF.
+
+  metrics:
+    autostart_stdout_metrics: true   # Enable reporting metrics in stdout
+    enable_json_metrics: true        # Enable reporting metrics in JSON format
+    addr: 10.233.63.20               # Metrics-server IP
+    port: 55555                      # Metrics-server Port
+
+  slicing:
+    - sst: 1
+      sd: 1
 
   ru_ofh:
     ru_bandwidth_MHz: 100                                           # RU instantaneous bandwidth.
@@ -87,9 +102,9 @@ config:
     enable_dl_static_compr_hdr: true                                # Configures if the compression header is present for downlink User-Plane messages (false) or not present (true).
     iq_scaling: 5.5                                                # IQ samples scaling factor applied before compression, should be a positive value smaller than 10.
     cells:
-      network_interface: enp1s0f0                                 # Ethernet interface name used to communicate with the RU.
+    - network_interface: enp8s0f1                                 # Ethernet interface name used to communicate with the RU.
       ru_mac_addr: 70:b3:d5:e1:5b:06                              # RU MAC address.
-      du_mac_addr: 80:61:5f:0d:df:aa                              # DU MAC address.
+      du_mac_addr: 00:01:ea:a3:42:8b                              # DU MAC address.
       vlan_tag: 5                                                 # VLAN tag value.
       prach_port_id: [4]                                          # PRACH eAxC port value.
       dl_port_id: [0, 1]                                          # Downlink eAxC port values.
@@ -101,7 +116,7 @@ config:
     channel_bandwidth_MHz: 100                                      # Bandwith in MHz. Number of PRBs will be automatically derived.
     common_scs: 30                                                  # Subcarrier spacing in kHz used for data.
     plmn: "00101"                                                   # PLMN broadcasted by the gNB.
-    tac: 7                                                          # Tracking area code (needs to match the core configuration).
+    tac: 1                                                          # Tracking area code (needs to match the core configuration).
     pci: 1                                                          # Physical cell ID.
     nof_antennas_dl: 2                                              # Downlink number of antennas.
     nof_antennas_ul: 2                                              # Uplink number of anntennas.
