@@ -37,15 +37,15 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
-resources:
-  limits:
-    cpu: 2
-    memory: 2Gi
-    # hugepages-1Gi: 2Gi
-  requests:
-    cpu: 2
-    memory: 2Gi
-    # hugepages-1Gi: 2Gi
+resources: {}
+  # limits:
+  #   cpu: 12
+  #   memory: 16Gi
+  #   hugepages-1Gi: 2Gi
+  # requests:
+  #   cpu: 12
+  #   memory: 16Gi
+  #   hugepages-1Gi: 2Gi
 
 nodeSelector: {}
   # kubernetes.io/hostname: node1
