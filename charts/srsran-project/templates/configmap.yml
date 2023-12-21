@@ -273,27 +273,27 @@ data:
       {{- end }}
       {{- if .Values.config.ru_ofh.cells }}
       cells:
-        - {{- if .Values.config.ru_ofh.cells.network_interface }}
-          network_interface: {{ .Values.config.ru_ofh.cells.network_interface }}
-          {{- end }}
-          {{- if .Values.config.ru_ofh.cells.ru_mac_address }}
-          ru_mac_address: {{ .Values.config.ru_ofh.cells.ru_mac_address }}
-          {{- end }}
-          {{- if .Values.config.ru_ofh.cells.du_mac_address }}
-          du_mac_address: {{ .Values.config.ru_ofh.cells.du_mac_address }}
-          {{- end }}
-          {{- if .Values.config.ru_ofh.cells.vlan_tag }}
-          vlan_tag: {{ .Values.config.ru_ofh.cells.vlan_tag }}
-          {{- end }}
-          {{- if .Values.config.ru_ofh.cells.ru_prach_port_id }}
-          ru_prach_port_id: {{ .Values.config.ru_ofh.cells.ru_prach_port_id }}
-          {{- end }}
-          {{- if .Values.config.ru_ofh.cells.ru_dl_port_id }}
-          ru_dl_port_id: {{ .Values.config.ru_ofh.cells.ru_dl_port_id }}
-          {{- end }}
-          {{- if .Values.config.ru_ofh.cells.ru_ul_port_id }}
-          ru_ul_port_id: {{ .Values.config.ru_ofh.cells.ru_ul_port_id }}
-          {{- end }}
+      - {{- if .Values.config.ru_ofh.cells.ru_mac_address }}
+        ru_mac_address: {{ .Values.config.ru_ofh.cells.ru_mac_address }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.network_interface }}
+        network_interface: {{ .Values.config.ru_ofh.cells.network_interface }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.du_mac_address }}
+        du_mac_address: {{ .Values.config.ru_ofh.cells.du_mac_address }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.vlan_tag }}
+        vlan_tag: {{ .Values.config.ru_ofh.cells.vlan_tag }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.ru_prach_port_id }}
+        ru_prach_port_id: {{ .Values.config.ru_ofh.cells.ru_prach_port_id }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.ru_dl_port_id }}
+        ru_dl_port_id: {{ .Values.config.ru_ofh.cells.ru_dl_port_id }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.ru_ul_port_id }}
+        ru_ul_port_id: {{ .Values.config.ru_ofh.cells.ru_ul_port_id }}
+        {{- end }}
       {{- end }}
     {{- end }}
 
