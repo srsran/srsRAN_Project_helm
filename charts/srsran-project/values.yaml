@@ -12,7 +12,7 @@ image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
   repository: softwareradiosystems/srsran-project-ub-2204
   pullPolicy: IfNotPresent
-  tag: "2023.5_dpdk-23.07_avx512_1.0.2-amd64"
+  tag: "2023.11_dpdk-23.07_avx2_1.0.3-amd64"
 
 imagePullSecrets:
   - name: regcred
