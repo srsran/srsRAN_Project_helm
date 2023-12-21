@@ -60,7 +60,7 @@ affinity: {}
 
 config:
   gnb_id: 1                             # Optional UINT (411). Sets the numerical ID associated with the gNB.
-  gnb_id_bit_length:                      # Optional UNIT. Sets the bit length of the gnb_id above. Format: integer between [22 - 32]
+  # gnb_id_bit_length:                      # Optional UNIT. Sets the bit length of the gnb_id above. Format: integer between [22 - 32]
 
   amf:
     addr: "127.0.0.5"                                # Required TEXT. Sets the IP address or hostname of the AMF. Format: IPV4 or IPV6 IP address.
