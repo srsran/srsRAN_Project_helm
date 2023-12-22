@@ -93,8 +93,6 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           command: [ "/etc/entrypoint/entrypoint-phc2sys.sh" ]
           args: [ "{{ .Values.interfaceName }}" ]
-          # command: [ "/usr/local/bin/phc2sys" ]
-          # args: [ "-s" ,"{{ .Values.interfaceName }}", "-w", "-m", "-R 8", "-f", "/etc/config/linuxptp.cfg" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
