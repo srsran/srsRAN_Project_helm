@@ -33,9 +33,9 @@ spec:
         - name: config-volume
           configMap:
             name: srsgnb-configmap
-        # - name: hugepage-1gi
-        #   emptyDir:
-        #     medium: HugePages-1Gi
+        - name: hugepage-1gi
+          emptyDir:
+            medium: HugePages-1Gi
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -45,13 +45,12 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: [ "gnb" ]
-          # args: [ "-c", "/etc/config/gnb-config.yml", "--autostart_stdout_metrics" ]
-          args: [ "-c", "/etc/config/gnb-config.yml" ]
+          args: [ "-c", "/etc/config/gnb-config.yml", "metrics", "--autostart_stdout_metrics", "true" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
-            # - name: hugepage-1gi
-            #   mountPath: /hugepages-1Gi
+            - name: hugepage-1gi
+              mountPath: /hugepages-1Gi
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
