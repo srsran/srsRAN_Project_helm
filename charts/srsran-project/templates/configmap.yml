@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2023 Software Radio Systems Limited
+# Copyright 2021-2024 Software Radio Systems Limited
 #
 # By using this file, you agree to the terms and conditions set
 # forth in the LICENSE file which can be found at the top level of
@@ -20,6 +20,26 @@ data:
     gnb_id_bit_length: {{ .Values.config.gnb_id_bit_length }}
     {{- end }}
 
+    {{- if .Values.config.ran_node_name }}
+    ran_node_name: {{ .Values.config.ran_node_name }}
+    {{- end }}
+
+    {{- if .Values.config.qos }}
+    qos: {{ .Values.config.qos }}
+    {{- end }}
+
+    {{- if .Values.config.srbs }}
+    srbs: {{ .Values.config.srbs }}
+    {{- end }}
+
+    {{- if .Values.config.slicing }}
+    slicing:
+      - sst: {{ .Values.config.slicing.sst }}
+        {{- if .Values.config.slicing.sd }}
+        sd: {{ .Values.config.slicing.sd }}
+        {{- end }}
+    {{- end }}
+
     {{- if .Values.config.amf }}
     amf:
       {{- if .Values.config.amf.addr }}
@@ -31,26 +51,44 @@ data:
       {{- if .Values.config.amf.bind_addr }}
       bind_addr: {{ .Values.config.amf.bind_addr }}
       {{- end }}
-      {{- if .Values.config.amf.no_core }}
-      no_core: {{ .Values.config.amf.no_core }}
+      {{- if .Values.config.amf.n2_bind_addr }}
+      n2_bind_addr: {{ .Values.config.amf.n2_bind_addr }}
       {{- end }}
-      {{- if .Values.config.sctp_rto_initial }}
+      {{- if .Values.config.amf.n2_bind_interface }}
+      n2_bind_interface: {{ .Values.config.amf.n2_bind_interface }}
+      {{- end }}
+      {{- if .Values.config.amf.n3_bind_addr }}
+      n3_bind_addr: {{ .Values.config.amf.n3_bind_addr }}
+      {{- end }}
+      {{- if .Values.config.amf.n3_bind_interface }}
+      n3_bind_interface: {{ .Values.config.amf.n3_bind_interface }}
+      {{- end }}
+      {{- if .Values.config.amf.n3_ext_addr }}
+      n3_ext_addr: {{ .Values.config.amf.n3_ext_addr }}
+      {{- end }}
+      {{- if .Values.config.amf.sctp_rto_initial }}
       sctp_rto_initial: {{ .Values.config.amf.sctp_rto_initial }}
       {{- end }}
-      {{- if .Values.config.sctp_rto_min }}
+      {{- if .Values.config.amf.sctp_rto_min }}
       sctp_rto_min: {{ .Values.config.amf.sctp_rto_min }}
       {{- end }}
-      {{- if .Values.config.sctp_rto_max }}
+      {{- if .Values.config.amf.sctp_rto_max }}
       sctp_rto_max: {{ .Values.config.amf.sctp_rto_max }}
       {{- end }}
-      {{- if .Values.config.sctp_initial_max_attempts }}
+      {{- if .Values.config.amf.sctp_initial_max_attempts }}
       sctp_initial_max_attempts: {{ .Values.config.amf.sctp_initial_max_attempts }}
       {{- end }}
-      {{- if .Values.config.sctp_max_init_timeo }}
+      {{- if .Values.config.amf.sctp_max_init_timeo }}
       sctp_max_init_timeo: {{ .Values.config.amf.sctp_max_init_timeo }}
       {{- end }}
-      {{- if .Values.config.udp_max_rx_msgs }}
+      {{- if .Values.config.amf.sctp_nodelay }}
+      sctp_nodelay: {{ .Values.config.amf.sctp_nodelay }}
+      {{- end }}
+      {{- if .Values.config.amf.udp_max_rx_msgs }}
       udp_max_rx_msgs: {{ .Values.config.amf.udp_max_rx_msgs }}
+      {{- end }}
+      {{- if .Values.config.amf.no_core }}
+      no_core: {{ .Values.config.amf.no_core }}
       {{- end }}
     {{- end }}
 
@@ -89,21 +127,19 @@ data:
       {{- end }}
     {{- end }}
 
-    {{- if .Values.config.slicing }}
-    slicing:
-      - sst: {{ .Values.config.slicing.sst }}
-        {{- if .Values.config.slicing.sd }}
-        sd: {{ .Values.config.slicing.sd }}
-        {{- end }}
-    {{- end }}
-
     {{- if .Values.config.cu_cp }}
     cu_cp:
+      {{- if .Values.config.cu_cp.max_nof_dus }}
+      max_nof_dus: {{ .Values.config.cu_cp.max_nof_dus }}
+      {{- end }}
+      {{- if .Values.config.cu_cp.max_nof_cu_ups }}
+      max_nof_cu_ups: {{ .Values.config.cu_cp.max_nof_cu_ups }}
+      {{- end }}
       {{- if .Values.config.cu_cp.inactivity_timer }}
       inactivity_timer: {{ .Values.config.cu_cp.inactivity_timer }}
       {{- end }}
-      {{- if .Values.config.cu_cp.ue_context_setup_timeout_s }}
-      ue_context_setup_timeout_s: {{ .Values.config.cu_cp.ue_context_setup_timeout_s }}
+      {{- if .Values.config.cu_cp.pdu_session_setup_timeout }}
+      pdu_session_setup_timeout: {{ .Values.config.cu_cp.pdu_session_setup_timeout }}
       {{- end }}
       {{- if .Values.config.cu_cp.mobility }}
       mobility:
@@ -192,12 +228,96 @@ data:
         {{- if .Values.config.cu_cp.security.confidentiality }}
         confidentiality: {{ .Values.config.cu_cp.security.confidentiality }}
         {{- end }}
+        {{- if .Values.config.cu_cp.security.nea_pref_list }}
+        nea_pref_list: {{ .Values.config.cu_cp.security.nea_pref_list }}
+        {{- end }}
+        {{- if .Values.config.cu_cp.security.nia_pref_list }}
+        nia_pref_list: {{ .Values.config.cu_cp.security.nia_pref_list }}
+        {{- end }}
       {{- end }}
     {{- end }}
 
     {{- if .Values.config.cu_up }}
     cu_up:
-      gtpu_queue_size: {{ .Values.config.cu_up.gtpu_queue_size }}
+      {{- if .Values.config.cu_up.gtpu_queue_size }}
+      gtpu_queue_size: {{ .Values.config.cu_up.security.gtpu_queue_size }}
+      {{- end }}
+      {{- if .Values.config.cu_up.gtpu_reordering_timer }}
+      gtpu_reordering_timer: {{ .Values.config.cu_up.security.gtpu_reordering_timer }}
+      {{- end }}
+      {{- if .Values.config.cu_up.warn_on_drop }}
+      warn_on_drop: {{ .Values.config.cu_up.warn_on_drop }}
+      {{- end }}
+    {{- end }}
+
+    {{- if .Values.config.du }}
+    du:
+      warn_on_drop: {{ .Values.config.du.warn_on_drop }}
+    {{- end }}
+
+    {{- if .Values.config.ntn }}
+    ntn:
+      {{- if .Values.config.ntn.cell_specific_koffset }}
+      cell_specific_koffset: {{ .Values.config.cu_up.security.cell_specific_koffset }}
+      {{- end }}
+      {{- if .Values.config.ntn.ta_common }}
+      ta_common: {{ .Values.config.cu_up.security.ta_common }}
+      {{- end }}
+
+      {{- if .Values.config.ntn.epoch_time }}
+      epoch_time:
+        {{- if .Values.config.ntn.epoch_time.sfn }}
+        sfn: {{ .Values.config.ntn.epoch_time.sfn }}
+        {{- end }}
+        {{- if .Values.config.ntn.epoch_time.subframe_number }}
+        subframe_number: {{ .Values.config.ntn.epoch_time.subframe_number }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.config.ntn.ephemeris_info_ecef }}
+      ephemeris_info_ecef:
+        {{- if .Values.config.ntn.ephemeris_info_ecef.pos_x }}
+        pos_x: {{ .Values.config.ntn.ephemeris_info_ecef.pos_x }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_info_ecef.pos_y }}
+        pos_y: {{ .Values.config.ntn.ephemeris_info_ecef.pos_y }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_info_ecef.pos_z }}
+        pos_z: {{ .Values.config.ntn.ephemeris_info_ecef.pos_z }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_info_ecef.vel_x }}
+        vel_x: {{ .Values.config.ntn.ephemeris_info_ecef.vel_x }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_info_ecef.vel_y }}
+        vel_y: {{ .Values.config.ntn.ephemeris_info_ecef.vel_y }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_info_ecef.vel_z }}
+        vel_z: {{ .Values.config.ntn.ephemeris_info_ecef.vel_z }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.config.ntn.ephemeris_orbital }}
+      ephemeris_orbital:
+        {{- if .Values.config.ntn.ephemeris_orbital.semi_major_axis }}
+        semi_major_axis: {{ .Values.config.ntn.ephemeris_orbital.semi_major_axis }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_orbital.eccentricity }}
+        eccentricity: {{ .Values.config.ntn.ephemeris_orbital.eccentricity }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_orbital.periapsis }}
+        periapsis: {{ .Values.config.ntn.ephemeris_orbital.periapsis }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_orbital.longitude }}
+        longitude: {{ .Values.config.ntn.ephemeris_orbital.longitude }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_orbital.inclination }}
+        inclination: {{ .Values.config.ntn.ephemeris_orbital.inclination }}
+        {{- end }}
+        {{- if .Values.config.ntn.ephemeris_orbital.mean_anomaly }}
+        mean_anomaly: {{ .Values.config.ntn.ephemeris_orbital.mean_anomaly }}
+        {{- end }}
+      {{- end }}
+
     {{- end }}
 
     {{- if .Values.config.ru_ofh }}
@@ -244,6 +364,9 @@ data:
       {{- if .Values.config.ru_ofh.ignore_ecpri_payload_size }}
       ignore_ecpri_payload_size: {{ .Values.config.ru_ofh.ignore_ecpri_payload_size }}
       {{- end }}
+      {{- if .Values.config.ru_ofh.warn_unreceived_ru_frames }}
+      warn_unreceived_ru_frames: {{ .Values.config.ru_ofh.warn_unreceived_ru_frames }}
+      {{- end }}
       {{- if .Values.config.ru_ofh.compr_method_ul }}
       compr_method_ul: {{ .Values.config.ru_ofh.compr_method_ul }}
       {{- end }}
@@ -273,17 +396,20 @@ data:
       {{- end }}
       {{- if .Values.config.ru_ofh.cells }}
       cells:
-      - {{- if .Values.config.ru_ofh.cells.ru_mac_address }}
-        ru_mac_address: {{ .Values.config.ru_ofh.cells.ru_mac_address }}
-        {{- end }}
-        {{- if .Values.config.ru_ofh.cells.network_interface }}
+      - {{- if .Values.config.ru_ofh.cells.network_interface }}
         network_interface: {{ .Values.config.ru_ofh.cells.network_interface }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.ru_mac_address }}
+        ru_mac_address: {{ .Values.config.ru_ofh.cells.ru_mac_address }}
         {{- end }}
         {{- if .Values.config.ru_ofh.cells.du_mac_address }}
         du_mac_address: {{ .Values.config.ru_ofh.cells.du_mac_address }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.vlan_tag }}
-        vlan_tag: {{ .Values.config.ru_ofh.cells.vlan_tag }}
+        {{- if .Values.config.ru_ofh.cells.vlan_tag_up }}
+        vlan_tag_up: {{ .Values.config.ru_ofh.cells.vlan_tag_up }}
+        {{- end }}
+        {{- if .Values.config.ru_ofh.cells.vlan_tag_cp }}
+        vlan_tag_cp: {{ .Values.config.ru_ofh.cells.vlan_tag_cp }}
         {{- end }}
         {{- if .Values.config.ru_ofh.cells.ru_prach_port_id }}
         ru_prach_port_id: {{ .Values.config.ru_ofh.cells.ru_prach_port_id }}
@@ -336,21 +462,44 @@ data:
       time_alignment_calibration: {{ .Values.config.ru_sdr.time_alignment_calibration }}
       {{- end }}
 
-      {{- if .Values.config.ru_sdr.cells }}
-      cells:
-        - amplitude_control:
-            {{- if .Values.config.ru_sdr.cells.amplitude_control.tx_gain_backoff }}
-            tx_gain_backoff: {{ .Values.config.ru_sdr.cells.amplitude_control.tx_gain_backoff }}
-            {{- end }}
-            {{- if .Values.config.ru_sdr.cells.amplitude_control.enable_clipping }}
-            enable_clipping: {{ .Values.config.ru_sdr.cells.amplitude_control.enable_clipping }}
-            {{- end }}
+      {{- if .Values.config.ru_sdr.amplitude_control }}
+      amplitude_control:
+        {{- if .Values.config.ru_sdr.amplitude_control.tx_gain_backoff }}
+        tx_gain_backoff: {{ .Values.config.ru_sdr.amplitude_control.tx_gain_backoff }}
+        {{- end }}
+        {{- if .Values.config.ru_sdr.amplitude_control.enable_clipping }}
+        enable_clipping: {{ .Values.config.ru_sdr.amplitude_control.enable_clipping }}
+        {{- end }}
+        {{- if .Values.config.ru_sdr.amplitude_control.ceiling }}
+        ceiling: {{ .Values.config.ru_sdr.amplitude_control.ceiling }}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.config.ru_sdr.expert_cfg }}
       expert_cfg:
-        low_phy_dl_throttling: {{ .Values.config.ru_sdr.cells.expert_cfg.low_phy_dl_throttling }}
+        {{- if .Values.config.ru_sdr.expert_cfg.low_phy_dl_throttling }}
+        low_phy_dl_throttling: {{ .Values.config.ru_sdr.expert_cfg.low_phy_dl_throttling }}
+        {{- end }}
+        {{- if .Values.config.ru_sdr.expert_cfg.tx_mode }}
+        tx_mode: {{ .Values.config.ru_sdr.expert_cfg.tx_mode }}
+        {{- end }}
+        {{- if .Values.config.ru_sdr.expert_cfg.power_ramping_time_us }}
+        power_ramping_time_us: {{ .Values.config.ru_sdr.expert_cfg.power_ramping_time_us }}
+        {{- end }}
+        {{- if .Values.config.ru_sdr.expert_cfg.dl_buffer_size_policy }}
+        dl_buffer_size_policy: {{ .Values.config.ru_sdr.expert_cfg.dl_buffer_size_policy }}
+        {{- end }}
       {{- end }}
+    {{- end }}
+
+    {{- if .Values.config.ru_dummy }}
+    ru_dummy:
+      dl_processing_delay: {{ .Values.config.ru_dummy.dl_processing_delay }}
+    {{- end }}
+
+    {{- if .Values.config.fapi }}
+    fapi:
+      dl_processing_delay: {{ .Values.config.fapi.l2_nof_slots_ahead }}
     {{- end }}
 
     {{- if .Values.config.cell_cfg }}
@@ -463,15 +612,19 @@ data:
         {{- if .Values.config.cell_cfg.sib.t319 }}
         t319: {{ .Values.config.cell_cfg.sib.t319 }}
         {{- end }}
-        {{- if .Values.config.cell_cfg.sib.sib19 }}
-        sib19:
-          distance_thres: {{ .Values.config.cell_cfg.sib.sib19.distance_thres }}
-        {{- end }}
       {{- end }}
 
       {{- if .Values.config.cell_cfg.ul_common }}
       ul_common:
-        p_max: {{ .Values.config.cell_cfg.ul_common.p_max }}
+        {{- if .Values.config.cell_cfg.sib.p_max }}
+        p_max: {{ .Values.config.cell_cfg.sib.p_max }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.sib.max_pucchs_per_slot }}
+        max_pucchs_per_slot: {{ .Values.config.cell_cfg.sib.max_pucchs_per_slot }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.sib.max_ul_grants_per_slot }}
+        max_ul_grants_per_slot: {{ .Values.config.cell_cfg.sib.max_ul_grants_per_slot }}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.config.cell_cfg.pdcch }}
@@ -486,6 +639,9 @@ data:
           {{- end }}
           {{- if .Values.config.cell_cfg.pdcch.common.ss0_index }}
           ss0_index: {{ .Values.config.cell_cfg.pdcch.common.ss0_index }}
+          {{- end }}
+          {{- if .Values.config.cell_cfg.pdcch.common.max_coreset0_duration }}
+          max_coreset0_duration: {{ .Values.config.cell_cfg.pdcch.common.max_coreset0_duration }}
           {{- end }}
         {{- end }}
         {{- if .Values.config.cell_cfg.pdcch.dedicated }}
@@ -528,6 +684,9 @@ data:
         {{- if .Values.config.cell_cfg.pdsch.nof_harqs }}
         nof_harqs: {{ .Values.config.cell_cfg.pdsch.nof_harqs }}
         {{- end }}
+        {{- if .Values.config.cell_cfg.pdsch.max_nof_harq_retxs }}
+        max_nof_harq_retxs: {{ .Values.config.cell_cfg.pdsch.max_nof_harq_retxs }}
+        {{- end }}
         {{- if .Values.config.cell_cfg.pdsch.max_consecutive_kos }}
         max_consecutive_kos: {{ .Values.config.cell_cfg.pdsch.max_consecutive_kos }}
         {{- end }}
@@ -542,6 +701,12 @@ data:
         {{- end }}
         {{- if .Values.config.cell_cfg.pdsch.max_rb_size }}
         max_rb_size: {{ .Values.config.cell_cfg.pdsch.max_rb_size}}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pdsch.start_rb }}
+        start_rb: {{ .Values.config.cell_cfg.pdsch.start_rb}}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pdsch.end_rb }}
+        end_rb: {{ .Values.config.cell_cfg.pdsch.end_rb}}
         {{- end }}
         {{- if .Values.config.cell_cfg.pdsch.max_pdschs_per_slot }}
         max_pdschs_per_slot: {{ .Values.config.cell_cfg.pdsch.max_pdschs_per_slot }}
@@ -566,6 +731,9 @@ data:
         {{- end }}
         {{- if .Values.config.cell_cfg.pdsch.harq_la_ri_drop_threshold }}
         harq_la_ri_drop_threshold: {{ .Values.config.cell_cfg.pdsch.harq_la_ri_drop_threshold }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pdsch.dmrs_additional_position }}
+        dmrs_additional_position: {{ .Values.config.cell_cfg.pdsch.dmrs_additional_position }}
         {{- end }}
       {{- end }}
 
@@ -634,6 +802,22 @@ data:
         {{- if .Values.config.cell_cfg.pusch.olla_max_snr_offset }}
         olla_max_snr_offset: {{ .Values.config.cell_cfg.pusch.olla_max_snr_offset }}
         {{- end }}
+
+        {{- if .Values.config.cell_cfg.pusch.dmrs_additional_position }}
+        dmrs_additional_position: {{ .Values.config.cell_cfg.pusch.dmrs_additional_position }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pusch.min_rb_size }}
+        min_rb_size: {{ .Values.config.cell_cfg.pusch.min_rb_size }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pusch.max_rb_size }}
+        max_rb_size: {{ .Values.config.cell_cfg.pusch.max_rb_size }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pusch.start_rb }}
+        start_rb: {{ .Values.config.cell_cfg.pusch.start_rb }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pusch.end_rb }}
+        end_rb: {{ .Values.config.cell_cfg.pusch.end_rb }}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.config.cell_cfg.pucch }}
@@ -677,7 +861,7 @@ data:
         {{- if .Values.config.cell_cfg.pucch.f2_max_nof_rbs }}
         f2_max_nof_rbs: {{ .Values.config.cell_cfg.pucch.f2_max_nof_rbs }}
         {{- end }}
-        {{- if .Values.config.cell_cfg.pusch.f2_max_payload }}
+        {{- if .Values.config.cell_cfg.pucch.f2_max_payload }}
         f2_max_payload: {{ .Values.config.cell_cfg.pusch.f2_max_payload }}
         {{- end }}
         {{- if .Values.config.cell_cfg.pucch.f2_max_code_rate }}
@@ -688,6 +872,9 @@ data:
         {{- end }}
         {{- if .Values.config.cell_cfg.pucch.min_k1 }}
         min_k1: {{ .Values.config.cell_cfg.pucch.min_k1 }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.pucch.max_consecutive_kos }}
+        max_consecutive_kos: {{ .Values.config.cell_cfg.pucch.max_consecutive_kos }}
         {{- end }}
       {{- end }}
 
@@ -723,6 +910,15 @@ data:
         {{- if .Values.config.cell_cfg.prach.power_ramping_step_db }}
         power_ramping_step_db: {{ .Values.config.cell_cfg.prach.power_ramping_step_db }}
         {{- end }}
+        {{- if .Values.config.cell_cfg.prach.ports }}
+        ports: {{ .Values.config.cell_cfg.prach.ports }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.prach.nof_ssb_per_ro }}
+        nof_ssb_per_ro: {{ .Values.config.cell_cfg.prach.nof_ssb_per_ro }}
+        {{- end }}
+        {{- if .Values.config.cell_cfg.prach.nof_cb_preambles_per_ssb }}
+        nof_cb_preambles_per_ssb: {{ .Values.config.cell_cfg.prach.nof_cb_preambles_per_ssb }}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg }}
@@ -745,19 +941,19 @@ data:
         {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2 }}
         pattern2:
           {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.dl_ul_tx_period }}
-          dl_ul_tx_period: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.dl_ul_tx_period }}
+          dl_ul_tx_period: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.dl_ul_tx_period }}
           {{- end }}
           {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_dl_slots }}
-          nof_dl_slots: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.nof_dl_slots }}
+          nof_dl_slots: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_dl_slots }}
           {{- end }}
           {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_dl_symbols }}
-          nof_dl_symbols: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.nof_dl_symbols }}
+          nof_dl_symbols: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_dl_symbols }}
           {{- end }}
           {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_ul_slots }}
-          nof_ul_slots: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.nof_ul_slots }}
+          nof_ul_slots: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_ul_slots }}
           {{- end }}
           {{- if .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_ul_symbols }}
-          nof_ul_symbols: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.nof_ul_symbols }}
+          nof_ul_symbols: {{ .Values.config.cell_cfg.tdd_ul_dl_cfg.pattern2.nof_ul_symbols }}
           {{- end }}
         {{- end }}
       {{- end }}
@@ -783,6 +979,9 @@ data:
 
       {{- if .Values.config.cell_cfg.csi }}
       csi:
+        {{- if .Values.config.cell_cfg.csi.csi_rs_enabled }}
+        csi_rs_enabled: {{ .Values.config.cell_cfg.csi.csi_rs_enabled }}
+        {{- end }}
         {{- if .Values.config.cell_cfg.csi.csi_rs_period }}
         csi_rs_period: {{ .Values.config.cell_cfg.csi.csi_rs_period }}
         {{- end }}
@@ -815,6 +1014,9 @@ data:
       {{- if .Values.config.expert_phy.pusch_sinr_calc_method }}
       pusch_sinr_calc_method: {{ .Values.config.expert_phy.pusch_sinr_calc_method }}
       {{- end }}
+      {{- if .Values.config.expert_phy.max_request_headroom_slots }}
+      max_request_headroom_slots: {{ .Values.config.expert_phy.max_request_headroom_slots }}
+      {{- end }}
     {{- end }}
 
     {{- if .Values.config.buffer_pool }}
@@ -823,7 +1025,7 @@ data:
       nof_segments: {{ .Values.config.buffer_pool.nof_segments }}
       {{- end }}
       {{- if .Values.config.buffer_pool.segment_size }}
-      segment_size: {{ .Values.config.buffer_pool.nof_segments }}
+      segment_size: {{ .Values.config.buffer_pool.segment_size }}
       {{- end }}
     {{- end }}
 
@@ -832,6 +1034,12 @@ data:
       test_ue:
         {{- if .Values.config.test_mode.test_ue.rnti }}
         rnti:  {{ .Values.config.test_mode.test_ue.rnti }}
+        {{- end }}
+        {{- if .Values.config.test_mode.test_ue.nof_ues }}
+        nof_ues:  {{ .Values.config.test_mode.test_ue.nof_ues }}
+        {{- end }}
+        {{- if .Values.config.test_mode.test_ue.auto_ack_indication_delay }}
+        auto_ack_indication_delay:  {{ .Values.config.test_mode.test_ue.auto_ack_indication_delay }}
         {{- end }}
         {{- if .Values.config.test_mode.test_ue.pdsch_active }}
         pdsch_active: {{ .Values.config.test_mode.test_ue.pdsch_active }}
@@ -861,52 +1069,61 @@ data:
 
     {{- if .Values.config.expert_execution }}
     expert_execution:
+      {{- if .Values.config.expert_execution.cell_affinities }}
+      cell_affinities:
+        - 
+          {{- if .Values.config.expert_execution.cell_affinities.l1_dl_cpus }}
+          l1_dl_cpus: {{ .Values.config.expert_execution.cell_affinities.l1_dl_cpus }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.l1_ul_cpus }}
+          l1_ul_cpus: {{ .Values.config.expert_execution.cell_affinities.l1_ul_cpus }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.l1_dl_pinning }}
+          l1_dl_pinning: {{ .Values.config.expert_execution.cell_affinities.l1_dl_pinning }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.l1_ul_pinning }}
+          l1_ul_pinning: {{ .Values.config.expert_execution.cell_affinities.l1_ul_pinning }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.l2_cell_cpus }}
+          l2_cell_cpus: {{ .Values.config.expert_execution.cell_affinities.l2_cell_cpus }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.l2_cell_pinning }}
+          l2_cell_pinning: {{ .Values.config.expert_execution.cell_affinities.l2_cell_pinning }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.ru_cpus }}
+          ru_cpus: {{ .Values.config.expert_execution.cell_affinities.ru_cpus }}
+          {{- end }}
+          {{- if .Values.config.expert_execution.cell_affinities.ru_pinning }}
+          ru_pinning: {{ .Values.config.expert_execution.cell_affinities.ru_pinning }}
+          {{- end }}
+      {{- end }}
       {{- if .Values.config.expert_execution.affinities }}
       affinities:
-        {{- if .Values.config.expert_execution.affinities.l1_dl_cpus }}
-        l1_dl_cpus: {{ .Values.config.expert_execution.affinities.l1_dl_cpus }}
-        {{- end }}
-        {{- if .Values.config.expert_execution.affinities.l1_ul_cpus }}
-        l1_ul_cpus: {{ .Values.config.expert_execution.affinities.l1_ul_cpus }}
-        {{- end }}
-        {{- if .Values.config.expert_execution.affinities.l2_cell_cpus }}
-        l2_cell_cpus: {{ .Values.config.expert_execution.affinities.l2_cell_cpus }}
-        {{- end }}
         {{- if .Values.config.expert_execution.affinities.low_priority_cpus }}
         low_priority_cpus: {{ .Values.config.expert_execution.affinities.low_priority_cpus }}
-        {{- end }}
-        {{- if .Values.config.expert_execution.affinities.ru_cpus }}
-        ru_cpus: {{ .Values.config.expert_execution.affinities.ru_cpus }}
-        {{- end }}
-        {{- if .Values.config.expert_execution.affinities.l1_dl_pinning }}
-        l1_dl_pinning: {{ .Values.config.expert_execution.affinities.l1_dl_pinning }}
-        {{- end }}
-        {{- if .Values.config.expert_execution.affinities.l1_ul_pinning }}
-        l1_ul_pinning: {{ .Values.config.expert_execution.affinities.l1_ul_pinning }}
-        {{- end }}
-        {{- if .Values.config.expert_execution.affinities.l2_cell_pinning }}
-        l2_cell_pinning: {{ .Values.config.expert_execution.affinities.l2_cell_pinning }}
         {{- end }}
         {{- if .Values.config.expert_execution.affinities.low_priority_pinning }}
         low_priority_pinning: {{ .Values.config.expert_execution.affinities.low_priority_pinning }}
         {{- end }}
-        {{- if .Values.config.expert_execution.affinities.ru_pinning }}
-        ru_pinning: {{ .Values.config.expert_execution.affinities.ru_pinning }}
+        {{- if .Values.config.expert_execution.affinities.isolated_cpus }}
+        isolated_cpus: {{ .Values.config.expert_execution.affinities.isolated_cpus }}
         {{- end }}
       {{- end }}
 
       {{- if .Values.config.expert_execution.threads }}
       threads:
+        {{- if .Values.config.expert_execution.threads.non_rt.nof_non_rt_threads }}
+        non_rt:
+          nof_non_rt_threads: {{ .Values.config.expert_execution.threads.non_rt.nof_non_rt_threads }}
+        {{- end }}
+
         {{- if .Values.config.expert_execution.threads.upper_phy }}
         upper_phy:
           {{- if .Values.config.expert_execution.threads.upper_phy.pdsch_processor_type }}
           pdsch_processor_type: {{ .Values.config.expert_execution.threads.upper_phy.pdsch_processor_type }}
           {{- end }}
-          {{- if .Values.config.expert_execution.threads.upper_phy.nof_pdsch_threads }}
-          nof_pdsch_threads: {{ .Values.config.expert_execution.threads.upper_phy.nof_pdsch_threads }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.threads.upper_phy.nof_pusch_threads }}
-          nof_pusch_threads: {{ .Values.config.expert_execution.threads.upper_phy.nof_pusch_threads }}
+          {{- if .Values.config.expert_execution.threads.upper_phy.nof_pusch_decoder_threads }}
+          nof_pusch_decoder_threads: {{ .Values.config.expert_execution.threads.upper_phy.nof_pusch_decoder_threads }}
           {{- end }}
           {{- if .Values.config.expert_execution.threads.upper_phy.nof_ul_threads }}
           nof_ul_threads: {{ .Values.config.expert_execution.threads.upper_phy.nof_ul_threads }}
@@ -915,11 +1132,12 @@ data:
           nof_dl_threads: {{ .Values.config.expert_execution.threads.upper_phy.nof_dl_threads }}
           {{- end }}
         {{- end }}
-        {{- if .Values.config.expert_execution.threads.lower_phy }}
+
+        {{- if .Values.config.expert_execution.threads.lower_phy.execution_profile }}
         lower_phy:
           execution_profile: {{ .Values.config.expert_execution.threads.lower_phy.execution_profile }}
         {{- end }}
-        {{- if .Values.config.expert_execution.threads.ofh }}
+        {{- if .Values.config.expert_execution.threads.ofh.enable_dl_parallelization }}
         ofh:
           enable_dl_parallelization: {{ .Values.config.expert_execution.threads.ofh.enable_dl_parallelization }}
         {{- end }}
@@ -999,8 +1217,17 @@ data:
       {{- if .Values.config.log.phy_rx_symbols_filename }}
       phy_rx_symbols_filename: {{ .Values.config.log.phy_rx_symbols_filename }}
       {{- end }}
+      {{- if .Values.config.log.phy_rx_symbols_port }}
+      phy_rx_symbols_port: {{ .Values.config.log.phy_rx_symbols_port }}
+      {{- end }}
+      {{- if .Values.config.log.phy_rx_symbols_prach }}
+      phy_rx_symbols_prach: {{ .Values.config.log.phy_rx_symbols_prach }}
+      {{- end }}
       {{- if .Values.config.log.tracing_filename }}
       tracing_filename: {{ .Values.config.log.tracing_filename }}
+      {{- end }}
+      {{- if .Values.config.log.f1ap_json_enabled }}
+      f1ap_json_enabled: {{ .Values.config.log.f1ap_json_enabled }}
       {{- end }}
     {{- end }}
 
@@ -1023,6 +1250,15 @@ data:
       {{- end }}
       {{- if .Values.config.pcap.f1ap_enable }}
       f1ap_enable: {{ .Values.config.pcap.f1ap_enable }}
+      {{- end }}
+      {{- if .Values.config.pcap.rlc_filename }}
+      rlc_filename: {{ .Values.config.pcap.rlc_filename }}
+      {{- end }}
+      {{- if .Values.config.pcap.rlc_rb_type }}
+      rlc_rb_type: {{ .Values.config.pcap.rlc_rb_type }}
+      {{- end }}
+      {{- if .Values.config.pcap.rlc_enable }}
+      rlc_enable: {{ .Values.config.pcap.rlc_enable }}
       {{- end }}
       {{- if .Values.config.pcap.mac_filename }}
       mac_filename: {{ .Values.config.pcap.mac_filename }}
@@ -1052,6 +1288,12 @@ data:
       {{- if .Values.config.metrics.rlc_report_period }}
       rlc_report_period: {{ .Values.config.metrics.rlc_report_period }}
       {{- end }}
+      {{- if .Values.config.metrics.rlc_json_enable }}
+      rlc_json_enable: {{ .Values.config.metrics.rlc_json_enable }}
+      {{- end }}
+      {{- if .Values.config.metrics.pdcp_report_period }}
+      pdcp_report_period: {{ .Values.config.metrics.pdcp_report_period }}
+      {{- end }}
       {{- if .Values.config.metrics.cu_cp_statistics_report_period }}
       cu_cp_statistics_report_period: {{ .Values.config.metrics.cu_cp_statistics_report_period  }}
       {{- end }}
@@ -1061,7 +1303,13 @@ data:
       {{- if .Values.config.metrics.enable_json_metrics }}
       enable_json_metrics: {{ .Values.config.metrics.enable_json_metrics }}
       {{- end }}
-      {{- if .Values.config.metrics.json_metrics_filename }}
-      json_metrics_filename: {{ .Values.config.metrics.json_metrics_filename }}
+      {{- if .Values.config.metrics.addr }}
+      addr: {{ .Values.config.metrics.addr }}
+      {{- end }}
+      {{- if .Values.config.metrics.port }}
+      port: {{ .Values.config.metrics.port }}
+      {{- end }}
+      {{- if .Values.config.metrics.autostart_stdout_metrics }}
+      autostart_stdout_metrics: {{ .Values.config.metrics.autostart_stdout_metrics }}
       {{- end }}
     {{- end }}
