@@ -40,6 +40,19 @@ data:
         {{- end }}
     {{- end }}
 
+    {{- if .Values.config.cells }}
+    cells:
+    {{- range .Values.config.cells }}
+    -
+      {{- if .Values.config.cells.pci }}
+      pci: {{ .Values.config.cells.pci }}
+      {{- end }}
+      {{- if .Values.config.cells.dl_arfcn }}
+      dl_arfcn: {{ .Values.config.cells.dl_arfcn }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+
     {{- if .Values.config.amf }}
     amf:
       {{- if .Values.config.amf.addr }}
@@ -148,67 +161,73 @@ data:
         {{- end }}
         {{- if .Values.config.cu_cp.mobility.cells }}
         cells:
-          {{- if .Values.config.cu_cp.mobility.cells.nr_cell_id }}
-          nr_cell_id: {{ .Values.config.cu_cp.mobility.cells.nr_cell_id }}
+        {{- range .Values.config.cu_cp.mobility.cells }}
+        -
+          {{- if .nr_cell_id }}
+          nr_cell_id: {{ .nr_cell_id }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.periodic_report_cfg_id }}
-          periodic_report_cfg_id: {{ .Values.config.cu_cp.mobility.cells.periodic_report_cfg_id }}
+          {{- if .periodic_report_cfg_id }}
+          periodic_report_cfg_id: {{ .periodic_report_cfg_id }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.ncells }}
+          {{- if .ncells }}
           ncells:
-            {{- if .Values.config.cu_cp.mobility.cells.ncells.nr_cell_id }}
-            nr_cell_id: {{ .Values.config.cu_cp.mobility.cells.ncells.nr_cell_id }}
+            {{- if .ncells.nr_cell_id }}
+            nr_cell_id: {{ .ncells.nr_cell_id }}
             {{- end }}
-            {{- if .Values.config.cu_cp.mobility.cells.ncells.report_configs }}
-            report_configs: {{ .Values.config.cu_cp.mobility.cells.ncells.report_configs }}
+            {{- if .ncells.report_configs }}
+            report_configs: {{ .ncells.report_configs }}
             {{- end }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.gnb_id }}
-          gnb_id: {{ .Values.config.cu_cp.mobility.cells.gnb_id }}
+          {{- if .gnb_id }}
+          gnb_id: {{ .gnb_id }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.ssb_arfcn }}
-          ssb_arfcn: {{ .Values.config.cu_cp.mobility.cells.ssb_arfcn }}
+          {{- if .ssb_arfcn }}
+          ssb_arfcn: {{ .ssb_arfcn }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.band }}
-          band: {{ .Values.config.cu_cp.mobility.cells.band }}
+          {{- if .band }}
+          band: {{ .band }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.ssb_scs }}
-          ssb_scs: {{ .Values.config.cu_cp.mobility.cells.ssb_scs }}
+          {{- if .ssb_scs }}
+          ssb_scs: {{ .ssb_scs }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.ssb_period }}
-          ssb_period: {{ .Values.config.cu_cp.mobility.cells.ssb_period }}
+          {{- if .ssb_period }}
+          ssb_period: {{ .ssb_period }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.ssb_offset }}
-          ssb_offset: {{ .Values.config.cu_cp.mobility.cells.ssb_offset }}
+          {{- if .ssb_offset }}
+          ssb_offset: {{ .ssb_offset }}
           {{- end }}
-          {{- if .Values.config.cu_cp.mobility.cells.ssb_duration }}
-          ssb_duration: {{ .Values.config.cu_cp.mobility.cells.ssb_duration }}
+          {{- if .ssb_duration }}
+          ssb_duration: {{ .ssb_duration }}
           {{- end }}
+        {{- end }}
         {{- end }}
         {{- if .Values.config.cu_cp.mobility.report_configs }}
         report_configs:
-          {{- if .Values.config.cu_cp.mobility.report_configs.report_cfg_id }}
-          report_cfg_id: {{ .Values.config.cu_cp.mobility.report_configs.report_cfg_id }}
+        {{- range .Values.config.cu_cp.mobility.report_configs }}
+        -
+          {{- if .report_cfg_id }}
+          report_cfg_id: {{ .report_cfg_id }}
           {{- end }}
           {{- if .Values.config.cu_cp.mobility.report_type }}
-          report_type: {{ .Values.config.cu_cp.mobility.report_configs.report_type }}
+          report_type: {{ .report_type }}
           {{- end }}
           {{- if .Values.config.cu_cp.mobility.report_interval_ms }}
-          report_interval_ms: {{ .Values.config.cu_cp.mobility.report_configs.report_interval_ms }}
+          report_interval_ms: {{ .report_interval_ms }}
           {{- end }}
           {{- if .Values.config.cu_cp.mobility.a3_report_type }}
-          a3_report_type: {{ .Values.config.cu_cp.mobility.report_configs.a3_report_type }}
+          a3_report_type: {{ .a3_report_type }}
           {{- end }}
           {{- if .Values.config.cu_cp.mobility.a3_offset_db }}
-          a3_offset_db: {{ .Values.config.cu_cp.mobility.report_configs.a3_offset_db }}
+          a3_offset_db: {{ .a3_offset_db }}
           {{- end }}
           {{- if .Values.config.cu_cp.mobility.a3_hysteresis_db }}
-          a3_hysteresis_db: {{ .Values.config.cu_cp.mobility.report_configs.a3_hysteresis_db }}
+          a3_hysteresis_db: {{ .a3_hysteresis_db }}
           {{- end }}
           {{- if .Values.config.cu_cp.mobility.a3_time_to_trigger_ms }}
-          a3_time_to_trigger_ms: {{ .Values.config.cu_cp.mobility.report_configs.a3_time_to_trigger_ms }}
+          a3_time_to_trigger_ms: {{ .a3_time_to_trigger_ms }}
           {{- end }}
         {{- end }}
+      {{- end }}
       {{- end }}
       {{- if .Values.config.cu_cp.rrc }}
       rrc:
@@ -396,31 +415,34 @@ data:
       {{- end }}
       {{- if .Values.config.ru_ofh.cells }}
       cells:
-      - {{- if .Values.config.ru_ofh.cells.network_interface }}
-        network_interface: {{ .Values.config.ru_ofh.cells.network_interface }}
+      {{- range .Values.config.ru_ofh.cells }}
+      -
+        {{- if .network_interface }}
+        network_interface: {{ .network_interface }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.ru_mac_address }}
-        ru_mac_address: {{ .Values.config.ru_ofh.cells.ru_mac_address }}
+        {{- if .ru_mac_addr }}
+        ru_mac_addr: {{ .ru_mac_addr }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.du_mac_address }}
-        du_mac_address: {{ .Values.config.ru_ofh.cells.du_mac_address }}
+        {{- if .du_mac_addr }}
+        du_mac_addr: {{ .du_mac_addr }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.vlan_tag_up }}
-        vlan_tag_up: {{ .Values.config.ru_ofh.cells.vlan_tag_up }}
+        {{- if .vlan_tag_up }}
+        vlan_tag_up: {{ .vlan_tag_up }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.vlan_tag_cp }}
-        vlan_tag_cp: {{ .Values.config.ru_ofh.cells.vlan_tag_cp }}
+        {{- if .vlan_tag_cp }}
+        vlan_tag_cp: {{ .vlan_tag_cp }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.ru_prach_port_id }}
-        ru_prach_port_id: {{ .Values.config.ru_ofh.cells.ru_prach_port_id }}
+        {{- if .prach_port_id }}
+        prach_port_id: {{ .prach_port_id }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.ru_dl_port_id }}
-        ru_dl_port_id: {{ .Values.config.ru_ofh.cells.ru_dl_port_id }}
+        {{- if .dl_port_id }}
+        dl_port_id: {{ .dl_port_id }}
         {{- end }}
-        {{- if .Values.config.ru_ofh.cells.ru_ul_port_id }}
-        ru_ul_port_id: {{ .Values.config.ru_ofh.cells.ru_ul_port_id }}
+        {{- if .ul_port_id }}
+        ul_port_id: {{ .ul_port_id }}
         {{- end }}
       {{- end }}
+    {{- end }}
     {{- end }}
 
     {{- if .Values.config.ru_sdr }}
@@ -1071,31 +1093,33 @@ data:
     expert_execution:
       {{- if .Values.config.expert_execution.cell_affinities }}
       cell_affinities:
-        - 
-          {{- if .Values.config.expert_execution.cell_affinities.l1_dl_cpus }}
-          l1_dl_cpus: {{ .Values.config.expert_execution.cell_affinities.l1_dl_cpus }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.l1_ul_cpus }}
-          l1_ul_cpus: {{ .Values.config.expert_execution.cell_affinities.l1_ul_cpus }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.l1_dl_pinning }}
-          l1_dl_pinning: {{ .Values.config.expert_execution.cell_affinities.l1_dl_pinning }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.l1_ul_pinning }}
-          l1_ul_pinning: {{ .Values.config.expert_execution.cell_affinities.l1_ul_pinning }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.l2_cell_cpus }}
-          l2_cell_cpus: {{ .Values.config.expert_execution.cell_affinities.l2_cell_cpus }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.l2_cell_pinning }}
-          l2_cell_pinning: {{ .Values.config.expert_execution.cell_affinities.l2_cell_pinning }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.ru_cpus }}
-          ru_cpus: {{ .Values.config.expert_execution.cell_affinities.ru_cpus }}
-          {{- end }}
-          {{- if .Values.config.expert_execution.cell_affinities.ru_pinning }}
-          ru_pinning: {{ .Values.config.expert_execution.cell_affinities.ru_pinning }}
-          {{- end }}
+      {{- range .Values.config.expert_execution.cell_affinities }}
+      -
+        {{- if .l1_dl_cpus }}
+        l1_dl_cpus: {{ .l1_dl_cpus }}
+        {{- end }}
+        {{- if .l1_ul_cpus }}
+        l1_ul_cpus: {{ .l1_ul_cpus }}
+        {{- end }}
+        {{- if .l1_dl_pinning }}
+        l1_dl_pinning: {{ .l1_dl_pinning }}
+        {{- end }}
+        {{- if .l1_ul_pinning }}
+        l1_ul_pinning: {{ .l1_ul_pinning }}
+        {{- end }}
+        {{- if .l2_cell_cpus }}
+        l2_cell_cpus: {{ .l2_cell_cpus }}
+        {{- end }}
+        {{- if .l2_cell_pinning }}
+        l2_cell_pinning: {{ .l2_cell_pinning }}
+        {{- end }}
+        {{- if .ru_cpus }}
+        ru_cpus: {{ .ru_cpus }}
+        {{- end }}
+        {{- if .ru_pinning }}
+        ru_pinning: {{ .ru_pinning }}
+        {{- end }}
+      {{- end }}
       {{- end }}
       {{- if .Values.config.expert_execution.affinities }}
       affinities:
