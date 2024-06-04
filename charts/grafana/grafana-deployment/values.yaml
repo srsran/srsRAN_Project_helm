@@ -1,0 +1,132 @@
+# Default values for grafana-deployment.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+grafana-gui:
+  ## Configure grafana datasources
+  ## ref: http://docs.grafana.org/administration/provisioning/#datasources
+  ##
+  datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: InfluxDB_v2
+      type: influxdb
+      url: http://10.233.52.146:80
+      access: proxy
+      user: admin
+      jsonData:
+        dbName: site
+        httpMode: GET
+      secureJsonData:
+        password: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
+  ## Configure grafana dashboard to import
+  ## NOTE: To use dashboards you must also enable/configure dashboardProviders
+  ## ref: https://grafana.com/dashboards
+  ##
+  ## dashboards per provider, use provider name as key.
+  ##
+  dashboards:
+    default:
+      local-dashboard-srs:
+        url: https://srsran.github.io/srsRAN_Project_helm/home.json
+
+influxdb:
+  adminUser:
+    organization: "srs"
+    bucket: "srsran"
+    user: "admin"
+    retention_policy: "4d"
+    ## Leave empty to generate a random password and token.
+    ## Or fill any of these values to use fixed values.
+    password: "admin1234"
+    token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
+
+    ## The password and token are obtained from an existing secret. The expected
+    ## keys are `admin-password` and `admin-token`.
+    ## If set, the password and token values above are ignored.
+    # existingSecret: influxdb-auth
+  hostname: "influxdb"
+
+  ## Persist data to a persistent volume
+  ##
+  persistence:
+    enabled: false  # only for testing! Find a PVC provider easy to install for the docs
+    ## If true will use an existing PVC instead of creating one
+    # useExisting: false
+    ## Name of existing PVC to be used in the influx deployment
+    # name:
+    ## influxdb data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 50Gi
+    mountPath: /var/lib/influxdb2
+    subPath: ""
+
+metrics-server:
+  config:
+    port: 55555
+    bucket: "srsran"
+    testbed: "default"
+    url: "http://10.233.52.146:80"
+    org: "srs"
+    token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
+    serviceType: "ClusterIP"
