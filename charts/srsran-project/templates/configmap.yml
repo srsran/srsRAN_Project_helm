@@ -44,11 +44,11 @@ data:
     cells:
     {{- range .Values.config.cells }}
     -
-      {{- if .Values.config.cells.pci }}
-      pci: {{ .Values.config.cells.pci }}
+      {{- if .pci }}
+      pci: {{ .pci }}
       {{- end }}
-      {{- if .Values.config.cells.dl_arfcn }}
-      dl_arfcn: {{ .Values.config.cells.dl_arfcn }}
+      {{- if .dl_arfcn }}
+      dl_arfcn: {{ .dl_arfcn }}
       {{- end }}
     {{- end }}
     {{- end }}
@@ -433,13 +433,13 @@ data:
         vlan_tag_cp: {{ .vlan_tag_cp }}
         {{- end }}
         {{- if .prach_port_id }}
-        prach_port_id: {{ .prach_port_id }}
+        prach_port_id: [{{ join ", " .prach_port_id }}]
         {{- end }}
         {{- if .dl_port_id }}
-        dl_port_id: {{ .dl_port_id }}
+        dl_port_id: [{{ join ", " .dl_port_id }}]
         {{- end }}
         {{- if .ul_port_id }}
-        ul_port_id: {{ .ul_port_id }}
+        ul_port_id: [{{ join ", " .ul_port_id }}]
         {{- end }}
       {{- end }}
     {{- end }}
@@ -1136,7 +1136,7 @@ data:
 
       {{- if .Values.config.expert_execution.threads }}
       threads:
-        {{- if .Values.config.expert_execution.threads.non_rt.nof_non_rt_threads }}
+        {{- if .Values.config.expert_execution.threads.non_rt }}
         non_rt:
           nof_non_rt_threads: {{ .Values.config.expert_execution.threads.non_rt.nof_non_rt_threads }}
         {{- end }}
@@ -1157,11 +1157,11 @@ data:
           {{- end }}
         {{- end }}
 
-        {{- if .Values.config.expert_execution.threads.lower_phy.execution_profile }}
+        {{- if .Values.config.expert_execution.threads.lower_phy }}
         lower_phy:
           execution_profile: {{ .Values.config.expert_execution.threads.lower_phy.execution_profile }}
         {{- end }}
-        {{- if .Values.config.expert_execution.threads.ofh.enable_dl_parallelization }}
+        {{- if .Values.config.expert_execution.threads.ofh }}
         ofh:
           enable_dl_parallelization: {{ .Values.config.expert_execution.threads.ofh.enable_dl_parallelization }}
         {{- end }}
