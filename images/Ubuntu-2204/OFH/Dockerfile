@@ -8,7 +8,7 @@
 
 FROM ubuntu:22.04 as builder
 
-ARG DPDK_VERSION=dpdk-23.07
+ARG DPDK_VERSION=dpdk-23.11
 ARG EXTRA_CMAKE_ARGS=""
 
 ### Install dependencies
@@ -18,14 +18,15 @@ RUN apt-get update && apt-get install -y \
     net-tools nano git && \
     pip3 install meson ninja pyelftools
 
-### Install DPDK 23.07 LTS
+### Install DPDK
 WORKDIR /builder/dpdk
 RUN curl -L "https://fast.dpdk.org/rel/${DPDK_VERSION}.tar.xz" | tar xJf - && \
-    cd dpdk-23.07 && \
+    cd "${DPDK_VERSION}" && \
     meson setup build && \
     cd build && \
     ninja && \
-    DESTDIR=/builder/dpdk/dpdk-build meson install
+    DESTDIR=/builder/dpdk/dpdk-build meson install && \
+    ldconfig
 
 ### Build srsRAN Project
 WORKDIR /builder/srs
