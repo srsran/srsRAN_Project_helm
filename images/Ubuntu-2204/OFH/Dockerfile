@@ -25,7 +25,7 @@ RUN curl -L "https://fast.dpdk.org/rel/${DPDK_VERSION}.tar.xz" | tar xJf - && \
     meson setup build && \
     cd build && \
     ninja && \
-    DESTDIR=/builder/dpdk/dpdk-build meson install && \
+    meson install && \
     ldconfig
 
 ### Build srsRAN Project
@@ -40,7 +40,7 @@ RUN git clone https://github.com/srsran/srsRAN_Project srsran && \
 FROM ubuntu:22.04
 
 COPY --from=builder /builder/srs/srsran-build /usr/local
-COPY --from=builder /builder/dpdk/dpdk-build/usr/local /usr/local
+COPY --from=builder /usr/local /usr/local
 
 ### Install dependencies
 RUN apt-get update && apt-get install -y \
