@@ -33,9 +33,11 @@ spec:
         - name: config-volume
           configMap:
             name: srsgnb-configmap
+        {{- if .Values.config.hal }}
         - name: hugepage-1gi
           emptyDir:
             medium: HugePages-1Gi
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -49,8 +51,10 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
+            {{- if .Values.config.hal }}
             - name: hugepage-1gi
               mountPath: /hugepages-1Gi
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
