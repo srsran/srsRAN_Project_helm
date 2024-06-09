@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ru-emulator.fullname" . }}
+  labels:
+    {{- include "ru-emulator.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "ru-emulator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ru-emulator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostNetwork: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ru-emu-configmap
+        {{- if .Values.config.dpdk }}
+        - name: hugepage-1gi
+          emptyDir:
+            medium: HugePages-1Gi
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            {{- if .Values.config.dpdk }}
+            - name: hugepage-1gi
+              mountPath: /hugepages-1Gi
+            {{- end }}
+          command: [ "/usr/local/bin/ru_emulator" ]
+          args: [ "-c", "/etc/configs/ru_emulator.yaml" ]
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

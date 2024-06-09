@@ -1,0 +1,62 @@
+#
+# Copyright 2021-2024 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ru-emu-configmap
+data:
+  ru_emulator.yaml: |
+    {{- if .Values.config.log }}
+    log:
+      {{- if .Values.config.log }}
+      filename: {{ .Values.config.log.filename }}
+      {{- end }}
+      {{- if .Values.config.log.level }}
+      level: {{ .Values.config.log.level }}
+      {{- end }}
+    {{- end }}
+
+    {{- if .Values.config.dpdk }}
+    dpdk:
+      eal_args: "{{ .Values.config.dpdk.eal_args }}"
+    {{- end }}
+
+    {{- if .Values.config.ru_emu }}
+    ru_emu:
+      {{- if .Values.config.ru_emu.cells }}
+      cells:
+      {{- range .Values.config.ru_emu.cells }}
+      -
+        {{- if .bandwidth }}
+        bandwidth: {{ .bandwidth }}
+        {{- end }}
+        {{- if .network_interface }}
+        network_interface: {{ .network_interface }}
+        {{- end }}
+        {{- if .ru_mac_addr }}
+        ru_mac_addr: {{ .ru_mac_addr }}
+        {{- end }}
+        {{- if .du_mac_addr }}
+        du_mac_addr: {{ .du_mac_addr }}
+        {{- end }}
+        {{- if .dl_port_id }}
+        vlan_tag: {{ .vlan_tag }}
+        {{- end }}
+        {{- if .ul_port_id }}
+        ul_port_id: {{ .ul_port_id }}
+        {{- end }}
+        {{- if .compr_method_ul }}
+        compr_method_ul: {{ .compr_method_ul }}
+        {{- end }}
+        {{- if .compr_bitwidth_ul }}
+        compr_bitwidth_ul: 9
+        {{- end }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
