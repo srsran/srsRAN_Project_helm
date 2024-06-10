@@ -47,7 +47,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: [ "gnb" ]
-          args: [ "-c", "/etc/config/gnb-config.yml", "metrics", "--autostart_stdout_metrics", "true" ]
+          args: [ "-c", "/etc/config/gnb-config.yml" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
