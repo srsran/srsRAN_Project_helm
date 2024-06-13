@@ -49,8 +49,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: [ "/usr/local/bin/ptp4l" ]
-          args: [ "-2", "-i", "{{ .Values.interfaceName }}", "-f", "/etc/config/linuxptp.cfg", "-m" ]
+          command: [ "ptp4l" ]
+          args: [ "-i", "{{ .Values.interfaceName }}", "-f", "/etc/config/linuxptp.cfg", "-m" ]
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
