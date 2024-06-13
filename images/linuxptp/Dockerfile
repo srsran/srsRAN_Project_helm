@@ -6,7 +6,7 @@
 # the distribution.
 #
 
-ARG LINUXPTP_VERSION=v4.0
+ARG LINUXPTP_VERSION=v4.3
 FROM ubuntu:24.04 AS builder
 
 RUN apt update && apt install -y git make gcc musl-dev && \
