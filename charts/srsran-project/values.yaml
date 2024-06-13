@@ -58,6 +58,12 @@ tolerations: {}
 
 affinity: {}
 
+debugging:
+  enabled: true
+  storageCapacity: "100Mi"
+  hostPath: "/mnt/debugging-logs"
+  containerPath: "/tmp"
+
 config:
   amf:
     addr: 10.233.3.84                                              # The address or hostname of the AMF.
@@ -112,7 +118,7 @@ config:
       zero_correlation_zone: 0                                      # Zero correlation zone.
       prach_frequency_start: 0                                      # Offset in PRBs of lowest PRACH transmission occasion in frequency domain respective to PRB 0.
 
-  log:
+  log:                                                              # Set debugging->enabled->true in order to make logs persistent. Make sure hostPath and log file path match.
     filename: /tmp/gnb.log                                          # Path of the log file.
     all_level: warning                                              # Logging level applied to all layers.
 

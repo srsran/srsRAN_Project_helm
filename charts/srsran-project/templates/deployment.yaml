@@ -33,6 +33,12 @@ spec:
         - name: config-volume
           configMap:
             name: srsgnb-configmap
+        {{- if .Values.debugging.enabled }}
+        - name: srs-host-volume
+          hostPath:
+            path: {{ .Values.debugging.hostPath }}/{{ now | date "2006-01-02--15:04:05" }}
+            type: DirectoryOrCreate
+        {{- end }}
         {{- if .Values.config.hal }}
         - name: hugepage-1gi
           emptyDir:
@@ -51,6 +57,10 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
+            {{- if .Values.debugging.enabled }}
+            - mountPath: {{ .Values.debugging.containerPath }}
+              name: srs-host-volume
+            {{- end }}
             {{- if .Values.config.hal }}
             - name: hugepage-1gi
               mountPath: /hugepages-1Gi
