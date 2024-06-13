@@ -34,10 +34,13 @@ data:
 
     {{- if .Values.config.slicing }}
     slicing:
-      - sst: {{ .Values.config.slicing.sst }}
-        {{- if .Values.config.slicing.sd }}
-        sd: {{ .Values.config.slicing.sd }}
+    {{- range .Values.config.slicing }}
+      -
+        sst: {{ .sst }}
+        {{- if .sd }}
+        sd: {{ .sd }}
         {{- end }}
+    {{- end }}
     {{- end }}
 
     {{- if .Values.config.cells }}
