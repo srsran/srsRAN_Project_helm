@@ -18,4 +18,4 @@ Every srsRAN Project release is accompanied by pre-built Docker images, which ca
 
 ## License
 
-# [AGPL v3 License](https://github.com/srsran/srsRAN_Project_helm/blob/main/LICENSE).
+### [AGPL v3 License](https://github.com/srsran/srsRAN_Project_helm/blob/main/LICENSE).
