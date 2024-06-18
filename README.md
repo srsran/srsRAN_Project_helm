@@ -14,7 +14,7 @@ of each Helm chart for more information.
 
 ## Docker images
 
-Every srsRAN Project release is accompanied by pre-built Docker images, which can be found on [Docker Hub](https://hub.docker.com/u/softwareradiosystems). The Dockerfiles utilized are located in the `images/` directory.
+Every srsRAN Project release is accompanied by pre-built Docker images, which can be found on [Docker Hub](https://hub.docker.com/u/softwareradiosystems). The Dockerfiles utilized are located in the [srsRAN Project repository](https://github.com/srsran/srsRAN_Project/tree/main/docker).
 
 ## License
 

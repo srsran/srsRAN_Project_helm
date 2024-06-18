@@ -27,59 +27,6 @@ stages:
 ## Launch Downstream
 ################################################################################
 
-.ubuntu-22.04:
-  stage: child
-  variables:
-    SRSRAN_VERSION: "2023.11"
-    CONTEXT: "/builds/softwareradiosystems/ci/srsgnb_k8s/images"
-    UHD_VERSION: "UHD-4.1"
-    DPDK_VERSION: "dpdk-23.07"
-    SOFTWARE_USED: ""
-  trigger:
-    include: images/Ubuntu-2204/.gitlab-ci.yml
-    strategy: depend
-  needs: []
-
-Ubuntu-22.04-UHD:
-  extends: .ubuntu-22.04
-  rules:
-    - if: $ON_MR
-      changes:
-        paths:
-          - images/Ubuntu-2204/UHD/**/*
-          - images/Ubuntu-2204/.gitlab-ci.yml
-    - if: $ON_DEFAULT_BRANCH
-      changes:
-        paths:
-          - images/Ubuntu-2204/UHD/**/*
-          - images/Ubuntu-2204/.gitlab-ci.yml
-        compare_to: refs/tags/latest
-    - if: $ON_SCHEDULE
-  variables:
-    DOCKERFILE: "images/Ubuntu-2204/UHD"
-    CT_VERSION: "1.0.3"
-    SOFTWARE_USED: $UHD_VERSION
-
-Ubuntu-22.04-OFH:
-  extends: .ubuntu-22.04
-  rules:
-    - if: $ON_MR
-      changes:
-        paths:
-          - images/Ubuntu-2204/OFH/**/*
-          - images/Ubuntu-2204/.gitlab-ci.yml
-    - if: $ON_DEFAULT_BRANCH
-      changes:
-        paths:
-          - images/Ubuntu-2204/OFH/**/*
-          - images/Ubuntu-2204/.gitlab-ci.yml
-        compare_to: refs/tags/latest
-    - if: $ON_SCHEDULE
-  variables:
-    DOCKERFILE: "images/Ubuntu-2204/OFH"
-    CT_VERSION: "1.0.3"
-    SOFTWARE_USED: $DPDK_VERSION
-
 linuxptp:
   stage: child
   variables:
@@ -95,7 +42,6 @@ linuxptp:
         paths:
           - images/linuxptp/**/*
         compare_to: refs/tags/latest
-    - if: $ON_SCHEDULE
   trigger:
     include: images/linuxptp/.gitlab-ci.yml
     strategy: depend
@@ -110,7 +56,6 @@ create-latest-tag:
   stage: release
   rules:
     - if: $ON_DEFAULT_BRANCH
-    - if: $ON_SCHEDULE
   script:
     - delete_tag_if_exist latest
     - create_tag latest
