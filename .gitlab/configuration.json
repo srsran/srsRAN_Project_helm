@@ -26,14 +26,15 @@
     "auto_devops_enabled": false,
     "autoclose_referenced_issues": true,
     "build_git_strategy": "fetch",
+    "build_timeout": 3600,
     "can_create_merge_request_in": true,
     "ci_allow_fork_pipelines_to_run_in_parent_project": false,
     "ci_default_git_depth": 1,
     "ci_separated_caches": false,
-    "container_expiration_policy_attributes": {
+    "container_expiration_policy": {
         "cadence": "1d",
         "enabled": true,
-        "keep_n": null,
+        "keep_n": 25,
         "older_than": "7d",
         "name_regex": ".*",
         "name_regex_keep": "^\\d+(?:\\.\\d+(?:\\.\\d+)?)?$"
@@ -59,6 +60,7 @@
             "allow_force_push": false,
             "allowed_to_merge": [
                 {
+                    "id": 117920400,
                     "access_level": 30,
                     "access_level_description": "Developers + Maintainers",
                     "group_id": null,
@@ -67,10 +69,12 @@
             ],
             "allowed_to_push": [
                 {
+                    "id": 130496738,
                     "access_level": 0,
                     "access_level_description": "No one",
                     "group_id": null,
-                    "user_id": null
+                    "user_id": null,
+                    "deploy_key_id": null
                 }
             ],
             "code_owner_approval_required": false,
