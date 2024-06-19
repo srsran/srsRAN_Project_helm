@@ -1,0 +1,35 @@
+#
+# Copyright 2013-2024 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+include:
+  - project: softwareradiosystems/ci/tools
+    ref: "20"
+    file: .gitlab/ci-shared/setup/all.yml
+
+.helm lint:
+  image: alpine/helm:3.15.2
+  stage: static
+  retry: 2
+  variables:
+    CHART_PATH: ${CI_PROJECT_DIR}
+  rules:
+    - if: $ON_MR
+  script:
+    - |
+      # Installing kubeconform
+      cd /tmp
+      apk add --no-cache curl unzip
+      curl -LO https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+      tar -xzf kubeconform-linux-amd64.tar.gz
+      mv kubeconform /usr/local/bin/
+      chmod +x /usr/local/bin/kubeconform
+      cd ${CI_PROJECT_DIR}
+    - helm dependency update ${CHART_PATH}/
+    - helm lint --strict --with-subcharts ${CHART_PATH}/
+    - helm template --debug ${CHART_PATH}/ | kubeconform --debug --strict
+    - helm template ${CHART_PATH}/
