@@ -112,6 +112,8 @@ srsran-project chart:
           - .gitlab/ci/helm_utils.yml
           - charts/srsran-project/**/*
     - if: $CI_DESCRIPTION =~ /Synchronization with srsGNB/
+      variables:
+        CI_DESCRIPTION: $CI_DESCRIPTION
   trigger:
     include: charts/srsran-project/.gitlab-ci.yml
     strategy: depend
