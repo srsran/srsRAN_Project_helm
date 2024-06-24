@@ -23,11 +23,11 @@ helm lint:
 chart-config-checker:
   stage: static
   image: registry.gitlab.com/softwareradiosystems/srsgnb/srsran_split8_release_avx2:latest
-  allow_failure: true
   tags:
     - amd64-avx2
   rules:
     - if: $ON_MR
+      allow_failure: true
     - if: $CI_DESCRIPTION =~ /Synchronization with srsGNB/
   variables:
     KUBECONFIG_VAR_NAME: "RETINA_NAMESPACE_KUBECONFIG"
