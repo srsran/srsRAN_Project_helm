@@ -106,12 +106,12 @@ ru_emulator chart:
 srsran-project chart:
   stage: child
   rules:
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $ON_MR
       changes:
         paths:
           - .gitlab/ci/helm_utils.yml
           - charts/srsran-project/**/*
+    - if: $CI_DESCRIPTION =~ /Synchronization with srsGNB/
   trigger:
     include: charts/srsran-project/.gitlab-ci.yml
     strategy: depend

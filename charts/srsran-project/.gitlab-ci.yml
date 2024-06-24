@@ -28,7 +28,7 @@ chart-config-checker:
     - amd64-avx2
   rules:
     - if: $ON_MR
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_DESCRIPTION =~ /Synchronization with srsGNB/
   variables:
     KUBECONFIG_VAR_NAME: "RETINA_NAMESPACE_KUBECONFIG"
   before_script:
