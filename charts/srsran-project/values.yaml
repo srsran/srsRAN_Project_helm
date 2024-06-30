@@ -37,6 +37,9 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
+network:
+  hostNetwork: true
+
 resources: {}
   # limits:
   #   cpu: 12
