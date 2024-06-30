@@ -27,7 +27,7 @@ dependencies:
   - name: grafana
     repository: "https://grafana.github.io/helm-charts"
     version: "8.0.1"
-    alias: grafana-gui
+    alias: grafana
   - name: influxdb2
     repository: "https://helm.influxdata.com/"
     version: "2.1.2"

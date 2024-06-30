@@ -54,34 +54,42 @@ tolerations: []
 
 affinity: {}
 
-grafana-gui:
+grafana:
   ## Configure grafana datasources
   ## ref: http://docs.grafana.org/administration/provisioning/#datasources
   ##
   datasources:
-  datasources.yaml:
-    apiVersion: 1
-    datasources:
-    - name: InfluxDB_v2
-      type: influxdb
-      url: http://10.233.52.146:80
-      access: proxy
-      user: admin
-      jsonData:
-        dbName: site
-        httpMode: GET
-      secureJsonData:
-        password: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
-  ## Configure grafana dashboard to import
-  ## NOTE: To use dashboards you must also enable/configure dashboardProviders
-  ## ref: https://grafana.com/dashboards
-  ##
-  ## dashboards per provider, use provider name as key.
-  ##
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: InfluxDB
+          type: influxdb
+          access: proxy
+          url: http://grafana-influxdb.srsran.svc.cluster.local
+          uid: JOSE3g9KVz
+          jsonData:
+            version: Flux
+            organization: srs
+            defaultBucket: srsran
+            tlsSkipVerify: true
+          secureJsonData:
+            token: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
   dashboards:
     default:
       local-dashboard-srs:
         url: https://srsran.github.io/srsRAN_Project_helm/home.json
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
 
 influxdb:
   adminUser:
@@ -89,33 +97,11 @@ influxdb:
     bucket: "srsran"
     user: "admin"
     retention_policy: "4d"
-    ## Leave empty to generate a random password and token.
-    ## Or fill any of these values to use fixed values.
     password: "admin1234"
     token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
 
-    ## The password and token are obtained from an existing secret. The expected
-    ## keys are `admin-password` and `admin-token`.
-    ## If set, the password and token values above are ignored.
-    # existingSecret: influxdb-auth
-  hostname: "influxdb"
-
-  ## Persist data to a persistent volume
-  ##
   persistence:
     enabled: false  # only for testing! Find a PVC provider easy to install for the docs
-    ## If true will use an existing PVC instead of creating one
-    # useExisting: false
-    ## Name of existing PVC to be used in the influx deployment
-    # name:
-    ## influxdb data Persistent Volume Storage Class
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
-    # storageClass: "-"
     accessMode: ReadWriteOnce
     size: 50Gi
     mountPath: /var/lib/influxdb2
@@ -124,9 +110,9 @@ influxdb:
 metrics-server:
   config:
     port: 55555
-    bucket: "srsran"
-    testbed: "default"
-    url: "http://10.233.52.146:80"
-    org: "srs"
+    bucket: srsran
+    testbed: default
+    url: http://grafana-influxdb.srsran.svc.cluster.local
+    org: srs
     token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
     serviceType: "ClusterIP"
