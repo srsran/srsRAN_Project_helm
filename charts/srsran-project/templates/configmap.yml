@@ -262,10 +262,10 @@ data:
     {{- if .Values.config.cu_up }}
     cu_up:
       {{- if .Values.config.cu_up.gtpu_queue_size }}
-      gtpu_queue_size: {{ .Values.config.cu_up.security.gtpu_queue_size }}
+      gtpu_queue_size: {{ .Values.config.cu_up.gtpu_queue_size }}
       {{- end }}
       {{- if .Values.config.cu_up.gtpu_reordering_timer }}
-      gtpu_reordering_timer: {{ .Values.config.cu_up.security.gtpu_reordering_timer }}
+      gtpu_reordering_timer: {{ .Values.config.cu_up.gtpu_reordering_timer }}
       {{- end }}
       {{- if or (eq .Values.config.cu_up.warn_on_drop false) (.Values.config.cu_up.warn_on_drop) }}
       warn_on_drop: {{ .Values.config.cu_up.warn_on_drop }}
@@ -522,7 +522,6 @@ data:
 
     {{- if .Values.config.ru_dummy }}
     ru_dummy:
-      dl_processing_delay: {{ .Values.config.ru_dummy.dl_processing_delay }}
     {{- end }}
 
     {{- if .Values.config.fapi }}

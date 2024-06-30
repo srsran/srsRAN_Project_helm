@@ -1,52 +1,29 @@
-# Default values for grafana-deployment.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+#
+# Copyright 2021-2023 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
 
 replicaCount: 1
-
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
+  create: false
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
 nodeSelector: {}
 
@@ -55,9 +32,10 @@ tolerations: []
 affinity: {}
 
 grafana:
-  ## Configure grafana datasources
-  ## ref: http://docs.grafana.org/administration/provisioning/#datasources
-  ##
+  image:
+    repository: softwareradiosystems/grafana
+    pullPolicy: IfNotPresent
+    tag: "latest"
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -74,22 +52,6 @@ grafana:
             tlsSkipVerify: true
           secureJsonData:
             token: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
-  dashboards:
-    default:
-      local-dashboard-srs:
-        url: https://srsran.github.io/srsRAN_Project_helm/home.json
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-      - name: 'default'
-        orgId: 1
-        folder: ''
-        type: file
-        disableDeletion: false
-        editable: true
-        options:
-          path: /var/lib/grafana/dashboards/default
 
 influxdb:
   adminUser:
@@ -101,7 +63,7 @@ influxdb:
     token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
 
   persistence:
-    enabled: false  # only for testing! Find a PVC provider easy to install for the docs
+    enabled: false  # Only for testing! Add a PVC provider for persistance!
     accessMode: ReadWriteOnce
     size: 50Gi
     mountPath: /var/lib/influxdb2
