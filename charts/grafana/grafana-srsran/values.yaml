@@ -54,6 +54,9 @@ grafana:
             token: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
 
 influxdb:
+  image:
+    repository: influxdb
+    tag: "2.7.4-alpine"
   adminUser:
     organization: "srs"
     bucket: "srsran"
@@ -61,7 +64,6 @@ influxdb:
     retention_policy: "4d"
     password: "admin1234"
     token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
-
   persistence:
     enabled: false  # Only for testing! Add a PVC provider for persistance!
     accessMode: ReadWriteOnce
