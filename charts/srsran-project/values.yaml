@@ -10,9 +10,9 @@ replicaCount: 1
 
 image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
-  repository: ninjab3s/srsran-5g-gnb
+  repository: softwareradiosystems/srsran-project
   pullPolicy: IfNotPresent
-  tag: "preskit"
+  tag: split72_release_avx512
 
 imagePullSecrets:
   - name: regcred
