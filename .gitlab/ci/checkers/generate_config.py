@@ -4,7 +4,7 @@ import argparse
 import json
 import textwrap
 
-def parse_config_from_file(file_path):
+def parse_str_config_from_file(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
         
@@ -13,18 +13,24 @@ def parse_config_from_file(file_path):
     match = config_pattern.search(content)
     
     if match:
-        config_text = match.group(1).strip()
+        config_text = match.group(1).strip().replace('[D] Input configuration (all values):', '')
         # Remove the first line
         config_lines = config_text.split('\n')
         config_text = '\n'.join(config_lines[1:]).strip()
         try:
-            config_data = yaml.safe_load(config_text)
-            return config_data
+            yaml.safe_load(config_text)
         except yaml.YAMLError as e:
             print(f"Error parsing YAML: {e}")
             return None
-    else:
-        print("Configuration block not found")
+        return config_text
+
+def parse_config_from_file(file_path):
+    config_text = parse_str_config_from_file(file_path)
+    try:
+        config_data = yaml.safe_load(config_text)
+        return config_data
+    except yaml.YAMLError as e:
+        print(f"Error parsing YAML: {e}")
         return None
 
 def generate_template(data, prefix="Values.config", indent=0):
@@ -71,7 +77,7 @@ def generate_schema(data):
 def main():
     parser = argparse.ArgumentParser(description="Parse configuration file and generate Jinja2 template.")
     parser.add_argument('--input', type=str, required=True, help='Path to the log file.')
-    parser.add_argument('--mode', choices=['parse', 'configMap', 'schema'], required=True, help='Mode of operation: "parse" or "template".')
+    parser.add_argument('--mode', choices=['parse', 'parseYaml', 'configMap', 'schema'], required=True, help='Mode of operation: "parse", "parseYaml" or "template".')
     args = parser.parse_args()
 
     config_data = parse_config_from_file(args.input)
@@ -82,6 +88,9 @@ def main():
 
     if args.mode == 'parse':
         print(json.dumps(config_data, indent=4))
+    elif args.mode == 'parseYaml':
+        pretty_yaml = parse_str_config_from_file(args.input)
+        print(pretty_yaml)
     elif args.mode == 'schema':
         schema = generate_schema(config_data)
         print(json.dumps(schema, indent=4))
