@@ -858,11 +858,11 @@ data:
         {{- if .Values.config.cell_cfg.pucch.f1_nof_ue_res_harq }}
         f1_nof_ue_res_harq: {{ .Values.config.cell_cfg.pucch.f1_nof_ue_res_harq }}
         {{- end }}
-        {{- if .Values.config.cell_cfg.pucch.f1_nof_cell_res_sr }}
-        f1_nof_cell_res_sr: {{ .Values.config.cell_cfg.pucch.f1_nof_cell_res_sr }}
+        {{- if .Values.config.cell_cfg.pucch.f0_or_f1_nof_cell_res_sr }}
+        f0_or_f1_nof_cell_res_sr: {{ .Values.config.cell_cfg.pucch.f0_or_f1_nof_cell_res_sr }}
         {{- end }}
-        {{- if .Values.config.cell_cfg.pucch.f1_nof_symbols }}
-        f1_nof_symbols: {{ .Values.config.cell_cfg.pucch.f1_nof_symbols }}
+        {{- if .Values.config.cell_cfg.pucch.f0_intraslot_freq_hop }}
+        f0_intraslot_freq_hop: {{ .Values.config.cell_cfg.pucch.f0_intraslot_freq_hop }}
         {{- end }}
         {{- if or (eq .Values.config.cell_cfg.pucch.f1_enable_occ false) (.Values.config.cell_cfg.pucch.f1_enable_occ) }}
         f1_enable_occ: {{ .Values.config.cell_cfg.pucch.f1_enable_occ }}
@@ -881,9 +881,6 @@ data:
         {{- end }}
         {{- if .Values.config.cell_cfg.pucch.f2_nof_cell_res_csi }}
         f2_nof_cell_res_csi: {{ .Values.config.cell_cfg.pucch.f2_nof_cell_res_csi }}
-        {{- end }}
-        {{- if .Values.config.cell_cfg.pucch.f2_nof_symbols }}
-        f2_nof_symbols: {{ .Values.config.cell_cfg.pucch.f2_nof_symbols }}
         {{- end }}
         {{- if .Values.config.cell_cfg.pucch.f2_max_nof_rbs }}
         f2_max_nof_rbs: {{ .Values.config.cell_cfg.pucch.f2_max_nof_rbs }}
