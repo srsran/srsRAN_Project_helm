@@ -12,7 +12,9 @@ include:
     file: .gitlab/ci-shared/setup/all.yml
 
 .helm lint:
-  image: alpine/helm:3.15.2
+  image:
+    name: alpine/helm:3.15.2
+    entrypoint: ["/bin/sh", "-c"]
   stage: static
   retry: 2
   variables:
