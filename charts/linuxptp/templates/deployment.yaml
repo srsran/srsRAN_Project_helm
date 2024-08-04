@@ -191,6 +191,7 @@ spec:
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           {{- end }}
         {{- end }}
+      priorityClassName: system-node-critical
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
