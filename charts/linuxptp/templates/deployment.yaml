@@ -34,6 +34,16 @@ spec:
         - name: config-volume
           configMap:
             name: linuxptp-configmap
+        - name: ts2phc-config-volume
+          configMap:
+            name: linuxptp-ts2phc-configmap
+        - name: ts2phc-leapseconds-volume
+          configMap:
+            name: linuxptp-ts2phc-leapfile-configmap
+        - name: entrypoint-volume-ts2phc
+          configMap:
+            name: linuxptp-ts2phc-entrypoint-configmap
+            defaultMode: 0777
         - name: entrypoint-volume-phc2sys
           configMap:
             name: linuxptp-phc2sys-entrypoint-configmap
@@ -41,6 +51,9 @@ spec:
         - name: ptp4l-run-volume
           hostPath:
             path: "/var/run"
+        - name: dev
+          hostPath:
+            path: "/dev"
       containers:
         - name: {{ .Chart.Name }}-ptp4l
           securityContext:
@@ -57,7 +70,7 @@ spec:
             - name: ptp4l-run-volume
               mountPath: "/var/run"
               readOnly: false
-          {{- if .Values.livenessProbe.enabled }}
+          {{- if and (.Values.livenessProbe.enabled) (eq "1" (default .Values.config.serverOnly "0")) }}
           livenessProbe:
             exec:
               command:
@@ -66,7 +79,7 @@ spec:
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           {{- end }}
-          {{- if .Values.startupProbe.enabled }}
+          {{- if and (.Values.startupProbe.enabled) (eq "1" (default .Values.config.serverOnly "0")) }}
           startupProbe:
             exec:
               command:
@@ -75,7 +88,7 @@ spec:
             failureThreshold: {{ .Values.startupProbe.failureThreshold }}
             periodSeconds: {{ .Values.startupProbe.periodSeconds }}
           {{- end }}
-          {{- if .Values.readinessProbe.enabled }}
+          {{- if and (.Values.readinessProbe.enabled) (eq "1" (default .Values.config.serverOnly "0")) }}
           readinessProbe:
             exec:
               command:
@@ -128,6 +141,56 @@ spec:
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           {{- end }}
+        {{- if .Values.config.ts2phc.enabled }}
+        - name: {{ .Chart.Name }}-ts2phc
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          command: [ "/etc/entrypoint/entrypoint-ts2phc.sh" ]
+          args: [ "{{ .Values.interfaceName }}", "25" ]
+          volumeMounts:
+            - name: ts2phc-config-volume
+              mountPath: /etc/config
+            - name: entrypoint-volume-ts2phc
+              mountPath: /etc/entrypoint
+            - name: ts2phc-leapseconds-volume
+              mountPath: /etc/leapseconds
+            - name: ptp4l-run-volume
+              mountPath: "/var/run"
+              readOnly: false
+            - name: dev
+              mountPath: /dev
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/ts2phc-healthy
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/ts2phc-healthy
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/ts2phc-healthy
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
