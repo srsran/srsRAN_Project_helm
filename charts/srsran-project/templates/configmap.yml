@@ -1046,7 +1046,7 @@ data:
     {{- if .Values.config.buffer_pool }}
     buffer_pool:
       {{- if .Values.config.buffer_pool.nof_segments }}
-      nof_segments: {{ .Values.config.buffer_pool.nof_segments }}
+      nof_segments: {{ mul 1 .Values.config.buffer_pool.nof_segments }}
       {{- end }}
       {{- if .Values.config.buffer_pool.segment_size }}
       segment_size: {{ .Values.config.buffer_pool.segment_size }}
