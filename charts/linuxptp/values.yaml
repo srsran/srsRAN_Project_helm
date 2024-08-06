@@ -87,7 +87,7 @@ config:
   network_transport: "L2"
   domainNumber: "24"
   ts2phc:
-    enabled: true
+    enabled: false
     use_syslog: 0
     verbose: 1
     logging_level: 7
