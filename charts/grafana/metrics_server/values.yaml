@@ -9,7 +9,7 @@
 replicaCount: 1
 
 image:
-  repository: softwareradiosystems/metrics_server
+  repository: softwareradiosystems/metrics-server
   pullPolicy: IfNotPresent
   tag: "latest"
 
