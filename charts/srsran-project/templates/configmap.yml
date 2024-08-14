@@ -1175,10 +1175,12 @@ data:
       eal_args: {{ .Values.config.hal.eal_args }}
     {{- end }}
 
+    {{- $log_suffix := now | date "15:04:05" }}
+
     {{- if .Values.config.log }}
     log:
       {{- if .Values.config.log.filename }}
-      filename: {{ .Values.config.log.filename }}
+      filename: {{ .Values.config.log.filename | replace ".log" "" }}-{{ $log_suffix }}.log
       {{- end }}
       {{- if .Values.config.log.all_level }}
       all_level: {{ .Values.config.log.all_level }}
@@ -1241,7 +1243,7 @@ data:
       broadcast_enabled: {{ .Values.config.log.broadcast_enabled }}
       {{- end }}
       {{- if .Values.config.log.phy_rx_symbols_filename }}
-      phy_rx_symbols_filename: {{ .Values.config.log.phy_rx_symbols_filename }}
+      phy_rx_symbols_filename: {{ .Values.config.log.phy_rx_symbols_filename | replace ".log" "" }}-{{ $log_suffix }}.log
       {{- end }}
       {{- if .Values.config.log.phy_rx_symbols_port }}
       phy_rx_symbols_port: {{ .Values.config.log.phy_rx_symbols_port }}
@@ -1250,7 +1252,7 @@ data:
       phy_rx_symbols_prach: {{ .Values.config.log.phy_rx_symbols_prach }}
       {{- end }}
       {{- if .Values.config.log.tracing_filename }}
-      tracing_filename: {{ .Values.config.log.tracing_filename }}
+      tracing_filename: {{ .Values.config.log.tracing_filename | replace ".log" "" }}-{{ $log_suffix }}.log
       {{- end }}
       {{- if or (eq .Values.config.log.f1ap_json_enabled false) (.Values.config.log.f1ap_json_enabled) }}
       f1ap_json_enabled: {{ .Values.config.log.f1ap_json_enabled }}
@@ -1260,25 +1262,25 @@ data:
     {{- if .Values.config.pcap }}
     pcap:
       {{- if .Values.config.pcap.ngap_filename }}
-      ngap_filename: {{ .Values.config.pcap.ngap_filename }}
+      ngap_filename: {{ .Values.config.pcap.ngap_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if or (eq .Values.config.pcap.ngap_enable false) (.Values.config.pcap.ngap_enable) }}
       ngap_enable: {{ .Values.config.pcap.ngap_enable }}
       {{- end }}
       {{- if .Values.config.pcap.e1ap_filename }}
-      e1ap_filename: {{ .Values.config.pcap.e1ap_filename }}
+      e1ap_filename: {{ .Values.config.pcap.e1ap_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if or (eq .Values.config.pcap.e1ap_enable false) (.Values.config.pcap.e1ap_enable) }}
       e1ap_enable: {{ .Values.config.pcap.e1ap_enable }}
       {{- end }}
       {{- if .Values.config.pcap.f1ap_filename }}
-      f1ap_filename: {{ .Values.config.pcap.f1ap_filename }}
+      f1ap_filename: {{ .Values.config.pcap.f1ap_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if or (eq .Values.config.pcap.f1ap_enable false) (.Values.config.pcap.f1ap_enable) }}
       f1ap_enable: {{ .Values.config.pcap.f1ap_enable }}
       {{- end }}
       {{- if .Values.config.pcap.rlc_filename }}
-      rlc_filename: {{ .Values.config.pcap.rlc_filename }}
+      rlc_filename: {{ .Values.config.pcap.rlc_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if .Values.config.pcap.rlc_rb_type }}
       rlc_rb_type: {{ .Values.config.pcap.rlc_rb_type }}
@@ -1287,7 +1289,7 @@ data:
       rlc_enable: {{ .Values.config.pcap.rlc_enable }}
       {{- end }}
       {{- if .Values.config.pcap.mac_filename }}
-      mac_filename: {{ .Values.config.pcap.mac_filename }}
+      mac_filename: {{ .Values.config.pcap.mac_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if .Values.config.pcap.mac_type }}
       mac_type: {{ .Values.config.pcap.mac_type }}
@@ -1296,13 +1298,13 @@ data:
       mac_enable: {{ .Values.config.pcap.mac_enable }}
       {{- end }}
       {{- if .Values.config.pcap.e2ap_filename }}
-      e2ap_filename: {{ .Values.config.pcap.e2ap_filename }}
+      e2ap_filename: {{ .Values.config.pcap.e2ap_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if or (eq .Values.config.pcap.e2ap_enable false) (.Values.config.pcap.e2ap_enable) }}
       e2ap_enable: {{ .Values.config.pcap.e2ap_enable }}
       {{- end }}
       {{- if .Values.config.pcap.gtpu_filename }}
-      gtpu_filename: {{ .Values.config.pcap.gtpu_filename }}
+      gtpu_filename: {{ .Values.config.pcap.gtpu_filename | replace ".pcap" "" }}-{{ $log_suffix }}.pcap
       {{- end }}
       {{- if or (eq .Values.config.pcap.gtpu_enable false) (.Values.config.pcap.gtpu_enable) }}
       gtpu_enable: {{ .Values.config.pcap.gtpu_enable }}
