@@ -25,7 +25,132 @@ data:
     {{- end }}
 
     {{- if .Values.config.qos }}
-    qos: {{ .Values.config.qos }}
+    qos:
+    {{- range .Values.config.qos }}
+      -
+        five_qi: {{ .five_qi }}
+        {{- if .Values.config.qos.rlc }}
+        rlc:
+          mode: {{ .Values.config.qos.rlc.mode }}
+          {{- if .Values.config.qos.rlc.um-bidir }}
+          um-bidir:
+            {{- if .Values.config.qos.rlc.um-bidir.tx }}
+            tx:
+              {{- if .Values.config.qos.rlc.um-bidir.tx.sn }}
+              sn: {{ .Values.config.qos.rlc.um-bidir.tx.sn }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.um-bidir.tx.queue-size }}
+              queue-size: {{ .Values.config.qos.rlc.um-bidir.tx.queue-size }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.um-bidir.tx.queue-bytes }}
+              queue-bytes: {{ .Values.config.qos.rlc.um-bidir.tx.queue-bytes }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.config.qos.rlc.um-bidir.rx }}
+            rx:
+              {{- if .Values.config.qos.rlc.um-bidir.rx.sn }}
+              sn: {{ .Values.config.qos.rlc.um-bidir.rx.sn }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.um-bidir.rx.t-reassembly }}
+              t-reassembly: {{ .Values.config.qos.rlc.um-bidir.rx.t-reassembly }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.config.qos.rlc.mode.am }}
+          am:
+            {{- if .Values.config.qos.rlc.am.tx }}
+            tx:          
+              {{- if .Values.config.qos.rlc.am.tx.sn }}
+              sn: {{ .Values.config.qos.rlc.am.tx.sn }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.am.tx.t-poll-retransmit }}
+              t-poll-retransmit: {{ .Values.config.qos.rlc.am.tx.t-poll-retransmit }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.am.tx.poll-pdu }}
+              poll-pdu: {{ .Values.config.qos.rlc.am.tx.poll-pdu }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.am.tx.poll-byte }}
+              poll-byte: {{ .Values.config.qos.rlc.am.tx.poll-byte }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.am.tx.queue-size }}
+              queue-size: {{ .Values.config.qos.rlc.am.tx.queue-size }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.am.tx.queue-bytes }}
+              queue-bytes: {{ .Values.config.qos.rlc.am.tx.queue-bytes }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.config.qos.rlc.am.rx }}
+            rx:
+              {{- if .Values.config.qos.rlc.am.rx.sn }}
+              sn: {{ .Values.config.qos.rlc.am.rx.sn }}
+              {{- end }}
+              {{- if .Values.config.qos.rlc.am.rx.t-reassembly }}
+              t-reassembly: {{ .Values.config.qos.rlc.am.rx.t-reassembly }}
+              {{- end }}          
+              {{- if .Values.config.qos.rlc.am.rx.t-status-prohibit }}
+              t-status-prohibit: {{ .Values.config.qos.rlc.am.rx.t-status-prohibit }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.config.qos.pdcp }}
+        pdcp:
+          {{- if .Values.config.qos.pdcp.integrity_required }}
+          integrity_required: {{ .Values.config.qos.pdcp.integrity_required }}
+          {{- end }}
+          {{- if .Values.config.qos.pdcp.tx }}
+          tx:
+            {{- if .Values.config.qos.pdcp.tx.sn }}
+            sn: {{ .Values.config.qos.pdcp.tx.sn }}
+            {{- end }}
+            {{- if .Values.config.qos.pdcp.tx.discard_timer }}
+            discard_timer: {{ .Values.config.qos.pdcp.tx.discard_timer }}
+            {{- end }}
+            {{- if .Values.config.qos.pdcp.tx.status_report_required }}
+            status_report_required: {{ .Values.config.qos.pdcp.tx.status_report_required }}
+            {{- end }}           
+          {{- end }}
+          {{- if .Values.config.qos.pdcp.rx }}
+          rx:       
+            {{- if .Values.config.qos.pdcp.rx.sn }}
+            sn: {{ .Values.config.qos.pdcp.rx.sn }}
+            {{- end }}            
+            {{- if .Values.config.qos.pdcp.rx.t_reordering }}
+            t_reordering: {{ .Values.config.qos.pdcp.rx.t_reordering }}
+            {{- end }}             
+            {{- if .Values.config.qos.pdcp.rx.out_of_order_delivery }}
+            out_of_order_delivery: {{ .Values.config.qos.pdcp.rx.out_of_order_delivery }}
+            {{- end }}            
+          {{- end }}
+        {{- end }}
+        {{- if .Values.config.qos.f1u_du }}
+        f1u_du:
+          {{- if .Values.config.qos.f1u_du.backoff_timer }}
+          backoff_timer: {{ .Values.config.qos.f1u_du.backoff_timer }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.config.qos.f1u_cu_up }}
+        f1u_cu_up:
+          {{- if .Values.config.qos.f1u_cu_up.backoff_timer }}
+          backoff_timer: {{ .Values.config.qos.f1u_cu_up.backoff_timer }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.config.qos.mac }}
+        mac:
+          {{- if .Values.config.qos.mac.lc_priority }}
+          lc_priority: {{ .Values.config.qos.mac.lc_priority }}
+          {{- end }}
+          {{- if .Values.config.qos.mac.lc_group_id }}
+          lc_group_id: {{ .Values.config.qos.mac.lc_group_id }}
+          {{- end }}
+          {{- if .Values.config.qos.mac.bucket_size_duration_ms }}
+          bucket_size_duration_ms: {{ .Values.config.qos.mac.bucket_size_duration_ms }}
+          {{- end }}
+          {{- if .Values.config.qos.mac.prioritized_bit_rate_kBps }}
+          prioritized_bit_rate_kBps: {{ .Values.config.qos.mac.prioritized_bit_rate_kBps }}
+          {{- end }}
+        {{- end }}
+    {{- end }}
     {{- end }}
 
     {{- if .Values.config.srbs }}
@@ -938,7 +1063,7 @@ data:
         power_ramping_step_db: {{ .Values.config.cell_cfg.prach.power_ramping_step_db }}
         {{- end }}
         {{- if .Values.config.cell_cfg.prach.ports }}
-        ports: {{ .Values.config.cell_cfg.prach.ports }}
+        ports: [{{ join ", " .Values.config.cell_cfg.prach.ports }}]
         {{- end }}
         {{- if .Values.config.cell_cfg.prach.nof_ssb_per_ro }}
         nof_ssb_per_ro: {{ .Values.config.cell_cfg.prach.nof_ssb_per_ro }}
