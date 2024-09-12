@@ -29,125 +29,128 @@ data:
     {{- range .Values.config.qos }}
       -
         five_qi: {{ .five_qi }}
-        {{- if .Values.config.qos.rlc }}
+        {{- if .rlc }}
         rlc:
-          mode: {{ .Values.config.qos.rlc.mode }}
-          {{- if (eq .Values.config.qos.rlc.mode "um-bidir") }}
+          mode: {{ .rlc.mode }}
+          {{- if (eq .rlc.mode "um-bidir") }}
           um-bidir:
-            {{- if (index .Values.config.qos.rlc "um-bidir" "tx") }}
+            {{- if (index .rlc "um-bidir" "tx") }}
             tx:
-              {{- if (index .Values.config.qos.rlc "um-bidir" "tx" "sn") }}
-              sn: {{ index .Values.config.qos.rlc "um-bidir" "tx" "sn" }}
+              {{- if (index .rlc "um-bidir" "tx" "sn") }}
+              sn: {{ index .rlc "um-bidir" "tx" "sn" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc "um-bidir" "tx" "queue-size") }}
-              queue-size: {{ index .Values.config.qos.rlc "um-bidir" "tx" "queue-size" }}
+              {{- if (index .rlc "um-bidir" "tx" "queue-size") }}
+              queue-size: {{ index .rlc "um-bidir" "tx" "queue-size" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc "um-bidir" "tx" "queue-bytes") }}
-              queue-bytes: {{ index .Values.config.qos.rlc "um-bidir" "tx" "queue-bytes" }}
+              {{- if (index .rlc "um-bidir" "tx" "queue-bytes") }}
+              queue-bytes: {{ index .rlc "um-bidir" "tx" "queue-bytes" }}
               {{- end }}
             {{- end }}
-            {{- if (index .Values.config.qos.rlc "um-bidir" "rx") }}
+            {{- if (index .rlc "um-bidir" "rx") }}
             rx:
-              {{- if (index .Values.config.qos.rlc "um-bidir" "rx" "sn") }}
-              sn: {{ index .Values.config.qos.rlc "um-bidir" "rx" "sn" }}
+              {{- if (index .rlc "um-bidir" "rx" "sn") }}
+              sn: {{ index .rlc "um-bidir" "rx" "sn" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc "um-bidir" "rx" "t-reassembly") }}
-              t-reassembly: {{ index .Values.config.qos.rlc "um-bidir" "rx" "t-reassembly" }}
+              {{- if (index .rlc "um-bidir" "rx" "t-reassembly") }}
+              t-reassembly: {{ index .rlc "um-bidir" "rx" "t-reassembly" }}
               {{- end }}
             {{- end }}
           {{- end }}
-          {{- if (eq .Values.config.qos.rlc.mode "am") }}
+          {{- if (eq .rlc.mode "am") }}
           am:
-            {{- if .Values.config.qos.rlc.am.tx }}
+            {{- if .rlc.am.tx }}
             tx:
-              {{- if .Values.config.qos.rlc.am.tx.sn }}
-              sn: {{ .Values.config.qos.rlc.am.tx.sn }}
+              {{- if .rlc.am.tx.sn }}
+              sn: {{ .rlc.am.tx.sn }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.tx "t-poll-retransmit") }}
-              t-poll-retransmit: {{ index .Values.config.qos.rlc.am.tx "t-poll-retransmit" }}
+              {{- if (index .rlc.am.tx "t-poll-retransmit") }}
+              t-poll-retransmit: {{ index .rlc.am.tx "t-poll-retransmit" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.tx "poll-pdu") }}
-              poll-pdu: {{ index .Values.config.qos.rlc.am.tx "poll-pdu" }}
+              {{- if (index .rlc.am.tx "max-retx-threshold") }}
+              max-retx-threshold: {{ index .rlc.am.tx "max-retx-threshold" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.tx "poll-byte") }}
-              poll-byte: {{ index .Values.config.qos.rlc.am.tx "poll-byte" }}
+              {{- if (index .rlc.am.tx "poll-pdu") }}
+              poll-pdu: {{ index .rlc.am.tx "poll-pdu" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.tx "queue-size") }}
-              queue-size: {{ index .Values.config.qos.rlc.am.tx "queue-size" }}
+              {{- if (index .rlc.am.tx "poll-byte") }}
+              poll-byte: {{ index .rlc.am.tx "poll-byte" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.tx "queue-bytes") }}
-              queue-bytes: {{ index .Values.config.qos.rlc.am.tx "queue-bytes" }}
+              {{- if (index .rlc.am.tx "queue-size") }}
+              queue-size: {{ index .rlc.am.tx "queue-size" }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "queue-bytes") }}
+              queue-bytes: {{ index .rlc.am.tx "queue-bytes" }}
               {{- end }}
             {{- end }}
-            {{- if .Values.config.qos.rlc.am.rx }}
+            {{- if .rlc.am.rx }}
             rx:
-              {{- if .Values.config.qos.rlc.am.rx.sn }}
-              sn: {{ .Values.config.qos.rlc.am.rx.sn }}
+              {{- if .rlc.am.rx.sn }}
+              sn: {{ .rlc.am.rx.sn }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.rx "t-reassembly") }}
-              t-reassembly: {{ index .Values.config.qos.rlc.am.rx "t-reassembly" }}
+              {{- if (index .rlc.am.rx "t-reassembly") }}
+              t-reassembly: {{ index .rlc.am.rx "t-reassembly" }}
               {{- end }}
-              {{- if (index .Values.config.qos.rlc.am.rx "t-status-prohibit") }}
-              t-status-prohibit: {{ index .Values.config.qos.rlc.am.rx "t-status-prohibit" }}
+              {{- if (index .rlc.am.rx "t-status-prohibit") }}
+              t-status-prohibit: {{ index .rlc.am.rx "t-status-prohibit" }}
               {{- end }}
             {{- end }}
           {{- end }}
         {{- end }}
-        {{- if .Values.config.qos.pdcp }}
+        {{- if .pdcp }}
         pdcp:
-          {{- if .Values.config.qos.pdcp.integrity_required }}
-          integrity_required: {{ .Values.config.qos.pdcp.integrity_required }}
+          {{- if .pdcp.integrity_required }}
+          integrity_required: {{ .pdcp.integrity_required }}
           {{- end }}
-          {{- if .Values.config.qos.pdcp.tx }}
+          {{- if .pdcp.tx }}
           tx:
-            {{- if .Values.config.qos.pdcp.tx.sn }}
-            sn: {{ .Values.config.qos.pdcp.tx.sn }}
+            {{- if .pdcp.tx.sn }}
+            sn: {{ .pdcp.tx.sn }}
             {{- end }}
-            {{- if .Values.config.qos.pdcp.tx.discard_timer }}
-            discard_timer: {{ .Values.config.qos.pdcp.tx.discard_timer }}
+            {{- if .pdcp.tx.discard_timer }}
+            discard_timer: {{ .pdcp.tx.discard_timer }}
             {{- end }}
-            {{- if .Values.config.qos.pdcp.tx.status_report_required }}
-            status_report_required: {{ .Values.config.qos.pdcp.tx.status_report_required }}
+            {{- if .pdcp.tx.status_report_required }}
+            status_report_required: {{ .pdcp.tx.status_report_required }}
             {{- end }}
           {{- end }}
-          {{- if .Values.config.qos.pdcp.rx }}
+          {{- if .pdcp.rx }}
           rx:
-            {{- if .Values.config.qos.pdcp.rx.sn }}
-            sn: {{ .Values.config.qos.pdcp.rx.sn }}
+            {{- if .pdcp.rx.sn }}
+            sn: {{ .pdcp.rx.sn }}
             {{- end }}
-            {{- if .Values.config.qos.pdcp.rx.t_reordering }}
-            t_reordering: {{ .Values.config.qos.pdcp.rx.t_reordering }}
+            {{- if .pdcp.rx.t_reordering }}
+            t_reordering: {{ .pdcp.rx.t_reordering }}
             {{- end }}
-            {{- if .Values.config.qos.pdcp.rx.out_of_order_delivery }}
-            out_of_order_delivery: {{ .Values.config.qos.pdcp.rx.out_of_order_delivery }}
+            {{- if .pdcp.rx.out_of_order_delivery }}
+            out_of_order_delivery: {{ .pdcp.rx.out_of_order_delivery }}
             {{- end }}
           {{- end }}
         {{- end }}
-        {{- if .Values.config.qos.f1u_du }}
+        {{- if .f1u_du }}
         f1u_du:
-          {{- if .Values.config.qos.f1u_du.backoff_timer }}
-          backoff_timer: {{ .Values.config.qos.f1u_du.backoff_timer }}
+          {{- if .f1u_du.backoff_timer }}
+          backoff_timer: {{ .f1u_du.backoff_timer }}
           {{- end }}
         {{- end }}
-        {{- if .Values.config.qos.f1u_cu_up }}
+        {{- if .f1u_cu_up }}
         f1u_cu_up:
-          {{- if .Values.config.qos.f1u_cu_up.backoff_timer }}
-          backoff_timer: {{ .Values.config.qos.f1u_cu_up.backoff_timer }}
+          {{- if .f1u_cu_up.backoff_timer }}
+          backoff_timer: {{ .f1u_cu_up.backoff_timer }}
           {{- end }}
         {{- end }}
-        {{- if .Values.config.qos.mac }}
+        {{- if .mac }}
         mac:
-          {{- if .Values.config.qos.mac.lc_priority }}
-          lc_priority: {{ .Values.config.qos.mac.lc_priority }}
+          {{- if .mac.lc_priority }}
+          lc_priority: {{ .mac.lc_priority }}
           {{- end }}
-          {{- if .Values.config.qos.mac.lc_group_id }}
-          lc_group_id: {{ .Values.config.qos.mac.lc_group_id }}
+          {{- if .mac.lc_group_id }}
+          lc_group_id: {{ .mac.lc_group_id }}
           {{- end }}
-          {{- if .Values.config.qos.mac.bucket_size_duration_ms }}
-          bucket_size_duration_ms: {{ .Values.config.qos.mac.bucket_size_duration_ms }}
+          {{- if .mac.bucket_size_duration_ms }}
+          bucket_size_duration_ms: {{ .mac.bucket_size_duration_ms }}
           {{- end }}
-          {{- if .Values.config.qos.mac.prioritized_bit_rate_kBps }}
-          prioritized_bit_rate_kBps: {{ .Values.config.qos.mac.prioritized_bit_rate_kBps }}
+          {{- if .mac.prioritized_bit_rate_kBps }}
+          prioritized_bit_rate_kBps: {{ .mac.prioritized_bit_rate_kBps }}
           {{- end }}
         {{- end }}
     {{- end }}
