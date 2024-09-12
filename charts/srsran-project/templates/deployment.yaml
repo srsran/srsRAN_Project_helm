@@ -38,7 +38,7 @@ spec:
         {{- if .Values.debugging.enabled }}
         - name: srs-host-volume
           hostPath:
-            path: {{ .Values.debugging.hostPath }}/{{ now | date "2006-01-02--15:04:05" }}
+            path: {{ .Values.debugging.hostPath }}/{{ now | date "20060102-150405" }}
             type: DirectoryOrCreate
         {{- end }}
         {{- if .Values.config.hal }}
@@ -60,8 +60,8 @@ spec:
             - name: config-volume
               mountPath: /etc/config
             {{- if .Values.debugging.enabled }}
-            - mountPath: {{ .Values.debugging.containerPath }}
-              name: srs-host-volume
+            - name: srs-host-volume
+              mountPath: {{ .Values.debugging.containerPath }}
             {{- end }}
             {{- if .Values.config.hal }}
             - name: hugepage-1gi

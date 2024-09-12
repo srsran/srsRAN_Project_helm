@@ -25,7 +25,135 @@ data:
     {{- end }}
 
     {{- if .Values.config.qos }}
-    qos: {{ .Values.config.qos }}
+    qos:
+    {{- range .Values.config.qos }}
+      -
+        five_qi: {{ .five_qi }}
+        {{- if .rlc }}
+        rlc:
+          mode: {{ .rlc.mode }}
+          {{- if (eq .rlc.mode "um-bidir") }}
+          um-bidir:
+            {{- if (index .rlc "um-bidir" "tx") }}
+            tx:
+              {{- if (index .rlc "um-bidir" "tx" "sn") }}
+              sn: {{ index .rlc "um-bidir" "tx" "sn" }}
+              {{- end }}
+              {{- if (index .rlc "um-bidir" "tx" "queue-size") }}
+              queue-size: {{ index .rlc "um-bidir" "tx" "queue-size" }}
+              {{- end }}
+              {{- if (index .rlc "um-bidir" "tx" "queue-bytes") }}
+              queue-bytes: {{ index .rlc "um-bidir" "tx" "queue-bytes" }}
+              {{- end }}
+            {{- end }}
+            {{- if (index .rlc "um-bidir" "rx") }}
+            rx:
+              {{- if (index .rlc "um-bidir" "rx" "sn") }}
+              sn: {{ index .rlc "um-bidir" "rx" "sn" }}
+              {{- end }}
+              {{- if (index .rlc "um-bidir" "rx" "t-reassembly") }}
+              t-reassembly: {{ index .rlc "um-bidir" "rx" "t-reassembly" }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if (eq .rlc.mode "am") }}
+          am:
+            {{- if .rlc.am.tx }}
+            tx:
+              {{- if .rlc.am.tx.sn }}
+              sn: {{ .rlc.am.tx.sn }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "t-poll-retransmit") }}
+              t-poll-retransmit: {{ index .rlc.am.tx "t-poll-retransmit" }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "max-retx-threshold") }}
+              max-retx-threshold: {{ index .rlc.am.tx "max-retx-threshold" }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "poll-pdu") }}
+              poll-pdu: {{ index .rlc.am.tx "poll-pdu" }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "poll-byte") }}
+              poll-byte: {{ index .rlc.am.tx "poll-byte" }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "queue-size") }}
+              queue-size: {{ index .rlc.am.tx "queue-size" }}
+              {{- end }}
+              {{- if (index .rlc.am.tx "queue-bytes") }}
+              queue-bytes: {{ index .rlc.am.tx "queue-bytes" }}
+              {{- end }}
+            {{- end }}
+            {{- if .rlc.am.rx }}
+            rx:
+              {{- if .rlc.am.rx.sn }}
+              sn: {{ .rlc.am.rx.sn }}
+              {{- end }}
+              {{- if (index .rlc.am.rx "t-reassembly") }}
+              t-reassembly: {{ index .rlc.am.rx "t-reassembly" }}
+              {{- end }}
+              {{- if (index .rlc.am.rx "t-status-prohibit") }}
+              t-status-prohibit: {{ index .rlc.am.rx "t-status-prohibit" }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .pdcp }}
+        pdcp:
+          {{- if .pdcp.integrity_required }}
+          integrity_required: {{ .pdcp.integrity_required }}
+          {{- end }}
+          {{- if .pdcp.tx }}
+          tx:
+            {{- if .pdcp.tx.sn }}
+            sn: {{ .pdcp.tx.sn }}
+            {{- end }}
+            {{- if .pdcp.tx.discard_timer }}
+            discard_timer: {{ .pdcp.tx.discard_timer }}
+            {{- end }}
+            {{- if .pdcp.tx.status_report_required }}
+            status_report_required: {{ .pdcp.tx.status_report_required }}
+            {{- end }}
+          {{- end }}
+          {{- if .pdcp.rx }}
+          rx:
+            {{- if .pdcp.rx.sn }}
+            sn: {{ .pdcp.rx.sn }}
+            {{- end }}
+            {{- if .pdcp.rx.t_reordering }}
+            t_reordering: {{ .pdcp.rx.t_reordering }}
+            {{- end }}
+            {{- if .pdcp.rx.out_of_order_delivery }}
+            out_of_order_delivery: {{ .pdcp.rx.out_of_order_delivery }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .f1u_du }}
+        f1u_du:
+          {{- if .f1u_du.backoff_timer }}
+          backoff_timer: {{ .f1u_du.backoff_timer }}
+          {{- end }}
+        {{- end }}
+        {{- if .f1u_cu_up }}
+        f1u_cu_up:
+          {{- if .f1u_cu_up.backoff_timer }}
+          backoff_timer: {{ .f1u_cu_up.backoff_timer }}
+          {{- end }}
+        {{- end }}
+        {{- if .mac }}
+        mac:
+          {{- if .mac.lc_priority }}
+          lc_priority: {{ .mac.lc_priority }}
+          {{- end }}
+          {{- if .mac.lc_group_id }}
+          lc_group_id: {{ .mac.lc_group_id }}
+          {{- end }}
+          {{- if .mac.bucket_size_duration_ms }}
+          bucket_size_duration_ms: {{ .mac.bucket_size_duration_ms }}
+          {{- end }}
+          {{- if .mac.prioritized_bit_rate_kBps }}
+          prioritized_bit_rate_kBps: {{ .mac.prioritized_bit_rate_kBps }}
+          {{- end }}
+        {{- end }}
+    {{- end }}
     {{- end }}
 
     {{- if .Values.config.srbs }}
@@ -938,7 +1066,7 @@ data:
         power_ramping_step_db: {{ .Values.config.cell_cfg.prach.power_ramping_step_db }}
         {{- end }}
         {{- if .Values.config.cell_cfg.prach.ports }}
-        ports: {{ .Values.config.cell_cfg.prach.ports }}
+        ports: [{{ join ", " .Values.config.cell_cfg.prach.ports }}]
         {{- end }}
         {{- if .Values.config.cell_cfg.prach.nof_ssb_per_ro }}
         nof_ssb_per_ro: {{ .Values.config.cell_cfg.prach.nof_ssb_per_ro }}

@@ -100,7 +100,8 @@ config:
     - network_interface: enp1s0f0                                 # Ethernet interface name used to communicate with the RU.
       ru_mac_addr: 70:b3:d5:e1:5b:06                              # RU MAC address.
       du_mac_addr: 80:61:5f:0d:df:aa                              # DU MAC address.
-      vlan_tag: 5                                                 # VLAN tag value.
+      vlan_tag_cp: 5                                              # CP VLAN tag value.
+      vlan_tag_up: 5                                              # UP VLAN tag value.
       prach_port_id: [4]                                          # PRACH eAxC port value.
       dl_port_id: [0, 1]                                          # Downlink eAxC port values.
       ul_port_id: [0, 1]                                          # Uplink eAxC port values.
@@ -120,6 +121,40 @@ config:
       prach_root_sequence_index: 1                                  # PRACH root sequence index.
       zero_correlation_zone: 0                                      # Zero correlation zone.
       prach_frequency_start: 0                                      # Offset in PRBs of lowest PRACH transmission occasion in frequency domain respective to PRB 0.
+
+  qos:
+    -
+      five_qi: 1 # E.g. Conversational Voice
+      rlc:
+        mode: um-bidir
+        um-bidir:
+          tx:
+            sn: 12
+            queue-size: 16384
+            queue-bytes: 6172672
+          rx:
+            sn: 12
+            t-reassembly: 50
+      pdcp:
+        integrity_required: false
+        tx:
+          sn: 12
+          discard_timer: -1
+          status_report_required: false
+        rx:
+          sn: 12
+          t_reordering: 80
+          out_of_order_delivery: false
+      f1u_du:
+        backoff_timer: 10
+      f1u_cu_up:
+        backoff_timer: 10
+      mac:
+        lc_priority: 4
+        lc_group_id: 1
+        bucket_size_duration_ms: 5
+        prioritized_bit_rate_kBps: 65537
+
 
   log:                                                              # Set debugging->enabled->true in order to make logs persistent. Make sure hostPath and log file path match.
     filename: /tmp/gnb.log                                          # Path of the log file.
