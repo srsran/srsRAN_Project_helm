@@ -122,6 +122,40 @@ config:
       zero_correlation_zone: 0                                      # Zero correlation zone.
       prach_frequency_start: 0                                      # Offset in PRBs of lowest PRACH transmission occasion in frequency domain respective to PRB 0.
 
+  qos:
+    -
+      five_qi: 1 # E.g. Conversational Voice
+      rlc:
+        mode: um-bidir
+        um-bidir:
+          tx:
+            sn: 12
+            queue-size: 16384
+            queue-bytes: 6172672
+          rx:
+            sn: 12
+            t-reassembly: 50
+      pdcp:
+        integrity_required: false
+        tx:
+          sn: 12
+          discard_timer: -1
+          status_report_required: false
+        rx:
+          sn: 12
+          t_reordering: 80
+          out_of_order_delivery: false
+      f1u_du:
+        backoff_timer: 10
+      f1u_cu_up:
+        backoff_timer: 10
+      mac:
+        lc_priority: 4
+        lc_group_id: 1
+        bucket_size_duration_ms: 5
+        prioritized_bit_rate_kBps: 65537
+
+
   log:                                                              # Set debugging->enabled->true in order to make logs persistent. Make sure hostPath and log file path match.
     filename: /tmp/gnb.log                                          # Path of the log file.
     all_level: warning                                              # Logging level applied to all layers.
