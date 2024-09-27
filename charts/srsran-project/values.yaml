@@ -77,7 +77,6 @@ config:
       sd: 1
 
   ru_ofh:
-    ru_bandwidth_MHz: 100                                           # RU instantaneous bandwidth.
     t1a_max_cp_dl: 500                                              # Maximum T1a on Control-Plane for Downlink in microseconds.
     t1a_min_cp_dl: 250                                              # Minimum T1a on Control-Plane for Downlink in microseconds.
     t1a_max_cp_ul: 465                                              # Maximum T1a on Control-Plane for Uplink in microseconds.
