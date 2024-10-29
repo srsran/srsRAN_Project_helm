@@ -41,10 +41,15 @@ spec:
             path: {{ .Values.debugging.hostPath }}/{{ now | date "2006-01-02--15:04:05" }}
             type: DirectoryOrCreate
         {{- end }}
-        {{- if .Values.config.hal }}
+        {{- if .Values.resources.enable_hugepages_1gi }}
         - name: hugepage-1gi
           emptyDir:
             medium: HugePages-1Gi
+        {{- end }}
+        {{- if .Values.resources.enable_hugepages_2mi }}
+        - name: hugepage-2mi
+          emptyDir:
+            medium: HugePages-2Mi
         {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -63,9 +68,13 @@ spec:
             - mountPath: {{ .Values.debugging.containerPath }}
               name: srs-host-volume
             {{- end }}
-            {{- if .Values.config.hal }}
+            {{- if .Values.resources.enable_hugepages_1gi }}
             - name: hugepage-1gi
               mountPath: /hugepages-1Gi
+            {{- end }}
+            {{- if .Values.resources.enable_hugepages_2mi }}
+            - name: hugepage-2mi
+              mountPath: /hugepages-2Mi
             {{- end }}
       dnsPolicy: ClusterFirstWithHostNet
       {{- with .Values.nodeSelector }}
