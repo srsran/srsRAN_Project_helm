@@ -1,25 +1,63 @@
-hss:
-  enabled: false
+dbURI: "mongodb://{{ .Release.Name }}-mongodb/open5gs"
 
-mme:
+populate:
   enabled: false
+  image:
+    registry: docker.io
+    repository: gradiant/open5gs-dbctl
+    tag: 0.10.3
+    pullPolicy: IfNotPresent
+  initCommands:
+  - open5gs-dbctl add_ue_with_apn 001010123456789 00112233445566778899aabbccddeeff 63bfa50ee6523365ff14c1f45f88737d srsapn
 
-pcrf:
-  enabled: false
-
+# Common
+mongodb:
+  enabled: true
+  auth:
+    enabled: false
 smf:
+  enabled: true
   config:
+    scp:
+      enabled: true
     pcrf:
       enabled: false
+    subnetList:
+    - subnet: 10.45.0.1/16
+      dnn: srsapn
+upf:
+  enabled: true
+  config:
+    subnetList:
+    - subnet: 10.45.0.1/16
+      dnn: srsapn
+      dev: ogstun
+      createDev: true
+      enableNAT: true
+webui:
+  enabled: true
 
+# 4G
+hss:
+  enabled: false
+  mongodb:
+    enabled: false
+mme:
+  enabled: false
+pcrf:
+  enabled: false
+  mongodb:
+    enabled: false
 sgwc:
   enabled: false
-
 sgwu:
   enabled: false
 
+# 5G
 amf:
+  enabled: true
   config:
+    networkName: "srsRAN"
     guamiList:
       - plmn_id:
           mcc: "001"
@@ -31,7 +69,7 @@ amf:
       - plmn_id:
           mcc: "001"
           mnc: "01"
-        tac: [1]
+        tac: [7]
     plmnList:
       - plmn_id:
           mcc: "001"
@@ -39,8 +77,20 @@ amf:
         s_nssai:
           - sst: 1
             sd: "0x1"
-
+ausf:
+  enabled: true
+bsf:
+  enabled: true
+nrf:
+  enabled: true
+  config:
+    logLevel: info
+    servingList:
+      - plmn_id:
+          mcc: "001"
+          mnc: "01"
 nssf:
+  enabled: true
   config:
     nsiList:
       - nrf:
@@ -48,12 +98,17 @@ nssf:
           port: 7777
         sst: 1
         sd: "0x1"
-
-webui:
-  ingress:
-    enabled: false
-
-populate:
+pcf:
   enabled: true
-  initCommands:
-  - open5gs-dbctl add_ue_with_apn 001010023406896 F5FCFD829D0C09346AD16286F85CE123 15E3650777FE16685D2A6C78BD984123 srsapn # example USIM
+  mongodb:
+    enabled: false
+udm:
+  enabled: true
+udr:
+  enabled: true
+  mongodb:
+    enabled: false
+scp:
+  enabled: true
+  mongodb:
+    enabled: false
