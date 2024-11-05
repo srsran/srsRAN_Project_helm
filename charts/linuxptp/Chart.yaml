@@ -21,5 +21,5 @@ keywords:
 - ptp
 - srsran
 type: application
-version: 1.0.0
-appVersion: "1.16.0"
+version: 1.1.0
+appVersion: "4.3.0"
