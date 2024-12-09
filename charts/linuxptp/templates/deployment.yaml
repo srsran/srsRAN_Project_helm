@@ -10,7 +10,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ include "linuxptp.fullname" . }}
-  namespace: linuxptp
   labels:
     {{- include "linuxptp.labels" . | nindent 4 }}
 spec:
