@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2023 Software Radio Systems Limited
+# Copyright 2021-2024 Software Radio Systems Limited
 #
 # By using this file, you agree to the terms and conditions set
 # forth in the LICENSE file which can be found at the top level of
@@ -10,10 +10,31 @@ apiVersion: v1
 entries:
   linuxptp:
   - apiVersion: v2
-    appVersion: 1.16.0
-    created: "2023-12-20T22:48:16.691088754+01:00"
+    appVersion: 4.3.0
+    created: "2024-12-09T13:34:37.882573304+01:00"
     description: Chart for deploying Linuxptp DaemonSet
-    digest: a75a41d46957e4dfac3c41c1c1951604d40f5d0392013042ec565d597a41b173
+    digest: 5e0a1f9e49a54099ce0776a5624200210c6c9b09dd4fe3a4b405b5a42719b533
+    home: https://linuxptp.nwtime.org/
+    icon: https://linuxptp.nwtime.org/images/logo.png
+    keywords:
+    - linuxptp
+    - ptp4l
+    - phc2sys
+    - ptp
+    - srsran
+    kubeVersion: '>= 1.24.0-0'
+    name: linuxptp
+    sources:
+    - https://github.com/richardcochran/linuxptp
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/linuxptp-1.1.0/linuxptp-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-12-09T13:34:37.885283863+01:00"
+    description: Chart for deploying Linuxptp DaemonSet
+    digest: ac450f2b169b8509f651cdee9e2a0a1b62040956ecf94e3e513e9857931921d8
     home: https://linuxptp.nwtime.org/
     icon: https://linuxptp.nwtime.org/images/logo.png
     keywords:
@@ -32,10 +53,32 @@ entries:
     version: 1.0.0
   srsran-cu-du:
   - apiVersion: v2
-    appVersion: 1.16.0
-    created: "2023-12-20T22:48:16.692094332+01:00"
+    appVersion: 2024.10.0
+    created: "2024-12-09T13:34:37.884275425+01:00"
     description: Official srsRAN Project CU/DU Helm Chart
-    digest: 91d49b88c2c3c6daf512932bc1aa4a6eae2844a13f2d4b51190558dcc3e9f81f
+    digest: 7ae69febf7e68f0491def44b5e979ac942d8cfb88cd75c1f66e0d03260496b0b
+    home: https://docs.srsran.com/projects/project/en/latest/
+    icon: https://docs.srsran.com/en/latest/_static/logo.png
+    keywords:
+    - srsran
+    - 5g
+    - oran
+    - vran
+    - gnb
+    - mobile
+    kubeVersion: '>= 1.24.0-0'
+    name: srsran-cu-du
+    sources:
+    - https://github.com/srsran/srsran_project
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-1.1.0/srsran-cu-du-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-12-09T13:34:37.886821844+01:00"
+    description: Official srsRAN Project CU/DU Helm Chart
+    digest: 118708e90646079d2c49331c5a53d0e3e877b37940ec192f7598b3c88b1976c2
     home: https://docs.srsran.com/projects/project/en/latest/
     icon: https://docs.srsran.com/en/latest/_static/logo.png
     keywords:
@@ -53,4 +96,4 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-1.0.0/srsran-cu-du-1.0.0.tgz
     version: 1.0.0
-generated: "2023-12-20T22:48:16.690664058+01:00"
+generated: "2024-12-09T13:34:37.881140502+01:00"
