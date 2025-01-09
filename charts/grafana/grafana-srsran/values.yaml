@@ -52,6 +52,8 @@ grafana:
             tlsSkipVerify: true
           secureJsonData:
             token: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
+  env:
+    GF_AUTH_ANONYMOUS_ENABLED: true
 
 influxdb:
   image:
