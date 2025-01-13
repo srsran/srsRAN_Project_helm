@@ -8,6 +8,17 @@
 
 apiVersion: v1
 entries:
+  ru-emulator:
+  - apiVersion: v2
+    appVersion: 2024.10.0
+    created: "2025-01-13T12:21:00.144172249+01:00"
+    description: A Helm chart to deploy srsRAN Emulator on Kubernetes
+    digest: b77e305e81bc67e5dbc042e909b45db245271c48d20c4ca81386e1c4898b2d63
+    name: ru-emulator
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/ru-emulator-1.0.0/ru-emulator-1.0.0.tgz
+    version: 1.0.0
   metrics-server:
   - apiVersion: v2
     appVersion: 2024.10.0
@@ -107,4 +118,4 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-1.0.0/srsran-cu-du-1.0.0.tgz
     version: 1.0.0
-generated: "2025-01-13T12:12:57.867433927+01:00"
+generated: "2025-01-13T12:21:00.143221001+01:00"
