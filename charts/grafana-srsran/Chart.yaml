@@ -23,6 +23,6 @@ dependencies:
     version: "2.1.2"
     alias: influxdb
   - name: metrics-server
-    repository: "file://../metrics_server"
+    repository: "https://srsran.github.io/srsRAN_Project_helm/"
     version: 1.1.0
     alias: metrics-server
