@@ -8,6 +8,17 @@
 
 apiVersion: v1
 entries:
+  metrics-server:
+  - apiVersion: v2
+    appVersion: 2024.10.0
+    created: "2025-01-13T12:12:57.868288724+01:00"
+    description: srsRAN Metric Server Helm Chart
+    digest: 08186dfbe48de6069e50b4dc29bdb359a171555805305a9f33af615e46cdd62b
+    name: metrics-server
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/metrics-server-1.1.0/metrics-server-1.1.0.tgz
+    version: 1.1.0
   linuxptp:
   - apiVersion: v2
     appVersion: 4.3.0
@@ -96,4 +107,4 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-1.0.0/srsran-cu-du-1.0.0.tgz
     version: 1.0.0
-generated: "2024-12-09T13:34:37.881140502+01:00"
+generated: "2025-01-13T12:12:57.867433927+01:00"
