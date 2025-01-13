@@ -58,9 +58,9 @@ grafana-deployment chart:
       changes:
         paths:
           - .gitlab/ci/helm_utils.yml
-          - charts/grafana/grafana-srsran/**/*
+          - charts/grafana-srsran/**/*
   trigger:
-    include: charts/grafana/grafana-srsran/.gitlab-ci.yml
+    include: charts/grafana-srsran/.gitlab-ci.yml
     strategy: depend
   needs: []
 
@@ -71,9 +71,9 @@ metrics_server chart:
       changes:
         paths:
           - .gitlab/ci/helm_utils.yml
-          - charts/grafana/metrics_server/**/*
+          - charts/metrics_server/**/*
   trigger:
-    include: charts/grafana/metrics_server/.gitlab-ci.yml
+    include: charts/metrics_server/.gitlab-ci.yml
     strategy: depend
   needs: []
 

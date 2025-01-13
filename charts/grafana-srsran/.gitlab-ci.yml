@@ -18,6 +18,6 @@ stages:
 helm lint:
   extends: .helm lint
   variables:
-    CHART_PATH: charts/grafana/grafana-srsran
+    CHART_PATH: charts/grafana-srsran
   before_script:
     - helm repo add influxdata https://helm.influxdata.com

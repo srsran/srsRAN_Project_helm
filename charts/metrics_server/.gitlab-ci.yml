@@ -18,4 +18,4 @@ stages:
 helm lint:
   extends: .helm lint
   variables:
-    CHART_PATH: charts/grafana/metrics_server
+    CHART_PATH: charts/metrics_server
