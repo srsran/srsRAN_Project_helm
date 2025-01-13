@@ -8,7 +8,7 @@
 
 apiVersion: v2
 name: ru-emulator
-description: A Helm chart for Kubernetes
+description: A Helm chart to deploy srsRAN Emulator on Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
 #
