@@ -32,9 +32,19 @@ spec:
       hostNetwork: true
       {{- end }}
       volumes:
+        {{- if .Values.o1.enable_srs_o1 }}
+        - name: o1-gnb-config
+          emptyDir:
+            sizeLimit: 2Mi
+        - name: o1-config-volume
+          configMap:
+            name: o1-configmap
+            defaultMode: 0777
+        {{- else }}
         - name: config-volume
           configMap:
             name: srsgnb-configmap
+        {{- end }}
         {{- if .Values.debugging.enabled }}
         - name: srs-host-volume
           hostPath:
@@ -59,11 +69,24 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.o1.enable_srs_o1 }}
+          livenessProbe:
+            httpGet:
+              path: /config-healthy
+              port: {{ .Values.o1.healthcheckPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          {{- end }}
           command: [ "gnb" ]
           args: [ "-c", "/etc/config/gnb-config.yml" ]
           volumeMounts:
+            {{- if .Values.o1.enable_srs_o1 }}
+            - name: o1-gnb-config
+              mountPath: /etc/config/
+            {{- else }}
             - name: config-volume
-              mountPath: /etc/config
+              mountPath: "/etc/config/"
+            {{- end }}
             {{- if .Values.debugging.enabled }}
             - mountPath: {{ .Values.debugging.containerPath }}
               name: srs-host-volume
@@ -76,6 +99,62 @@ spec:
             - name: hugepage-2mi
               mountPath: /hugepages-2Mi
             {{- end }}
+          {{- if .Values.o1.enable_srs_o1 }}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - |
+                    timeout=30
+                    elapsed=0
+                    while [ $elapsed -lt $timeout ]; do
+                      response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:{{ .Values.o1.healthcheckPort }}/config-healthy)
+                      echo "Health check response: $response"
+
+                      if [[ "$response" == "400" ]]; then
+                        echo "API server is healthy."
+                        curl -H "Content-Type: application/json" -d "{restarted:true}" -X POST http://localhost:{{ .Values.o1.healthcheckPort }}/restarted
+                        exit 0
+                      fi
+                      sleep 5
+                      elapsed=$((elapsed + 5))
+                    done
+
+                    echo "Netconf server not available, last response: $response. Exiting postStart hook."
+                    exit 1
+          {{- end }}
+        {{- if .Values.o1.enable_srs_o1 }}
+        - name: srs-o1-adapter
+          securityContext:
+            {{- toYaml .Values.o1.o1Adapter.securityContext | nindent 12 }}
+          image: "{{ .Values.o1.o1Adapter.image.repository }}:{{ .Values.o1.o1Adapter.image.tag }}"
+          imagePullPolicy: {{ .Values.o1.o1Adapter.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.o1.o1Adapter.resources | nindent 12 }}
+          command: [ "/usr/local/bin/python3" ]
+          args: [ "/usr/src/app/o1_adapter.py", "--host", {{ .Values.o1.netconfServerAddr }}, "--config", "/etc/config/gnb-config.yml", "--template", "/usr/src/app/templates/gnb.yaml" ]
+          volumeMounts:
+            - mountPath: /etc/config
+              name: o1-gnb-config
+        - name: netconf-server
+          securityContext:
+            {{- toYaml .Values.o1.netconfServer.securityContext | nindent 12 }}
+          image: "{{ .Values.o1.netconfServer.image.repository }}:{{ .Values.o1.netconfServer.image.tag }}"
+          imagePullPolicy: {{ .Values.o1.netconfServer.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.o1.netconfServer.resources | nindent 12 }}
+          ports:
+            - name: netconf
+              containerPort: {{ .Values.o1.o1Port }}
+              protocol: TCP
+          command: [ "/usr/local/bin/entrypoint.sh" ]
+          args: [ "/etc/netconf/o1-config.xml" ]
+          volumeMounts:
+            - name: o1-config-volume
+              mountPath: "/etc/netconf"
+        {{- end }}
       dnsPolicy: ClusterFirstWithHostNet
       {{- with .Values.nodeSelector }}
       nodeSelector:

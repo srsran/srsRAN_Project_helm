@@ -69,6 +69,29 @@ debugging:
   hostPath: "/mnt/debugging-logs"
   containerPath: "/tmp"
 
+o1:
+  enable_srs_o1: false
+#   netconfServerAddr: "localhost"
+#   o1Port: 830
+#   healthcheckPort: 5000
+#   o1Adapter:
+#     image:
+#       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/o1_adapter
+#       pullPolicy: IfNotPresent
+#       tag: latest
+#     resources: {}
+#     securityContext: {}
+#   netconfServer:
+#     image:
+#       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/netconf
+#       pullPolicy: IfNotPresent
+#       tag: latest
+#     resources: {}
+#     securityContext: {}
+
+# o1Config:
+#   o1-config.xml: |-
+
 config:
   gnb-config.yml: |-
     cu_cp:
@@ -143,4 +166,3 @@ config:
       mac_filename: /tmp/gnb_mac.pcap
       ngap_enable: false
       ngap_filename: /tmp/gnb_ngap.pcap
-

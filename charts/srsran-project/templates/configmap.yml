@@ -6,9 +6,18 @@
 # the distribution.
 #
 
+{{- if .Values.o1.enable_srs_o1 }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: o1-configmap
+data:
+  {{- .Values.o1Config | toYaml | nindent 2 }}
+{{- else }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: srsgnb-configmap
 data:
   {{- .Values.config | toYaml | nindent 2 }}
+{{- end }}
