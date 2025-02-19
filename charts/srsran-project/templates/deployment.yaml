@@ -36,6 +36,12 @@ spec:
         - name: o1-gnb-config
           emptyDir:
             sizeLimit: 2Mi
+        - name: netconf-running-config-volume
+          configMap:
+            name: srsran-netconf-running-configmap
+            defaultMode: 0777
+          emptyDir:
+            sizeLimit: 2Mi
         - name: o1-config-volume
           configMap:
             name: o1-configmap
@@ -136,8 +142,8 @@ spec:
           command: [ "/usr/local/bin/python3" ]
           args: [ "/usr/src/app/o1_adapter.py", "--host", {{ .Values.o1.netconfServerAddr }}, "--config", "/etc/config/gnb-config.yml", "--template", "gnb.yaml" ]
           volumeMounts:
-            - mountPath: /etc/config
-              name: o1-gnb-config
+            - name: o1-gnb-config
+              mountPath: /etc/config
         - name: netconf-server
           securityContext:
             {{- toYaml .Values.o1.netconfServer.securityContext | nindent 12 }}
@@ -150,10 +156,12 @@ spec:
               containerPort: {{ .Values.o1.o1Port }}
               protocol: TCP
           command: [ "/usr/local/bin/entrypoint.sh" ]
-          args: [ "/etc/netconf/o1-config.xml" ]
+          args: [ "/etc/netconf/o1-config.xml", "/etc/netconf-running" ]
           volumeMounts:
             - name: o1-config-volume
               mountPath: "/etc/netconf"
+            - name: netconf-running-config-volume
+              mountPath: "/etc/netconf-running"
         {{- end }}
       dnsPolicy: ClusterFirstWithHostNet
       {{- with .Values.nodeSelector }}
