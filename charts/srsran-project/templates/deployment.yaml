@@ -134,7 +134,7 @@ spec:
           resources:
             {{- toYaml .Values.o1.o1Adapter.resources | nindent 12 }}
           command: [ "/usr/local/bin/python3" ]
-          args: [ "/usr/src/app/o1_adapter.py", "--host", {{ .Values.o1.netconfServerAddr }}, "--config", "/etc/config/gnb-config.yml", "--template", "/usr/src/app/templates/gnb.yaml" ]
+          args: [ "/usr/src/app/o1_adapter.py", "--host", {{ .Values.o1.netconfServerAddr }}, "--config", "/etc/config/gnb-config.yml", "--template", "gnb.yaml" ]
           volumeMounts:
             - mountPath: /etc/config
               name: o1-gnb-config
