@@ -37,9 +37,6 @@ spec:
           emptyDir:
             sizeLimit: 2Mi
         - name: netconf-running-config-volume
-          configMap:
-            name: srsran-netconf-running-configmap
-            defaultMode: 0777
           emptyDir:
             sizeLimit: 2Mi
         - name: o1-config-volume
