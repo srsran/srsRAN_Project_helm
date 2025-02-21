@@ -272,6 +272,9 @@ o1Config:
                 </srs_nrcelldu_ssb_extensions>
                 <srs_nrcelldu_prach_extensions>
                   <prach_root_sequence_index>1</prach_root_sequence_index>
+                  <srs_hal_extensions>
+                    <eal_args>--lcores (0-1)@(0-11)</eal_args>
+                  </srs_hal_extensions>
                 </srs_nrcelldu_prach_extensions>
               </srs_nrcelldu_extensions>
           </attributes>
