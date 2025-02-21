@@ -68,3 +68,36 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the image path for the passed in image field of gnb image
+*/}}
+{{- define "srsran-cudu.image" -}}
+{{- if eq (substr 0 7 .tag) "sha256:" -}}
+{{- printf "%s@%s" .repository .tag -}}
+{{- else -}}
+{{- printf "%s:%s" .repository .tag -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the image path for the passed in image field of netconf-server image
+*/}}
+{{- define "srsran-cudu.o1.netconfServer.image" -}}
+{{- if eq (substr 0 7 .tag) "sha256:" -}}
+{{- printf "%s@%s" .repository .tag -}}
+{{- else -}}
+{{- printf "%s:%s" .repository .tag -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the image path for the passed in image field of o1-adapter image
+*/}}
+{{- define "srsran-cudu.o1.o1Adapter.image" -}}
+{{- if eq (substr 0 7 .tag) "sha256:" -}}
+{{- printf "%s@%s" .repository .tag -}}
+{{- else -}}
+{{- printf "%s:%s" .repository .tag -}}
+{{- end -}}
+{{- end -}}

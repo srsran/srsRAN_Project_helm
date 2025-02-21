@@ -68,7 +68,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ template "srsran-cudu.image" .Values.image }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -132,7 +132,7 @@ spec:
         - name: srs-o1-adapter
           securityContext:
             {{- toYaml .Values.o1.o1Adapter.securityContext | nindent 12 }}
-          image: "{{ .Values.o1.o1Adapter.image.repository }}:{{ .Values.o1.o1Adapter.image.tag }}"
+          image: "{{ template "srsran-cudu.o1.o1Adapter.image" .Values.o1.o1Adapter.image }}"
           imagePullPolicy: {{ .Values.o1.o1Adapter.image.pullPolicy }}
           resources:
             {{- toYaml .Values.o1.o1Adapter.resources | nindent 12 }}
@@ -144,7 +144,7 @@ spec:
         - name: netconf-server
           securityContext:
             {{- toYaml .Values.o1.netconfServer.securityContext | nindent 12 }}
-          image: "{{ .Values.o1.netconfServer.image.repository }}:{{ .Values.o1.netconfServer.image.tag }}"
+          image: "{{ template "srsran-cudu.o1.netconfServer.image" .Values.o1.netconfServer.image }}"
           imagePullPolicy: {{ .Values.o1.netconfServer.image.pullPolicy }}
           resources:
             {{- toYaml .Values.o1.netconfServer.resources | nindent 12 }}
