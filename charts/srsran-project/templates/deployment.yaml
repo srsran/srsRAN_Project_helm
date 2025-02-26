@@ -116,7 +116,7 @@ spec:
                       response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:{{ .Values.o1.healthcheckPort }}/config-healthy)
                       echo "Health check response: $response"
 
-                      if [[ "$response" == "400" ]]; then
+                      if [[ "$response" =~ 200 || "$response" =~ 400 ]]; then
                         echo "API server is healthy."
                         curl -H "Content-Type: application/json" -d "{restarted:true}" -X POST http://localhost:{{ .Values.o1.healthcheckPort }}/restarted
                         exit 0
