@@ -80,8 +80,16 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 3
           {{- end }}
-          command: [ "gnb" ]
-          args: [ "-c", "/etc/config/gnb-config.yml" ]
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                gnb -c /etc/config/gnb-config.yml
+                exit_code=$?
+                if [ $exit_code -ne 0 ]; then
+                  exit $exit_code
+                fi
+              done
           volumeMounts:
             {{- if .Values.o1.enable_srs_o1 }}
             - name: o1-gnb-config
