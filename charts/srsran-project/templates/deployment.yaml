@@ -97,11 +97,11 @@ spec:
               mountPath: /etc/config/
             {{- else }}
             - name: config-volume
-              mountPath: "/etc/config/"
+              mountPath: /etc/config/
             {{- end }}
             {{- if .Values.debugging.enabled }}
-            - mountPath: {{ .Values.debugging.containerPath }}
-              name: srs-host-volume
+            - name: srs-host-volume
+              mountPath: {{ .Values.debugging.containerPath }}
             {{- end }}
             {{- if .Values.resources.enable_hugepages_1gi }}
             - name: hugepage-1gi
@@ -124,7 +124,6 @@ spec:
                     while [ $elapsed -lt $timeout ]; do
                       response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:{{ .Values.o1.healthcheckPort }}/config-healthy)
                       echo "Health check response: $response"
-
                       if [[ "$response" =~ 200 || "$response" =~ 400 ]]; then
                         echo "API server is healthy."
                         curl -H "Content-Type: application/json" -d "{restarted:true}" -X POST http://localhost:{{ .Values.o1.healthcheckPort }}/restarted
@@ -133,7 +132,6 @@ spec:
                       sleep 5
                       elapsed=$((elapsed + 5))
                     done
-
                     echo "Netconf server not available, last response: $response. Exiting postStart hook."
                     exit 1
           {{- end }}
@@ -146,7 +144,14 @@ spec:
           resources:
             {{- toYaml .Values.o1.o1Adapter.resources | nindent 12 }}
           command: [ "/usr/local/bin/python3" ]
-          args: [ "/usr/src/app/o1_adapter.py", "--host", {{ .Values.o1.netconfServerAddr }}, "--config", "/etc/config/gnb-config.yml", "--template", "gnb.yaml" ]
+          args:
+            - "/usr/src/app/o1_adapter.py"
+            - "--host"
+            - {{ .Values.o1.netconfServerAddr }}
+            - "--config"
+            - "/etc/config/gnb-config.yml"
+            - "--template"
+            - "gnb.yaml"
           volumeMounts:
             - name: o1-gnb-config
               mountPath: /etc/config
@@ -162,12 +167,14 @@ spec:
               containerPort: {{ .Values.o1.o1Port }}
               protocol: TCP
           command: [ "/usr/local/bin/entrypoint.sh" ]
-          args: [ "/etc/netconf/o1-config.xml", "/etc/netconf-running" ]
+          args:
+            - "/etc/netconf/o1-config.xml"
+            - "/etc/netconf-running"
           volumeMounts:
             - name: o1-config-volume
-              mountPath: "/etc/netconf"
+              mountPath: /etc/netconf
             - name: netconf-running-config-volume
-              mountPath: "/etc/netconf-running"
+              mountPath: /etc/netconf-running
         {{- end }}
       dnsPolicy: ClusterFirstWithHostNet
       {{- with .Values.nodeSelector }}
