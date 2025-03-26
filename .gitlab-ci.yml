@@ -47,6 +47,25 @@ linuxptp image:
     strategy: depend
   needs: []
 
+rt-tests image:
+  stage: child
+  variables:
+    RT_TESTS_VERSION: "v2.8"
+  rules:
+    - if: $ON_MR
+      changes:
+        paths:
+          - images/rt-tests/**/*
+    - if: $ON_DEFAULT_BRANCH
+      changes:
+        paths:
+          - images/rt-tests/**/*
+        compare_to: refs/tags/latest
+  trigger:
+    include: images/rt-tests/.gitlab-ci.yml
+    strategy: depend
+  needs: []
+
 ################################################################################
 ## Charts
 ################################################################################
@@ -74,6 +93,19 @@ metrics_server chart:
           - charts/metrics_server/**/*
   trigger:
     include: charts/metrics_server/.gitlab-ci.yml
+    strategy: depend
+  needs: []
+
+rt-tests chart:
+  stage: child
+  rules:
+    - if: $ON_MR
+      changes:
+        paths:
+          - .gitlab/ci/helm_utils.yml
+          - charts/rt-tests/**/*
+  trigger:
+    include: charts/rt-tests/.gitlab-ci.yml
     strategy: depend
   needs: []
 

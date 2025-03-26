@@ -1,0 +1,72 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+image:
+  repository: softwareradiosystems/rt-tests
+  pullPolicy: IfNotPresent
+  tag: v2.8
+
+imagePullSecrets:
+  - name: regcred
+
+nameOverride: "rt-tests-chart"
+fullnameOverride: "rt-tests-chart"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "srsadmin-gnb"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext:
+  privileged: true
+
+resources:
+  {}
+  # limits:
+  #   cpu: 16
+  #   memory: 500Mi
+  # requests:
+  #   cpu: 16
+  #   memory: 500Mi
+
+nodeSelector: {}
+
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoExecute
+    operator: Exists
+
+affinity: {}
+
+startupProbe:
+  enabled: true
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+config:
+  priority: 95
+  duration: 0
+  cpu_set: 0-15
+  threads: 16
