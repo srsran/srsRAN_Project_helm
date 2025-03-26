@@ -80,8 +80,9 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 3
           {{- end }}
-          command: ["/bin/sh", "-c"]
-          args:
+          command:
+            - /bin/bash
+            - -c
             - |
               while true; do
                 gnb -c /etc/config/gnb-config.yml
