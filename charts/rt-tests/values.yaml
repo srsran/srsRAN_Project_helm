@@ -49,7 +49,6 @@ tolerations:
 affinity: {}
 
 config:
-  priority: 95
-  duration: 0
-  cpu_set: 0-15
-  threads: 16
+  rt_tests.yml: |-
+    stress-ng: "--matrix 0 -t 12h"
+    cyclictest: "-m -p95 -d0 -a 1-15 -t 16 -h400 -D 12h"

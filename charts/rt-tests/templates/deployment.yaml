@@ -44,20 +44,20 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: [ "cyclictest" ]
-          args: [ "-m", "-p", "{{ .Values.config.priority }}", "-d", "{{ .Values.config.duration }}", "-a", "{{ .Values.config.cpu_set }}", "-t", "{{ .Values.config.threads }}"]
+          command: [ "run_tests.sh" ]
+          args: ["/etc/config/rt_tests.yml", "/usr/share/rt_tests_report"]
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: rt-tests-configmap
+              mountPath: /etc/config/
+          volumeMounts:
+            - name: rt-tests-volume
+              mountPath: /usr/share/rt_tests_report
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: rt-tests-volume
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
