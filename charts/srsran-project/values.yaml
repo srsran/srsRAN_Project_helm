@@ -37,6 +37,7 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
+# Disable hostnetwork in case you enable LB
 network:
   hostNetwork: true
 
