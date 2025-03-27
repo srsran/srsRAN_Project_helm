@@ -21,3 +21,10 @@ metadata:
 data:
   {{- .Values.config | toYaml | nindent 2 }}
 {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: srsgnb-entrypoint-configmap
+data:
+  entrypoint-srsgnb.sh: {{ tpl (.Files.Get "resources/entrypoint.sh") . | quote | default 000 }}

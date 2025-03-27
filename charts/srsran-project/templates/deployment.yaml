@@ -32,6 +32,10 @@ spec:
       hostNetwork: true
       {{- end }}
       volumes:
+        - name: entrypoint-volume-srsgnb
+          configMap:
+            name: srsgnb-entrypoint-configmap
+            defaultMode: 0777
         {{- if .Values.o1.enable_srs_o1 }}
         - name: o1-gnb-config
           emptyDir:
@@ -106,18 +110,11 @@ spec:
               protocol: {{ .Values.service.ports.n3.protocol }}
             {{- end }}
           {{- end }}
-          command:
-            - /bin/bash
-            - -c
-            - |
-              while true; do
-                gnb -c /etc/config/gnb-config.yml
-                exit_code=$?
-                if [ $exit_code -ne 0 ]; then
-                  exit $exit_code
-                fi
-              done
+          command: [ "/bin/bash" ]
+          args: [ "-c", "/etc/entrypoint/entrypoint-srsgnb.sh /etc/config/gnb-config.yml" ]
           volumeMounts:
+            - name: entrypoint-volume-srsgnb
+              mountPath: /etc/entrypoint
             {{- if .Values.o1.enable_srs_o1 }}
             - name: o1-gnb-config
               mountPath: /etc/config/
