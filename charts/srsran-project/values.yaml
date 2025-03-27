@@ -88,9 +88,34 @@ o1:
 #       tag: latest
 #     resources: {}
 #     securityContext: {}
-
+#
 # o1Config:
 #   o1-config.xml: |-
+
+# sriovConfig:
+#   enabled: false
+#   extendedResourceName: "intel.com/intel_sriov_netdevice"
+
+# service:
+#   type: LoadBalancer
+#   LoadBalancerIP: "127.0.0.1"  # external IP of the LoadBalancer service
+#   ports:
+#     n2:
+#       port: 38412
+#       outport: 38412
+#       protocol: SCTP
+#     n3:
+#       port: 2152
+#       outport: 32152
+#       protocol: UDP
+#     f1:
+#       port: 36421
+#       outport: 36421
+#       protocol: SCTP
+#     o1:
+#       port: 830
+#       outport: 830
+#       protocol: TCP
 
 config:
   gnb-config.yml: |-

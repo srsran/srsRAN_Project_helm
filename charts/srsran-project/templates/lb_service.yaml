@@ -1,0 +1,33 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+{{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: srsran-project-cudu-lb-service
+  labels:
+    nf-type: srsran-project-cudu-lb-service
+spec:
+  type: {{ .Values.service.type }}
+  loadBalancerIP: {{ .Values.service.LoadBalancerIP }}
+  ports:
+    {{ if .Values.service.ports.n2 }}
+    - name: n2
+      port: {{ .Values.service.ports.n2.port }}
+      targetPort: {{ .Values.service.ports.n2.outport }}
+      protocol: {{ .Values.service.ports.n2.protocol }}
+    {{ end }}
+    {{ if .Values.service.ports.n3 }}
+    - name: n3
+      port: {{ .Values.service.ports.n3.port }}
+      targetPort: {{ .Values.service.ports.n3.outport }}
+      protocol: {{ .Values.service.ports.n3.protocol }}
+    {{ end }}
+  selector:
+    nf-type: srsran-project-cudu-lb-service
+{{- end }}

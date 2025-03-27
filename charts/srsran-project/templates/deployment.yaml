@@ -80,6 +80,32 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 3
           {{- end }}
+          {{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: LB_IP
+              value: {{ .Values.service.LoadBalancerIP | quote }}
+          {{- end }}
+          {{- if and .Values.sriovConfig .Values.sriovConfig.enabled }}
+            - name: RESOURCE_EXTENDED
+              value: {{ .Values.sriovConfig.extendedResourceName | quote }}
+          {{- end }}
+          {{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
+          ports:
+            {{- if .Values.service.ports.n2 }}
+            - containerPort: {{ .Values.service.ports.n2.port }}
+              name: n2
+              protocol: {{ .Values.service.ports.n2.protocol}}
+            {{- end }}
+            {{- if .Values.service.ports.n3 }}
+            - containerPort: {{ .Values.service.ports.n3.port }}
+              name: n3
+              protocol: {{ .Values.service.ports.n3.protocol }}
+            {{- end }}
+          {{- end }}
           command:
             - /bin/bash
             - -c
@@ -152,6 +178,12 @@ spec:
             - "/etc/config/gnb-config.yml"
             - "--template"
             - "gnb.yaml"
+          ports:
+            {{- if .Values.o1.enable_srs_o1 }}
+            - containerPort: {{ .Values.service.ports.o1.port }}
+              name: {{ .Values.service.ports.o1.name }}
+              protocol: TCP
+            {{- end }}
           volumeMounts:
             - name: o1-gnb-config
               mountPath: /etc/config
@@ -165,7 +197,7 @@ spec:
           ports:
             - name: netconf
               containerPort: {{ .Values.o1.o1Port }}
-              protocol: TCP
+              protocol: {{ .Values.service.ports.o1.protocol }}
           command: [ "/usr/local/bin/entrypoint.sh" ]
           args:
             - "/etc/netconf/o1-config.xml"
