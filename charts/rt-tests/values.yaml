@@ -11,8 +11,7 @@ image:
   pullPolicy: IfNotPresent
   tag: v2.8
 
-imagePullSecrets:
-  - name: regcred
+imagePullSecrets: {}
 
 nameOverride: "rt-tests-chart"
 fullnameOverride: "rt-tests-chart"
@@ -29,14 +28,13 @@ podSecurityContext: {}
 securityContext:
   privileged: true
 
-resources:
-  {}
-  # limits:
-  #   cpu: 16
-  #   memory: 500Mi
-  # requests:
-  #   cpu: 16
-  #   memory: 500Mi
+resources: {}
+# limits:
+#   cpu: 16
+#   memory: 500Mi
+# requests:
+#   cpu: 16
+#   memory: 500Mi
 
 nodeSelector: {}
 
@@ -49,21 +47,6 @@ tolerations:
     operator: Exists
 
 affinity: {}
-
-startupProbe:
-  enabled: true
-  failureThreshold: 30
-  periodSeconds: 10
-
-livenessProbe:
-  enabled: true
-  initialDelaySeconds: 5
-  periodSeconds: 5
-
-readinessProbe:
-  enabled: true
-  initialDelaySeconds: 5
-  periodSeconds: 5
 
 config:
   priority: 95

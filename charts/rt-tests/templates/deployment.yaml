@@ -32,7 +32,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "rt-tests.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -47,36 +46,6 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [ "cyclictest" ]
           args: [ "-m", "-p", "{{ .Values.config.priority }}", "-d", "{{ .Values.config.duration }}", "-a", "{{ .Values.config.cpu_set }}", "-t", "{{ .Values.config.threads }}"]
-          {{- if .Values.livenessProbe.enabled }}
-          livenessProbe:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - pgrep cyclictest || exit 1
-            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
-          {{- end }}
-          {{- if .Values.startupProbe.enabled }}
-          startupProbe:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - pgrep cyclictest || exit 1
-            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
-            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
-          {{- end }}
-          {{- if .Values.readinessProbe.enabled }}
-          readinessProbe:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - pgrep cyclictest || exit 1
-            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
-          {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

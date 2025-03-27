@@ -9,7 +9,7 @@
 apiVersion: v2
 name: rt-tests
 description: Chart for deploying RT-Tests
-kubeVersion: ">= 1.24.0-0"
+kubeVersion: ">= 1.16.0-0"
 icon: https://wiki.linuxfoundation.org/_media/wiki/logo.png
 home: https://wiki.linuxfoundation.org/realtime/documentation/howto/tools/rt-tests
 sources:
