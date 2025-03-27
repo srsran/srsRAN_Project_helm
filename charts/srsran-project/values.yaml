@@ -44,6 +44,7 @@ securityContext:
 #       - SYS_ADMIN
 #       - SYS_RAWIO
 #       - NET_RAW
+#       - SYS_NICE
 
 # Disable hostnetwork in case you enable LB
 network:
@@ -62,14 +63,7 @@ resources: {}
   #   hugepages-1Gi: 2Gi
 
 nodeSelector: {}
-  # kubernetes.io/hostname: node1
-
 tolerations: {}
-  # - key: "purpose"
-  #   value: "manual-testing"
-  #   operator: "Equal"
-  #   effect: "NoSchedule"
-
 affinity: {}
 
 debugging:
@@ -80,26 +74,6 @@ debugging:
 
 o1:
   enable_srs_o1: false
-#   netconfServerAddr: "localhost"
-#   o1Port: 830
-#   healthcheckPort: 5000
-#   o1Adapter:
-#     image:
-#       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/o1_adapter
-#       pullPolicy: IfNotPresent
-#       tag: latest
-#     resources: {}
-#     securityContext: {}
-#   netconfServer:
-#     image:
-#       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/netconf
-#       pullPolicy: IfNotPresent
-#       tag: latest
-#     resources: {}
-#     securityContext: {}
-#
-# o1Config:
-#   o1-config.xml: |-
 
 # sriovConfig:
 #   enabled: false
@@ -118,10 +92,6 @@ o1:
 #       port: 2152
 #       outport: 32152
 #       protocol: UDP
-#     f1:
-#       port: 36421
-#       outport: 36421
-#       protocol: SCTP
 #     o1:
 #       port: 830
 #       outport: 830
