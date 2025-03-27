@@ -29,13 +29,21 @@ podAnnotations: {}
 
 podSecurityContext: {}
 
+# securityContext for LB disabled
 securityContext:
   capabilities:
     add: ["SYS_NICE", "NET_ADMIN"]
   privileged: true
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+
+# securityContext for LB enabled
+# securityContext:
+#   allowPrivilegeEscalation: false
+#   capabilities:
+#     add:
+#       - IPC_LOCK
+#       - SYS_ADMIN
+#       - SYS_RAWIO
+#       - NET_RAW
 
 # Disable hostnetwork in case you enable LB
 network:
