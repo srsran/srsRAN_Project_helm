@@ -1,3 +1,11 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
 {{/*
 Expand the name of the chart.
 */}}
@@ -48,15 +56,4 @@ Selector labels
 {{- define "rt-tests.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "rt-tests.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "rt-tests.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "rt-tests.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
 {{- end }}

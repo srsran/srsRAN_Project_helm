@@ -53,11 +53,13 @@ spec:
           volumeMounts:
             - name: rt-tests-configmap
               mountPath: /etc/config/
-          volumeMounts:
             - name: rt-tests-volume
               mountPath: /usr/share/rt_tests_report
       volumes:
         - name: rt-tests-volume
+          hostPath:
+            path: {{ .Values.hostOutputFolder }}
+            type: DirectoryOrCreate
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

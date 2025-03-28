@@ -16,11 +16,6 @@ imagePullSecrets: {}
 nameOverride: "rt-tests-chart"
 fullnameOverride: "rt-tests-chart"
 
-serviceAccount:
-  create: true
-  annotations: {}
-  name: "srsadmin-gnb"
-
 podAnnotations: {}
 
 podSecurityContext: {}
@@ -38,15 +33,9 @@ resources: {}
 
 nodeSelector: {}
 
-tolerations:
-  - effect: NoSchedule
-    operator: Exists
-  - key: CriticalAddonsOnly
-    operator: Exists
-  - effect: NoExecute
-    operator: Exists
-
 affinity: {}
+
+hostOutputFolder: /var/lib/rt-tests
 
 config:
   rt_tests.yml: |-
