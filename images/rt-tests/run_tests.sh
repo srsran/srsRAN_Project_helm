@@ -30,7 +30,7 @@ main() {
 
     # Read input file
     pids=()
-    while IFS=":" read -r binary args; do
+    while IFS=":" read -r binary args || [ -n "$binary" ]; do
         binary=$(echo "$binary" | xargs)
         args=$(echo "$args" | xargs)
         args="${args#\"}"

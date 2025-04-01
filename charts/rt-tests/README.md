@@ -71,4 +71,4 @@ Notes:
 - Only binaries available in the container's PATH can be executed.
 - You can modify the rt_tests.yml file to add, remove, or adjust the entries as needed.
 
-This configuration allows you to automate and manage multiple tests or tools—such as performance or stress tests—efficiently within the container.
+This configuration allows you to automate and manage multiple tests or tools, such as performance or stress tests, efficiently within the container.

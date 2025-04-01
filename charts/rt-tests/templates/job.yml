@@ -6,16 +6,14 @@
 # the distribution.
 #
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: {{ include "rt-tests.fullname" . }}
+  name: {{ include "rt-tests.fullname" . }}-job
   labels:
     {{- include "rt-tests.labels" . | nindent 4 }}
 spec:
-  selector:
-    matchLabels:
-      {{- include "rt-tests.selectorLabels" . | nindent 6 }}
+  backoffLimit: 0
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -36,6 +34,7 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      restartPolicy: OnFailure
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -60,6 +59,9 @@ spec:
           hostPath:
             path: {{ .Values.hostOutputFolder }}
             type: DirectoryOrCreate
+        - name: rt-tests-configmap
+          configMap:
+            name: rt-tests-configmap
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
