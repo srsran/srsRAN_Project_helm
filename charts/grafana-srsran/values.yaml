@@ -6,31 +6,6 @@
 # the distribution.
 #
 
-replicaCount: 1
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  create: false
-  annotations: {}
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-
-securityContext: {}
-
-resources: {}
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
 grafana:
   image:
     repository: softwareradiosystems/grafana
