@@ -69,6 +69,11 @@ The command removes all the Kubernetes components associated with the chart and 
 | serviceAccount.create | bool | `true` | Toggle to create ServiceAccount |
 | serviceAccount.name | string | `nil` | Service account name |
 | tolerations | list | `[]` | Tolerations applied to Pods |
-| config | section | `[]` | Configuration for the srsRAN CU/DU |
+| network | object | `[]` | Container to configure hostNetwork  |
+| o1 | object | `[]` | Container to configure O1 |
+| o1_config | object | `[]` | Container to the O1 config file |
+| debugging | object | `[]` | Container to configure debugging options |
+| service | object | `[]` | Container to configure debugging LoadBalancer options |
+| config | object | `[]` | Container to configure srsRAN CU/DU application |
 
 For more information about the values of the config sectoin please refer to the [srsRAN Project Configuration Reference](https://docs.srsran.com/projects/project/en/latest/user_manuals/source/config_ref.html).
