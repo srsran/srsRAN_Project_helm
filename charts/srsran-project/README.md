@@ -30,19 +30,19 @@ We encourage every user to build their own container images to not be limited to
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release`:
+To install the chart with the release name `srsran-project`:
 
 ```console
 cd charts/srsran-project
-helm install my-release ./
+helm install srsran-project ./
 ```
 
 ## Uninstalling the Chart
 
-To uninstall/delete the my-release deployment:
+To uninstall/delete the srsran-project deployment:
 
 ```console
-helm delete my-release
+helm delete srsran-project
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
