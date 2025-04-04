@@ -104,7 +104,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: [ "/etc/entrypoint/entrypoint-phc2sys.sh" ]
-          args: [ "{{ .Values.interfaceName }}" ]
+          args:
+            - "{{ .Values.interfaceName }}"
+            {{- if .Values.ntp.enabled }}
+            - "{{ .Values.ntp.server }}"
+            {{- end }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config

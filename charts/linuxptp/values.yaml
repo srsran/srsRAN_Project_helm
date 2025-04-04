@@ -74,6 +74,12 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
 
+# Enable to sync PHC time to NTP time 
+# before running PTP service
+ntp:
+  enabled: false
+  server: "pool.ntp.org"
+
 config:
   dataset_comparison: "G.8275.x"
   G.8275.defaultDS.localPriority: "128"

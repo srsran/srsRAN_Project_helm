@@ -7,7 +7,14 @@
 # the distribution.
 #
 
+set -e
+
 INTERFACE=$1
+NTP_SERVER=${2}
+if [ -n "${NTP_SERVER}" ]; then
+  ntpdate ${NTP_SERVER}
+  phc_ctl ${INTERFACE} set
+fi
 phc2sys -s ${INTERFACE} -w -m -f /etc/config/linuxptp.cfg  &
 phc2sys_pid=$!
 cat "/proc/${phc2sys_pid}/fd/1" > /tmp/phc2sys.stdout &
