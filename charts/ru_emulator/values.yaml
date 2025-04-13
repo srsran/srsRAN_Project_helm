@@ -27,6 +27,18 @@ securityContext:
     add: ["SYS_NICE", "NET_ADMIN"]
   privileged: true
 
+# securityContext for SR-IOV enabled
+# securityContext:
+#   allowPrivilegeEscalation: false
+#   capabilities:
+#     add:
+#       - IPC_LOCK
+#       - SYS_ADMIN
+#       - SYS_RAWIO
+#       - NET_RAW
+#       - SYS_NICE
+#   privileged: false
+
 resources: {}
 
 nodeSelector: {}
@@ -34,6 +46,15 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Disable hostnetwork in case you use SR-IOV plugin
+network:
+  hostNetwork: true
+
+# Enable SR-IOV plugin (currently only single cell supported)
+sriovConfig:
+  enabled: false
+  extendedResourceName: "intel.com/intel_sriov_netdevice"
 
 config:
   log:

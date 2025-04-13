@@ -31,7 +31,7 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      hostNetwork: true
+      hostNetwork: {{ .Values.network.hostNetwork | default true }}
       volumes:
         - name: config-volume
           configMap:
@@ -49,6 +49,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if and .Values.sriovConfig .Values.sriovConfig.enabled }}
+          env:
+            - name: RESOURCE_EXTENDED
+              value: {{ .Values.sriovConfig.extendedResourceName | quote }}
+          {{- end }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
