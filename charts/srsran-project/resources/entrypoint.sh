@@ -1,4 +1,12 @@
 #!/bin/bash
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
 # This script updates the gNB configuration file dynamically.
 # It replaces the cu_cp/amf section's IP fields (bind_addr and addr) with values from the POD_IP and LB_IP environment variables.
 # It then processes each cell in the ru_ofh section: for each cell, it replaces the network_interface field with the corresponding
