@@ -84,12 +84,12 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 3
           {{- end }}
-          {{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
           env:
             - name: POD_IP
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+          {{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
             - name: LB_IP
               value: {{ .Values.service.LoadBalancerIP | quote }}
           {{- end }}
