@@ -30,6 +30,40 @@ convert_resource_name() {
   echo "PCIDEVICE_${varname}"
 }
 
+update_log_filename() {
+    if [ -z "$1" ]; then
+        echo "Error: Timestamp not provided."
+        return 1
+    fi
+
+    if [ -z "$2" ]; then
+        echo "Error: Config not provided."
+        return 1
+    fi
+
+    local timestamp="$1"
+    local config_file="$2"
+    sed -i -E "s|(filename:[[:space:]]*/tmp/gnb\.log)(\.[^[:space:]]+)?|\1.${timestamp}|" "$config_file"
+}
+
+update_pcap_filename() {
+    if [ -z "$1" ]; then
+        echo "Error: Timestamp not provided."
+        return 1
+    fi
+
+    if [ -z "$2" ]; then
+        echo "Error: Config not provided."
+        return 1
+    fi
+
+    local timestamp="$1"
+    local config_file="$2"
+    sed -i -E "s|(^[[:space:]]*[A-Za-z0-9_]+_filename:[[:space:]]*/[^[:space:]]+\.pcap)(\.[^[:space:]]+)?|\1.${timestamp}|" "$config_file"
+}
+
+PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:false}"
+
 # Use RESOURCE_EXTENDED if provided; otherwise, default to intel.com/intel_sriov_netdevice.
 RESOURCE_EXTENDED="${RESOURCE_EXTENDED:-intel.com/intel_sriov_netdevice}"
 RESOURCE_VAR=$(convert_resource_name "$RESOURCE_EXTENDED")
@@ -99,6 +133,11 @@ fi
 echo "Configuration file updated and placed in $UPDATED_CONFIG"
 
 while true; do
+  if [ "$PRESERVE_OLD_LOGS" = "true" ]; then
+    CURR_TIME=$(date +'%Y%m%d-%H%M%S')
+    update_log_filename $CURR_TIME $UPDATED_CONFIG
+    update_pcap_filename $CURR_TIME $UPDATED_CONFIG
+  fi
   gnb -c "$UPDATED_CONFIG"
   exit_code=$?
   if [ $exit_code -ne 0 ]; then

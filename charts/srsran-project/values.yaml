@@ -68,6 +68,7 @@ affinity: {}
 
 debugging:
   enabled: true
+  preserveOldLogs: true
   storageCapacity: "100Mi"
   hostPath: "/mnt/debugging-logs"
   containerPath: "/tmp"
