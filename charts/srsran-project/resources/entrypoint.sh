@@ -30,36 +30,41 @@ convert_resource_name() {
   echo "PCIDEVICE_${varname}"
 }
 
-update_log_filename() {
+update_config_paths() {
     if [ -z "$1" ]; then
-        echo "Error: Timestamp not provided."
+        echo "Error: Config file not provided."
         return 1
     fi
 
-    if [ -z "$2" ]; then
-        echo "Error: Config not provided."
+    local config_file="$1"
+    local timestamp=$(date +'%Y%m%d-%H%M%S')
+
+    local first_line
+    first_line=$(grep -E '^[[:space:]]*[A-Za-z0-9_]*filename:' "$config_file" | head -1)
+    if [ -z "$first_line" ]; then
+        echo "Error: No filename entry found in config file."
         return 1
     fi
 
-    local timestamp="$1"
-    local config_file="$2"
-    sed -i -E "s|(filename:[[:space:]]*/tmp/gnb\.log)(\.[^[:space:]]+)?|\1.${timestamp}|" "$config_file"
-}
-
-update_pcap_filename() {
-    if [ -z "$1" ]; then
-        echo "Error: Timestamp not provided."
-        return 1
+    local original_path
+    original_path=$(echo "$first_line" | sed -E 's/^[[:space:]]*[A-Za-z0-9_]*filename:[[:space:]]*(.*)$/\1/')
+    
+    local current_dir
+    current_dir=$(dirname "$original_path")
+    
+    local ts_candidate base_dir
+    ts_candidate=$(basename "$current_dir")
+    if [[ "$ts_candidate" =~ ^[0-9]{8}-[0-9]{6}$ ]]; then
+        # If a timestamp is present, remove it to get the true base directory.
+        base_dir=$(dirname "$current_dir")
+    else
+        base_dir="$current_dir"
     fi
 
-    if [ -z "$2" ]; then
-        echo "Error: Config not provided."
-        return 1
-    fi
-
-    local timestamp="$1"
-    local config_file="$2"
-    sed -i -E "s|(^[[:space:]]*[A-Za-z0-9_]+_filename:[[:space:]]*/[^[:space:]]+\.pcap)(\.[^[:space:]]+)?|\1.${timestamp}|" "$config_file"
+    local new_folder="${base_dir}/${timestamp}"
+    mkdir -p "$new_folder"
+  
+    sed -i -E "s#([[:space:]]*(filename|[A-Za-z0-9_]+_filename):[[:space:]])${base_dir}(/[0-9]{8}-[0-9]{6})?/#\1${base_dir}/${timestamp}/#g" "$config_file"
 }
 
 PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:false}"
@@ -134,9 +139,7 @@ echo "Configuration file updated and placed in $UPDATED_CONFIG"
 
 while true; do
   if [ "$PRESERVE_OLD_LOGS" = "true" ]; then
-    CURR_TIME=$(date +'%Y%m%d-%H%M%S')
-    update_log_filename $CURR_TIME $UPDATED_CONFIG
-    update_pcap_filename $CURR_TIME $UPDATED_CONFIG
+    update_config_paths $UPDATED_CONFIG
   fi
   gnb -c "$UPDATED_CONFIG"
   exit_code=$?
