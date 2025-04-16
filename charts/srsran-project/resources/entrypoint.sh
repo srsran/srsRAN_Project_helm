@@ -76,7 +76,7 @@ terminate() {
   exit 0
 }
 
-trap terminate SIGTERM
+trap terminate SIGTERM SIGINT
 
 PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:false}"
 
