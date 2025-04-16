@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2024 Software Radio Systems Limited
+# Copyright 2021-2025 Software Radio Systems Limited
 #
 # By using this file, you agree to the terms and conditions set
 # forth in the LICENSE file which can be found at the top level of
@@ -19,29 +19,28 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/srs-grafana-1.0.0/grafana-deployment-1.0.0.tgz
     version: 1.0.0
-  ru-emulator:
-  - apiVersion: v2
-    appVersion: 2024.10.0
-    created: "2025-01-13T12:21:00.144172249+01:00"
-    description: A Helm chart to deploy srsRAN Emulator on Kubernetes
-    digest: b77e305e81bc67e5dbc042e909b45db245271c48d20c4ca81386e1c4898b2d63
-    name: ru-emulator
-    type: application
-    urls:
-    - https://github.com/srsran/srsRAN_Project_helm/releases/download/ru-emulator-1.0.0/ru-emulator-1.0.0.tgz
-    version: 1.0.0
-  metrics-server:
-  - apiVersion: v2
-    appVersion: 2024.10.0
-    created: "2025-01-13T12:12:57.868288724+01:00"
-    description: srsRAN Metric Server Helm Chart
-    digest: 08186dfbe48de6069e50b4dc29bdb359a171555805305a9f33af615e46cdd62b
-    name: metrics-server
-    type: application
-    urls:
-    - https://github.com/srsran/srsRAN_Project_helm/releases/download/metrics-server-1.1.0/metrics-server-1.1.0.tgz
-    version: 1.1.0
   linuxptp:
+  - apiVersion: v2
+    appVersion: 4.3.0
+    created: "2025-04-16T17:04:17.30306846+02:00"
+    description: Chart for deploying Linuxptp DaemonSet
+    digest: 3c792e0ee38dac32d666d05d1cdb2c12aeb7df7d77bc272619ad62ef8ad2ee59
+    home: https://linuxptp.nwtime.org/
+    icon: https://linuxptp.nwtime.org/images/logo.png
+    keywords:
+    - linuxptp
+    - ptp4l
+    - phc2sys
+    - ptp
+    - srsran
+    kubeVersion: '>= 1.24.0-0'
+    name: linuxptp
+    sources:
+    - https://github.com/richardcochran/linuxptp
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/inuxptp-v1.2.0/linuxptp-1.2.0.tgz
+    version: 1.2.0
   - apiVersion: v2
     appVersion: 4.3.0
     created: "2024-12-09T13:34:37.882573304+01:00"
@@ -84,7 +83,80 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/liuxptp-v1.0.0/linuxptp-1.0.0.tgz
     version: 1.0.0
+  metrics-server:
+  - apiVersion: v2
+    appVersion: 2024.10.0
+    created: "2025-01-13T12:12:57.868288724+01:00"
+    description: srsRAN Metric Server Helm Chart
+    digest: 08186dfbe48de6069e50b4dc29bdb359a171555805305a9f33af615e46cdd62b
+    name: metrics-server
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/metrics-server-1.1.0/metrics-server-1.1.0.tgz
+    version: 1.1.0
+  rt-tests:
+  - apiVersion: v2
+    appVersion: "2.8"
+    created: "2025-04-16T17:04:17.303291114+02:00"
+    description: Chart for deploying RT-Tests
+    digest: fd962186ed48a58acb07087d2f88e154f3e55ec5cf807bf8d9df784291431a9d
+    home: https://wiki.linuxfoundation.org/realtime/documentation/howto/tools/rt-tests
+    icon: https://wiki.linuxfoundation.org/_media/wiki/logo.png
+    keywords:
+    - rt-tests
+    - srsran
+    kubeVersion: '>= 1.16.0-0'
+    name: rt-tests
+    sources:
+    - https://web.git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git/
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/rt-tests-1.0.0/rt-tests-1.0.0.tgz
+    version: 1.0.0
+  ru-emulator:
+  - apiVersion: v2
+    appVersion: 2024.10.0
+    created: "2025-04-16T17:04:17.30352163+02:00"
+    description: A Helm chart to deploy srsRAN Emulator on Kubernetes
+    digest: 3f7994d8f03f4df6c9e0b95b40289a66fa557706f1c79e8477d40af59da49023
+    name: ru-emulator
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/ru-emulator-1.1.0/ru-emulator-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: 2024.10.0
+    created: "2025-01-13T12:21:00.144172249+01:00"
+    description: A Helm chart to deploy srsRAN Emulator on Kubernetes
+    digest: b77e305e81bc67e5dbc042e909b45db245271c48d20c4ca81386e1c4898b2d63
+    name: ru-emulator
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/ru-emulator-1.0.0/ru-emulator-1.0.0.tgz
+    version: 1.0.0
   srsran-cu-du:
+  - apiVersion: v2
+    appVersion: 2024.10.1
+    created: "2025-04-16T17:04:17.304034042+02:00"
+    description: Official srsRAN Project CU/DU Helm Chart
+    digest: a0b7eed57bfd8a1a17603783c5dae01e326d86a0a5ab227117e7cb1b2898af6c
+    home: https://docs.srsran.com/projects/project/en/latest/
+    icon: https://docs.srsran.com/en/latest/_static/logo.png
+    keywords:
+    - srsran
+    - 5g
+    - oran
+    - vran
+    - gnb
+    - mobile
+    kubeVersion: '>= 1.24.0-0'
+    name: srsran-cu-du
+    sources:
+    - https://github.com/srsran/srsran_project
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-2.1.0/srsran-cu-du-2.1.0.tgz
+    version: 2.1.0
   - apiVersion: v2
     appVersion: 2024.10.0
     created: "2024-12-09T13:34:37.884275425+01:00"
@@ -129,4 +201,4 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-1.0.0/srsran-cu-du-1.0.0.tgz
     version: 1.0.0
-generated: "2025-01-13T12:21:00.143221001+01:00"
+generated: "2025-04-16T17:04:17.30256762+02:00"
