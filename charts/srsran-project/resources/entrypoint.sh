@@ -67,6 +67,17 @@ update_config_paths() {
     sed -i -E "s#([[:space:]]*(filename|[A-Za-z0-9_]+_filename):[[:space:]])${base_dir}(/[0-9]{8}-[0-9]{6})?/#\1${base_dir}/${timestamp}/#g" "$config_file"
 }
 
+terminate() {
+  echo "Received SIGTERM, forwarding to gnb process..."
+  if [ -n "$gnb_pid" ] && kill -0 "$gnb_pid" 2>/dev/null; then
+    kill -TERM "$gnb_pid"
+    wait "$gnb_pid"
+  fi
+  exit 0
+}
+
+trap terminate SIGTERM
+
 PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:false}"
 
 # Use RESOURCE_EXTENDED if provided; otherwise, default to intel.com/intel_sriov_netdevice.
@@ -139,10 +150,13 @@ echo "Configuration file updated and placed in $UPDATED_CONFIG"
 
 while true; do
   if [ "$PRESERVE_OLD_LOGS" = "true" ]; then
-    update_config_paths $UPDATED_CONFIG
+    update_config_paths "$UPDATED_CONFIG"
   fi
-  gnb -c "$UPDATED_CONFIG"
+  gnb -c "$UPDATED_CONFIG" &
+  gnb_pid=$!
+  wait "$gnb_pid"
   exit_code=$?
+
   if [ $exit_code -ne 0 ]; then
     exit $exit_code
   fi
