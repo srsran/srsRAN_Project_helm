@@ -17,6 +17,20 @@ convert_resource_name() {
   echo "PCIDEVICE_${varname}"
 }
 
+# Trap and forward SIGTERM to ru_emulator
+ru_pid=""
+
+cleanup() {
+  echo "Received SIGTERM, stopping ru_emulator..."
+  if [ -n "$ru_pid" ] && kill -0 "$ru_pid" 2>/dev/null; then
+    kill -TERM "$ru_pid"
+    wait "$ru_pid"
+  fi
+  exit 0
+}
+
+trap cleanup SIGTERM SIGINT
+
 CONFIG_FILE="$1"
 if [ -z "$CONFIG_FILE" ]; then
     echo "Usage: $0 <config_file>"
@@ -39,4 +53,6 @@ if [ -n "$RESOURCE_EXTENDED" ]; then
     sed -i -e "s/^\(\s*network_interface:\s*\).*$/\1$VF_PCI_ID/" "$UPDATED_CONFIG" > /dev/null
 fi
 
-/usr/local/bin/ru_emulator -c "$UPDATED_CONFIG"
+/usr/local/bin/ru_emulator -c "$UPDATED_CONFIG" &
+ru_pid=$!
+wait "$ru_pid"
