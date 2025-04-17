@@ -10,7 +10,7 @@ apiVersion: v2
 name: grafana-deployment
 description: A Helm chart to deploy Grafana for srsRAN
 type: application
-version: 1.0.0
+version: 1.2.0
 appVersion: "8.0.1"
 
 dependencies:
