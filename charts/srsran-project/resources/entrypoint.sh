@@ -87,7 +87,7 @@ terminate() {
 
 trap terminate SIGTERM SIGINT
 
-PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:false}"
+PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:-false}"
 
 # Use RESOURCE_EXTENDED if provided; otherwise, default to intel.com/intel_sriov_netdevice.
 RESOURCE_EXTENDED="${RESOURCE_EXTENDED:-intel.com/intel_sriov_netdevice}"
