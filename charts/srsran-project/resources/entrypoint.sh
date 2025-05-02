@@ -69,9 +69,9 @@ update_config_paths() {
     # create current symlink
     local symlink_path="${base_dir}/current"
     if [ -L "$symlink_path" ]; then
-        rm -rf "$symlink_path"
+        rm -f "$symlink_path"
     fi
-    ln -s "$new_folder" "$symlink_path"
+    ln -sf "$symlink_path" "./${timestamp}"
     echo "$new_folder"
     return 0
 }
