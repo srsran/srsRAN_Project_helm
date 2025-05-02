@@ -72,7 +72,8 @@ update_config_paths() {
         rm -rf "$symlink_path"
     fi
     ln -s "$new_folder" "$symlink_path"
-    return "$new_folder"
+    echo "$new_folder"
+    return 0
 }
 
 terminate() {
