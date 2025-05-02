@@ -71,7 +71,7 @@ update_config_paths() {
     if [ -L "$symlink_path" ]; then
         rm -f "$symlink_path"
     fi
-    ln -sf "$symlink_path" "./${timestamp}"
+    ln -sf "./${timestamp}" "${symlink_path}"
     echo "$new_folder"
     return 0
 }
