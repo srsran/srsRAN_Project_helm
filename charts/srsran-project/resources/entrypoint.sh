@@ -65,6 +65,7 @@ update_config_paths() {
     mkdir -p "$new_folder"
   
     sed -i -E "s#([[:space:]]*(filename|[A-Za-z0-9_]+_filename):[[:space:]])${base_dir}(/[0-9]{8}-[0-9]{6})?/#\1${base_dir}/${timestamp}/#g" "$config_file"
+    return "$new_folder"
 }
 
 terminate() {
@@ -159,9 +160,11 @@ echo "Configuration file updated and placed in $UPDATED_CONFIG"
 
 while true; do
   if [ "$PRESERVE_OLD_LOGS" = "true" ]; then
-    update_config_paths "$UPDATED_CONFIG"
+    CURR_LOG_PATH=$(update_config_paths "$UPDATED_CONFIG")
+    gnb -c "$UPDATED_CONFIG" | tee -a "${CURR_LOG_PATH}/gnb.stdout" &
+  else
+    gnb -c "$UPDATED_CONFIG" &
   fi
-  gnb -c "$UPDATED_CONFIG" &
   gnb_pid=$!
   wait "$gnb_pid"
   exit_code=$?
