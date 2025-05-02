@@ -99,17 +99,26 @@ fi
 UPDATED_CONFIG="/tmp/gnb-config.yml"
 cp "$CONFIG_FILE" "$UPDATED_CONFIG"
 
-# If LB_IP is set, update the cu_cp/amf section: replace bind_addr and addr fields.
-if [ -n "${LB_IP+x}" ]; then
-  sed -i "1i\\
-cu_up:\\
+# In case HOSTNETWORK is set to true, we need to use the Pods IP as bind_addr. In case of
+# external core, we need to use the LoadBalancer IP as ext_addr.
+if [ "${HOSTNETWORK}" = "false" ] || [ "${USE_EXT_CORE}" = "true" ]; then
+  block="cu_up:\\
   ngu:\\
     socket:\\
-      - bind_addr: ${POD_IP}\\
-        ext_addr: ${LB_IP}\\
+      - bind_addr: ${POD_IP}\\"
+
+  if [ "${USE_EXT_CORE}" = "true" ]; then
+    block="${block}
+        ext_addr: ${LB_IP}\\"
+  fi
+
+  block="${block}
 cu_cp:\\
   amf:\\
-    bind_addr: ${POD_IP}" "$UPDATED_CONFIG"
+    bind_addr: ${POD_IP}"
+
+  sed -i "1i\\
+${block}" "${UPDATED_CONFIG}"
 fi
 
 # If the device list is set, update each cell's network_interface and du_mac_addr.

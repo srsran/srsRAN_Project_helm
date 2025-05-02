@@ -89,6 +89,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: USE_EXT_CORE
+              value: {{ include "useExtCore" . }}
+            - name: HOSTNETWORK
+              value: '{{ .Values.network.hostNetwork }}'
           {{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
             - name: LB_IP
               value: {{ .Values.service.LoadBalancerIP | quote }}

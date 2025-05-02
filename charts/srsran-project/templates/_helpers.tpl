@@ -101,3 +101,19 @@ Create the image path for the passed in image field of o1-adapter image
 {{- printf "%s:%s" .repository .tag -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Check if N2 or N3 are defined. If defined, use external core.
+*/}}
+{{- define "useExtCore" -}}
+{{- with .Values.service -}}
+  {{- $p := default (dict) .ports -}}
+  {{- if or (hasKey $p "n2") (hasKey $p "n3") -}}
+    "true"
+  {{- else -}}
+    "false"
+  {{- end -}}
+{{- else -}}
+  "false"
+{{- end -}}
+{{- end -}}
