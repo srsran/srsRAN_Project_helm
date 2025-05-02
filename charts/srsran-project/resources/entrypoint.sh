@@ -65,6 +65,13 @@ update_config_paths() {
     mkdir -p "$new_folder"
   
     sed -i -E "s#([[:space:]]*(filename|[A-Za-z0-9_]+_filename):[[:space:]])${base_dir}(/[0-9]{8}-[0-9]{6})?/#\1${base_dir}/${timestamp}/#g" "$config_file"
+
+    # create current symlink
+    local symlink_path="${base_dir}/current"
+    if [ -L "$symlink_path" ]; then
+        rm -rf "$symlink_path"
+    fi
+    ln -s "$new_folder" "$symlink_path"
     return "$new_folder"
 }
 
