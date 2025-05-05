@@ -48,7 +48,20 @@ spec:
               containerPort: {{ .Values.config.port }}
               protocol: UDP
           command: [ "metrics-server" ]
-          args: [ "--port", "{{ .Values.config.port }}", "--bucket", "{{ .Values.config.bucket }}", "--testbed", "{{ .Values.config.testbed }}", "--db-config", "url={{ .Values.config.url }}", "org={{ .Values.config.org }}", "token={{ .Values.config.token }}" ]
+          args:
+            - "--port"
+            - "{{ .Values.config.port }}"
+            - "--bucket"
+            - "{{ .Values.config.bucket }}"
+            - "--testbed"
+            - "{{ .Values.config.testbed }}"
+            - "--db-config"
+            - "url={{ .Values.config.url }}"
+            - "org={{ .Values.config.org }}"
+            - "token={{ .Values.config.token }}"
+            {{- if .Values.config.logLevel }}
+            - "--log-level={{ .Values.config.logLevel }}"
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
