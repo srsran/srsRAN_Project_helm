@@ -57,7 +57,9 @@ tolerations:
 
 affinity: {}
 
-interfaceName: "ens3f1np1"
+# semicolon separated list for LLS-C1 for ptp4l
+# interfaceNameList: "ens3f0np0;ens3f1np1"
+interfaceNameList: "ens3f1np1"
 
 startupProbe:
   enabled: true

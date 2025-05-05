@@ -168,7 +168,7 @@ data:
     ts2phc.nmea_serialport {{ .Values.config.ts2phc.ts2phc_nmea_serialport | default "/dev/gnss0" }}
     {{- end }}
     leapfile /etc/leapseconds/leapseconds.list
-    [{{ .Values.interfaceName }}]
+    [{{ (split ";" .Values.interfaceNameList)._0 }}]
     {{- if .Values.config.ts2phc.ts2phc_extts_polarity }}
     ts2phc.extts_polarity {{ .Values.config.ts2phc.ts2phc_extts_polarity | default "rising" }}
     {{- end }}

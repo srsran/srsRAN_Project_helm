@@ -62,7 +62,15 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: [ "ptp4l" ]
-          args: [ "-i", "{{ .Values.interfaceName }}", "-f", "/etc/config/linuxptp.cfg", "-m" ]
+          args:
+            {{- $ifaces := split ";" .Values.interfaceNameList }}
+            {{- range $ifaces }}
+            - "-i"
+            - "{{ . }}"
+            {{- end }}
+            - "-f"
+            - "/etc/config/linuxptp.cfg"
+            - "-m"
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
@@ -103,9 +111,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          command: [ "/etc/entrypoint/entrypoint-phc2sys.sh" ]
+          command:
+            - "/etc/entrypoint/entrypoint-phc2sys.sh"
           args:
-            - "{{ .Values.interfaceName }}"
+            - {{ (split ";" .Values.interfaceNameList)._0 }}
             {{- if .Values.ntp.enabled }}
             - "{{ .Values.ntp.server }}"
             {{- end }}
@@ -153,7 +162,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: [ "/etc/entrypoint/entrypoint-ts2phc.sh" ]
-          args: [ "{{ .Values.interfaceName }}", "25" ]
+          args:
+            - {{ (split ";" .Values.interfaceNameList)._0 }}
           volumeMounts:
             - name: ts2phc-config-volume
               mountPath: /etc/config

@@ -30,7 +30,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | annotations | object | `{}` | Annotations for the Deployment |
 | securityContext | object | `{}` | Container security context (allowPrivilegeEscalation, etc.) |
 | fullnameOverride | string | `""` | Overrides the chart's computed fullname |
-| interfaceName | string | `{}` | Name of the interface to be used for ptp4l |
+| interfaceNameList | string | `{}` | List of the interface names to be used for ptp4l, semicolon separated |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.pullSecrets | list | `[]` | Image pull secrets |
 | image.repository | string | `"srsran/linuxptp-agent"` | Image repository |
