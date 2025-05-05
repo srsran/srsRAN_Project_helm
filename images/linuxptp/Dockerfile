@@ -9,7 +9,7 @@
 ARG LINUXPTP_VERSION=v4.3
 FROM ubuntu:24.04 AS builder
 
-RUN apt update && apt install -y git make gcc musl-dev && \
+RUN apt update && apt install -y git make gcc musl-dev ntpdate && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
