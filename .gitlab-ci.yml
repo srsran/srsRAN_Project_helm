@@ -30,8 +30,8 @@ stages:
 linuxptp image:
   stage: child
   variables:
-    LINUXPTP_VERSION: "v4.3"
-    CT_VERSION: "1.1.1"
+    LINUXPTP_VERSION: "v4.4"
+    CT_VERSION: "1.1.2"
   rules:
     - if: $ON_MR
       changes:
