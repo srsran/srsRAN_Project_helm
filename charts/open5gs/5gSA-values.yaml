@@ -44,6 +44,13 @@ upf:
       enableNAT: true
 webui:
   enabled: true
+  services:
+    http:
+      type: NodePort
+      ports:
+        http: 9999
+    nodePorts:
+      http: 30002
 
 # 4G
 hss:
