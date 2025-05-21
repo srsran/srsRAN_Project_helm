@@ -78,6 +78,8 @@ update_config_paths() {
 
 terminate() {
   echo "Received SIGTERM, forwarding to gnb process..."
+  # Updating PID in case start of tee has changed it
+  gnb_pid=$(pgrep gnb)
   if [ -n "$gnb_pid" ] && kill -0 "$gnb_pid" 2>/dev/null; then
     kill -TERM "$gnb_pid"
     wait "$gnb_pid"
