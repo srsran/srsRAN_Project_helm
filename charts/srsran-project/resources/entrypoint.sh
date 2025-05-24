@@ -78,11 +78,13 @@ update_config_paths() {
 
 terminate() {
   echo "Received SIGTERM, forwarding to gnb process..."
-  # Updating PID in case start of tee has changed it
   gnb_pid=$(pgrep gnb)
   if [ -n "$gnb_pid" ] && kill -0 "$gnb_pid" 2>/dev/null; then
-    kill -TERM "$gnb_pid"
-    wait "$gnb_pid"
+    kill -TERM "$gnb_pid" # send SIGTERM to gNB process
+    wait "$pipe_pid" # wait for entire pipe to finish
+    exit_code=$?
+    echo "gNB terminated with exit code $exit_code"
+    exit "$exit_code"
   fi
   exit 0
 }
@@ -171,14 +173,17 @@ echo "Configuration file updated and placed in $UPDATED_CONFIG"
 while true; do
   if [ "$PRESERVE_OLD_LOGS" = "true" ]; then
     CURR_LOG_PATH=$(update_config_paths "$UPDATED_CONFIG")
-    gnb -c "$UPDATED_CONFIG" | tee -a "${CURR_LOG_PATH}/gnb.stdout" &
+    {
+      gnb -c "$UPDATED_CONFIG" 2>&1 | tee -a "${CURR_LOG_PATH}/gnb.stdout"
+      exit ${PIPESTATUS[0]}
+    } &
   else
     gnb -c "$UPDATED_CONFIG" &
   fi
-  gnb_pid=$!
-  wait "$gnb_pid"
+  pipe_pid=$!
+  wait "$pipe_pid"
   exit_code=$?
-
+  echo "gNB exited with code $exit_code"
   if [ $exit_code -ne 0 ]; then
     exit $exit_code
   fi
