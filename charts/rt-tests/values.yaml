@@ -23,13 +23,13 @@ podSecurityContext: {}
 securityContext:
   privileged: true
 
-resources: {}
-# limits:
-#   cpu: 16
-#   memory: 500Mi
-# requests:
-#   cpu: 16
-#   memory: 500Mi
+resources:
+  limits:
+    cpu: 16
+    memory: 500Mi
+  requests:
+    cpu: 16
+    memory: 500Mi
 
 nodeSelector: {}
 
@@ -39,5 +39,5 @@ hostOutputFolder: /var/lib/rt-tests
 
 config:
   rt_tests.yml: |-
-    stress-ng: "--matrix 0 -t 12h"
-    cyclictest: "-m -p95 -d0 -a 1-15 -t 16 -h400 -D 12h"
+    stress-ng: "--cpu 16 --iomix 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 12h"
+    cyclictest: "--mlockall --priority 95 --distance 0 --threads 16 --histogram 25 --quiet --duration 12h"
