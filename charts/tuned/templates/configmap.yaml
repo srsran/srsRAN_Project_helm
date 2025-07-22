@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-tuned-profile
+  labels:
+    {{- include "tuned.labels" . | nindent 4 }}
+data:
+  tuned.conf: |
+{{ .Values.profileContent | indent 4 }}
+  startup.sh: |
+{{ .Values.startupScriptContent | indent 4 }}

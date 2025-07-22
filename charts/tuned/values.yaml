@@ -1,0 +1,102 @@
+image:
+  repository: softwareradiosystems/tuned
+  tag: "v2.21.0_1.0.0"
+  pullPolicy: IfNotPresent
+
+profileName: srs-tuned
+
+profileContent: |
+  #
+  # Copyright 2021-2025 Software Radio Systems Limited
+  # By using this file, you agree to the terms and conditions set
+  # forth in the LICENSE file which can be found at the top level of
+  # the distribution.
+  #
+  [main]
+  summary=SRS tuned profile
+
+  [bootloader]
+  cmdline="nosoftlockup selinux=0 enforcing=0 nmi_watchdog=0 crashkernel=auto softlockup_panic=0 nosoftlockup audit=0 mce=off mitigations=off tsc=nowatchdog skew_tick=1 hugepagesz=1G hugepages=2 default_hugepagesz=1G amd_iommu=on iommu=pt"
+
+  [cpu]
+  energy_perf_bias=performance
+  force_latency=cstate.id:1|99
+  governor=performance
+  min_perf_pct=100
+
+  [script]
+  script=${i:PROFILE_DIR}/startup.sh
+
+  [sysctl]
+  kernel.numa_balancing=0
+  kernel.sched_min_granularity_ns=3000000
+  kernel.sched_wakeup_granularity_ns=5000
+  kernel.sched_migration_cost_ns=5000
+  kernel.sched_rt_runtime_us=980000
+  kernel.sched_nr_migrate=4
+  net.core.busy_poll=50
+  net.core.busy_read=50
+  net.ipv4.tcp_fastopen=3
+  vm.dirty_ratio=10
+  vm.dirty_background_ratio=3
+  vm.swappiness=10
+
+  [vm]
+  transparent_hugepages=never
+
+startupScriptContent: |-
+  #!/bin/bash
+  #
+  # Copyright 2021-2025 Software Radio Systems Limited
+  # By using this file, you agree to the terms and conditions set
+  # forth in the LICENSE file which can be found at the top level of
+  # the distribution.
+  #
+  . /usr/lib/tuned/functions
+
+  start() {
+    # srsran performance script
+    echo N | tee /sys/module/drm_kms_helper/parameters/poll >/dev/null
+    echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor >/dev/null
+    return "$?"
+  }
+
+  stop() {
+    return "$?"
+  }
+
+  process $@
+
+affinity: {}
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: kubernetes.io/hostname
+  #         operator: In
+  #         values:
+  #         - hostname
+
+tolerations: []
+#   - key: "node-role.kubernetes.io/master"
+#     operator: "Exists"
+#     effect: "NoSchedule"
+#
+
+hostPathTuned: /usr/lib/tuned
+
+nodeSelector: {}
+  # kubernetes.io/hostname: hostname
+
+securityContext:
+  privileged: true
+
+resources: {}
+annotations: {}
+restartOnConfigChange: true
+
+# The reboot happens 1 min after the profile is applied.
+reboot:
+  enabled: true
+  cmd: "/sbin/shutdown -r +1 'tuned profile applied by helm'"
+  markerDir: /var/lib/tuned-helm

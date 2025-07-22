@@ -1,0 +1,6 @@
+apiVersion: v2
+name: tuned
+description: Deploy tuned profiles on Kubernetes nodes via DaemonSet
+type: application
+version: 0.5.0
+appVersion: "1.0.0"

@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}-tuned
+  labels:
+    {{- include "tuned.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "tuned.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "tuned.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/profile: {{ (printf "%s%s" .Values.profileContent .Values.startupScriptContent ) | sha256sum }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-tuned
+      hostPID: true
+      hostNetwork: true
+{{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+{{- end }}
+{{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+{{- end }}
+{{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+{{- end }}
+      containers:
+        - name: tuned
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: PROFILE_NAME
+              value: "{{ .Values.profileName }}"
+            - name: CHECKSUM_PROFILE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['checksum/profile']
+            - name: REBOOT_ENABLED
+              value: "{{ ternary "true" "false" .Values.reboot.enabled }}"
+            - name: REBOOT_CMD
+              value: "{{ .Values.reboot.cmd }}"
+            - name: REBOOT_MARKER_DIR
+              value: "{{ .Values.reboot.markerDir }}"
+            - name: HOST_TUNED_DIR
+              value: "{{ .Values.hostPathTuned }}"
+          volumeMounts:
+            - name: host-tuned
+              mountPath: {{ .Values.hostPathTuned }}
+            - name: tuned-conf
+              mountPath: /config
+              readOnly: true
+            - name: reboot-marker
+              mountPath: {{ .Values.reboot.markerDir }}
+          command: ["/bin/bash","-c"]
+          args:
+            - |
+              set -euo pipefail
+
+              SRC=/config
+              DST={{ .Values.hostPathTuned }}/{{ .Values.profileName }}
+
+              mkdir -p "${DST}"
+              cp -f "${SRC}/tuned.conf" "${DST}/tuned.conf"
+
+              if [ -f "${SRC}/startup.sh" ]; then
+                cp -f "${SRC}/startup.sh" "${DST}/startup.sh"
+                chmod 755 "${DST}/startup.sh"
+              fi
+
+              # apply profile via host tuned
+              nsenter --target 1 --mount --uts --ipc --net --pid -- tuned-adm profile "{{ .Values.profileName }}" || true
+              nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl enable --now tuned.service || true
+              nsenter --target 1 --mount --uts --ipc --net --pid -- systemctl restart tuned.service || true
+
+              if [ "{{ ternary "true" "false" .Values.reboot.enabled }}" = "true" ]; then
+                mkdir -p "${REBOOT_MARKER_DIR}"
+                marker="${REBOOT_MARKER_DIR}/${CHECKSUM_PROFILE}"
+                if [ ! -f "${marker}" ]; then
+                  echo "New checksum -> scheduling reboot"
+                  find "${REBOOT_MARKER_DIR}" -type f -delete || true
+                  touch "${marker}"
+                  nsenter --target 1 --mount --uts --ipc --net --pid -- sh -c "{{ .Values.reboot.cmd }}" || true
+                else
+                  echo "Reboot already done for this checksum."
+                fi
+              fi
+
+              # keep container alive
+              tail -f /dev/null
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        - name: host-tuned
+          hostPath:
+            path: {{ .Values.hostPathTuned }}
+            type: DirectoryOrCreate
+        - name: tuned-conf
+          configMap:
+            name: {{ .Release.Name }}-tuned-profile
+            defaultMode: 0644
+        - name: reboot-marker
+          hostPath:
+            path: {{ .Values.reboot.markerDir }}
+            type: DirectoryOrCreate
