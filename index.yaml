@@ -211,4 +211,15 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-1.0.0/srsran-cu-du-1.0.0.tgz
     version: 1.0.0
-generated: "2025-05-07T12:14:05.026353859+02:00"
+  tuned:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-07-25T16:56:27.271123537+02:00"
+    description: Deploy tuned profiles on Kubernetes nodes via DaemonSet
+    digest: 33cce052fcf2b4cd04f51c0e1b60c04fc8e4e76e5fc0d3884353781e84fe17ab
+    name: tuned
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/tuned-0.5.0/tuned-0.5.0.tgz
+    version: 0.5.0
+generated: "2025-07-25T16:56:27.270812842+02:00"
