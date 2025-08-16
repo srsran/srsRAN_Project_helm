@@ -8,17 +8,23 @@
 #
 
 # This script updates the gNB configuration file dynamically.
-# It replaces the cu_cp/amf section's IP fields (bind_addr and addr) with values from the POD_IP and LB_IP environment variables.
-# It then processes each cell in the ru_ofh section: for each cell, it replaces the network_interface field with the corresponding
-# BDF from the comma-separated PCIDEVICE_<RESOURCE> environment variable and updates the du_mac_addr field with the MAC
-# address obtained from dmesg for that BDF.
+# - Injects cu_up/cu_cp IP overrides when HOSTNETWORK=false or USE_EXT_CORE=true,
+#   using POD_IP for bind_addr and LB_IP for ext_addr (if external core is used).
+# - If a hal section exists with eal_args, replaces the CPU core list inside @(...)
+#   with the CPUs available to the container as read from cgroups (v1/v2),
+#   working for both privileged and non-privileged containers.
+# - Processes each cell in the ru_ofh section in case the SR-IOV proivder is used: 
+#   replaces the network_interface field with the corresponding BDF from 
+#   PCIDEVICE_<RESOURCE> and updates du_mac_addr using the MAC obtained from dmesg
+#   for that BDF.
 #
-# You can pass the full extended resource name (e.g., "intel.com/intel_sriov_netdevice") as an environment variable
-# RESOURCE_EXTENDED. The script converts it to the environment variable name (e.g., PCIDEVICE_INTEL_COM_INTEL_SRIOV_NETDEVICE)
-# and uses its value for processing.
+# You can pass the full extended resource name (e.g., "intel.com/intel_sriov_netdevice")
+# as an environment variable RESOURCE_EXTENDED. The script converts it to the environment
+# variable name (e.g., PCIDEVICE_INTEL_COM_INTEL_SRIOV_NETDEVICE) and uses its value for
+# processing.
 #
 # Usage: ./entrypoint.sh /etc/config/gnb-config.yml
-# Only tested in Ubuntu 22.04 container
+# This script has only been tested in containers with Ubuntu 22.04 or higher!
 
 # Function to convert full extended resource name to environment variable name.
 # Example: "intel.com/intel_sriov_netdevice" -> "PCIDEVICE_INTEL_COM_INTEL_SRIOV_NETDEVICE"
@@ -42,8 +48,8 @@ update_config_paths() {
     local first_line
     first_line=$(grep -E '^[[:space:]]*[A-Za-z0-9_]*filename:' "$config_file" | head -1)
     if [ -z "$first_line" ]; then
-        echo "Error: No filename entry found in config file."
-        return 1
+        echo "Warning: No logfile or pcap filenames entries found in config file."
+        return 0
     fi
 
     local original_path
@@ -74,6 +80,137 @@ update_config_paths() {
     ln -sf "./${timestamp}" "${symlink_path}"
     echo "$new_folder"
     return 0
+}
+
+# Detect container-available CPUs from cgroups (v1/v2, privileged/non-privileged)
+get_container_cpus() {
+  local cpuset=""
+  local cgroup_path=""
+
+  if [ -f /proc/self/cgroup ]; then
+    cgroup_path=$(grep -E "cpuset|0::" /proc/self/cgroup | head -1 | cut -d: -f3)
+  fi
+
+  if [ -n "$cgroup_path" ] && [ "$cgroup_path" != "/" ]; then
+    if [ -f "/sys/fs/cgroup/cpuset${cgroup_path}/cpuset.cpus" ]; then
+      cpuset=$(cat "/sys/fs/cgroup/cpuset${cgroup_path}/cpuset.cpus")
+    elif [ -f "/sys/fs/cgroup${cgroup_path}/cpuset.cpus" ]; then
+      cpuset=$(cat "/sys/fs/cgroup${cgroup_path}/cpuset.cpus")
+    fi
+  fi
+
+  if [ -z "$cpuset" ]; then
+    if [ -f /sys/fs/cgroup/cpuset/cpuset.cpus ]; then
+      cpuset=$(cat /sys/fs/cgroup/cpuset/cpuset.cpus)
+    elif [ -f /sys/fs/cgroup/cpuset.cpus ]; then
+      cpuset=$(cat /sys/fs/cgroup/cpuset.cpus)
+    fi
+  fi
+
+  if [ -z "$cpuset" ]; then
+    if command -v nproc >/dev/null 2>&1; then
+      local n
+      n=$(nproc)
+      if [ "$n" -gt 0 ]; then
+        cpuset="0-$((n-1))"
+      else
+        cpuset="0-1"
+      fi
+    else
+      cpuset="0-1"
+    fi
+    echo "Warning: Could not determine CPU set from cgroup, using fallback: $cpuset" >&2
+  fi
+
+  echo "$cpuset" | xargs
+}
+
+# Update hal.eal_args cores (inside @(...)) only if hal section exists
+update_hal_eal_args() {
+  local config_file="$1"
+
+  if ! grep -q "^[[:space:]]*hal:" "$config_file"; then
+    return 0
+  fi
+
+  if ! grep -q "^[[:space:]]*eal_args:" "$config_file"; then
+    return 0
+  fi
+
+  local cpus
+  cpus=$(get_container_cpus)
+  if [ -z "$cpus" ]; then
+    echo "Warning: No CPUs detected; skipping hal.eal_args update" >&2
+    return 0
+  fi
+
+  sed -i -E "s/(@\()[^)]*(\))/\\1${cpus}\\2/" "$config_file"
+  echo "Updated hal.eal_args CPU list to: ${cpus}"
+}
+
+# Update each cell's network_interface and du_mac_addr using provided BDFs
+update_network_interfaces_and_macs() {
+  local config_file="$1"
+  local device_list="$2"
+
+  if [ -z "$device_list" ]; then
+    return 0
+  fi
+
+  IFS=',' read -r -a bdf_array <<< "$device_list"
+  local tmpfile
+  tmpfile=$(mktemp)
+  local counter=0
+  local current_bdf=""
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    if echo "$line" | grep -qE "^[[:space:]]*-[[:space:]]*network_interface:" && [ $counter -lt ${#bdf_array[@]} ]; then
+      current_bdf=$(echo "${bdf_array[$counter]}" | xargs)
+      indent=$(echo "$line" | sed -n 's/^\([[:space:]]*\).*/\1/p')
+      echo "${indent}- network_interface: $current_bdf" >> "$tmpfile"
+    elif echo "$line" | grep -q "^[[:space:]]*du_mac_addr:" && [ -n "$current_bdf" ]; then
+      mac=$(dmesg | grep "$current_bdf" | grep "MAC address:" | tail -n 1 | sed -n 's/.*MAC address: \([0-9a-fA-F:]\+\).*/\1/p')
+      indent=$(echo "$line" | sed -n 's/^\([[:space:]]*\).*/\1/p')
+      if [ -n "$mac" ]; then
+        echo "${indent}du_mac_addr: $mac" >> "$tmpfile"
+        echo "For BDF $current_bdf, MAC: $mac"
+      else
+        echo "Warning: Could not determine MAC for BDF $current_bdf" >&2
+        echo "$line" >> "$tmpfile"
+      fi
+      counter=$((counter + 1))
+      current_bdf=""
+    else
+      echo "$line" >> "$tmpfile"
+    fi
+  done < "$config_file"
+
+  mv "$tmpfile" "$config_file"
+}
+
+inject_ip_overrides() {
+  local config_file="$1"
+
+  # In case HOSTNETWORK is set to true, we need to use the Pods IP as bind_addr. In case of
+  # external core, we need to use the LoadBalancer IP as ext_addr.
+  if [ "${HOSTNETWORK}" = "false" ] || [ "${USE_EXT_CORE}" = "true" ]; then
+    local tmpfile
+    tmpfile=$(mktemp)
+    {
+      echo "cu_up:"
+      echo "  ngu:"
+      echo "    socket:"
+      echo "      - bind_addr: ${POD_IP}"
+      if [ "${USE_EXT_CORE}" = "true" ]; then
+        echo "        ext_addr: ${LB_IP}"
+      fi
+      echo "cu_cp:"
+      echo "  amf:"
+      echo "    bind_addr: ${POD_IP}"
+    } > "$tmpfile"
+    cat "$config_file" >> "$tmpfile"
+    mv "$tmpfile" "$config_file"
+  fi
 }
 
 terminate() {
@@ -112,60 +249,14 @@ fi
 UPDATED_CONFIG="/tmp/gnb-config.yml"
 cp "$CONFIG_FILE" "$UPDATED_CONFIG"
 
-# In case HOSTNETWORK is set to true, we need to use the Pods IP as bind_addr. In case of
-# external core, we need to use the LoadBalancer IP as ext_addr.
-if [ "${HOSTNETWORK}" = "false" ] || [ "${USE_EXT_CORE}" = "true" ]; then
-  block="cu_up:\\
-  ngu:\\
-    socket:\\
-      - bind_addr: ${POD_IP}\\"
+inject_ip_overrides "$UPDATED_CONFIG"
 
-  if [ "${USE_EXT_CORE}" = "true" ]; then
-    block="${block}
-        ext_addr: ${LB_IP}\\"
-  fi
+# Update hal eal_args if present
+update_hal_eal_args "$UPDATED_CONFIG"
 
-  block="${block}
-cu_cp:\\
-  amf:\\
-    bind_addr: ${POD_IP}"
-
-  sed -i "1i\\
-${block}" "${UPDATED_CONFIG}"
-fi
-
-# If the device list is set, update each cell's network_interface and du_mac_addr.
+# If the device list is set, update each cell's network_interface and du_mac_addr using function
 if [ -n "${DEVICE_LIST}" ]; then
-  IFS=',' read -r -a bdf_array <<< "$DEVICE_LIST"
-  tmpfile=$(mktemp)
-  counter=0
-  current_bdf=""
-
-  while IFS= read -r line || [ -n "$line" ]; do
-    # When a cell block contains a network_interface field, update it with the current BDF.
-    if echo "$line" | grep -qE "^[[:space:]]*-[[:space:]]*network_interface:" && [ $counter -lt ${#bdf_array[@]} ]; then
-      current_bdf=$(echo "${bdf_array[$counter]}" | xargs)
-      indent=$(echo "$line" | sed -n 's/^\([[:space:]]*\).*/\1/p')
-      echo "${indent}- network_interface: $current_bdf" >> "$tmpfile"
-    # When a du_mac_addr field is encountered in the same cell block, update it using the MAC for current_bdf.
-    elif echo "$line" | grep -q "^[[:space:]]*du_mac_addr:" && [ -n "$current_bdf" ]; then
-      mac=$(dmesg | grep "$current_bdf" | grep "MAC address:" | tail -n 1 | sed -n 's/.*MAC address: \([0-9a-fA-F:]\+\).*/\1/p')
-      indent=$(echo "$line" | sed -n 's/^\([[:space:]]*\).*/\1/p')
-      if [ -n "$mac" ]; then
-        echo "${indent}du_mac_addr: $mac" >> "$tmpfile"
-        echo "For BDF $current_bdf, MAC: $mac"
-      else
-        echo "Warning: Could not determine MAC for BDF $current_bdf" >&2
-        echo "$line" >> "$tmpfile"
-      fi
-      counter=$((counter + 1))
-      current_bdf=""
-    else
-      echo "$line" >> "$tmpfile"
-    fi
-  done < "$UPDATED_CONFIG"
-  
-  mv "$tmpfile" "$UPDATED_CONFIG"
+  update_network_interfaces_and_macs "$UPDATED_CONFIG" "${DEVICE_LIST}"
 fi
 
 echo "Configuration file updated and placed in $UPDATED_CONFIG"
