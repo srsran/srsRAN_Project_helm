@@ -61,7 +61,7 @@ spec:
             type: DirectoryOrCreate
         - name: rt-tests-configmap
           configMap:
-            name: rt-tests-configmap
+            name: {{ include "rt-tests.configmapName" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

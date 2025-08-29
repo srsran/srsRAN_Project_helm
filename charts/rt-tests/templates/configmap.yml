@@ -9,7 +9,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: rt-tests-configmap
+  name: {{ include "rt-tests.configmapName" . }}
 data:
   {{- .Values.config | toYaml | nindent 2 }}
 

@@ -15,6 +15,9 @@ imagePullSecrets: {}
 
 nameOverride: "rt-tests-chart"
 fullnameOverride: "rt-tests-chart"
+configmap: {}
+# configmap:
+#   nameOverride: "rt-tests-myhost-config"
 
 podAnnotations: {}
 
