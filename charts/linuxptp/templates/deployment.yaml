@@ -32,20 +32,20 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: linuxptp-configmap
+            name: {{ include "linuxptp.configmapName" . }}
         - name: ts2phc-config-volume
           configMap:
-            name: linuxptp-ts2phc-configmap
+            name: {{ include "linuxptp.ts2phcConfigmapName" . }}
         - name: ts2phc-leapseconds-volume
           configMap:
-            name: linuxptp-ts2phc-leapfile-configmap
+            name: {{ include "linuxptp.ts2phcLeapfileConfigmapName" . }}
         - name: entrypoint-volume-ts2phc
           configMap:
-            name: linuxptp-ts2phc-entrypoint-configmap
+            name: {{ include "linuxptp.ts2phcEntrypointConfigmapName" . }}
             defaultMode: 0777
         - name: entrypoint-volume-phc2sys
           configMap:
-            name: linuxptp-phc2sys-entrypoint-configmap
+            name: {{ include "linuxptp.phc2sysEntrypointConfigmapName" . }}
             defaultMode: 0777
         - name: ptp4l-run-volume
           hostPath:

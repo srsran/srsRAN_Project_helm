@@ -19,6 +19,13 @@ imagePullSecrets:
 nameOverride: "linuxptp-chart"
 fullnameOverride: "linuxptp-chart"
 
+configmap:
+  linuxptpConfig: { nameOverride: "" }
+  phc2sysEntrypoint: { nameOverride: "" }
+  ts2phcEntrypoint: { nameOverride: "" }
+  ts2phc: { nameOverride: "" }
+  ts2phcLeapfile: { nameOverride: "" }
+
 serviceAccount:
   create: true
   annotations: {}

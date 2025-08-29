@@ -9,7 +9,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: linuxptp-configmap
+  name: {{ include "linuxptp.configmapName" . }}
 data:
   linuxptp.cfg: |
     [global]
@@ -133,21 +133,21 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: linuxptp-phc2sys-entrypoint-configmap
+  name: {{ include "linuxptp.phc2sysEntrypointConfigmapName" . }}
 data:
   entrypoint-phc2sys.sh: {{ tpl (.Files.Get "resources/entrypoint-phc2sys.sh") . | quote | default 000 }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: linuxptp-ts2phc-entrypoint-configmap
+  name: {{ include "linuxptp.ts2phcEntrypointConfigmapName" . }}
 data:
   entrypoint-ts2phc.sh: {{ tpl (.Files.Get "resources/entrypoint-ts2phc.sh") . | quote | default 000 }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: linuxptp-ts2phc-configmap
+  name: {{ include "linuxptp.ts2phcConfigmapName" . }}
 data:
   ts2phc.cfg: |
     [global]
@@ -176,7 +176,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: linuxptp-ts2phc-leapfile-configmap
+  name: {{ include "linuxptp.ts2phcLeapfileConfigmapName" . }}
 data:
   leapseconds.list: |
     #       ATOMIC TIME

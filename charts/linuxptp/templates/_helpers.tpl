@@ -32,6 +32,105 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Config map helpers
+*/}}
+
+{{/*
+MAIN CONFIGMAP (linuxptp.cfg)
+*/}}
+{{- define "linuxptp.configmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .linuxptpConfig }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-config" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-config" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-config" (include "linuxptp.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
+PHC2SYS ENTRYPOINT (resources/entrypoint-phc2sys.sh)
+*/}}
+{{- define "linuxptp.phc2sysEntrypointConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .phc2sysEntrypoint }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-phc2sys-entrypoint" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-phc2sys-entrypoint" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-phc2sys-entrypoint" (include "linuxptp.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
+TS2PHC ENTRYPOINT (resources/entrypoint-ts2phc.sh)
+*/}}
+{{- define "linuxptp.ts2phcEntrypointConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .ts2phcEntrypoint }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-ts2phc-entrypoint" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-ts2phc-entrypoint" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-ts2phc-entrypoint" (include "linuxptp.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
+TS2PHC CONFIG (ts2phc.cfg)
+*/}}
+{{- define "linuxptp.ts2phcConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .ts2phc }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-ts2phc" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-ts2phc" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-ts2phc" (include "linuxptp.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
+TS2PHC LEAPFILE (leapseconds.list)
+*/}}
+{{- define "linuxptp.ts2phcLeapfileConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .ts2phcLeapfile }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-ts2phc-leapfile" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-ts2phc-leapfile" (include "linuxptp.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-ts2phc-leapfile" (include "linuxptp.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "linuxptp.chart" -}}
