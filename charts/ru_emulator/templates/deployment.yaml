@@ -35,7 +35,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: ru-emu-configmap
+            name: {{ include "ru-emulator.configmapName" . }}
         {{- if .Values.config.dpdk }}
         - name: hugepage-1gi
           emptyDir:

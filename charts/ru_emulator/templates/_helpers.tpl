@@ -32,6 +32,21 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+ConfigMap name (nil-safe override)
+*/}}
+{{- define "ru-emulator.configmapName" -}}
+{{- with .Values.configmap }}
+  {{- if .nameOverride }}
+    {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+  {{- else }}
+    {{- printf "%s-config" (include "ru-emulator.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-config" (include "ru-emulator.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "ru-emulator.chart" -}}

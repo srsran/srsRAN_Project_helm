@@ -17,6 +17,10 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+configmap: {}
+# To pin a custom name (e.g., via Terraform --set):
+# configmap:
+#   nameOverride: "ru-emu-srskit-rack1-config"
 
 podAnnotations: {}
 

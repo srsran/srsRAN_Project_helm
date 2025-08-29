@@ -9,7 +9,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ru-emu-configmap
+  name: {{ include "ru-emulator.configmapName" . }}
 data:
   ru_emulator.yaml: |
     {{- if .Values.config.log }}
