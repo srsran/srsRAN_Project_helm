@@ -32,6 +32,63 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Main configmap for normal mode (values.config)
+*/}}
+{{- define "srsran-cudu.mainConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .main }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-config" (include "srsran-cudu.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-config" (include "srsran-cudu.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-config" (include "srsran-cudu.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
+O1 mode configmap (values.o1Config)
+*/}}
+{{- define "srsran-cudu.o1ConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .o1 }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-o1-config" (include "srsran-cudu.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-o1-config" (include "srsran-cudu.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-o1-config" (include "srsran-cudu.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
+Entrypoint script configmap
+*/}}
+{{- define "srsran-cudu.entrypointConfigmapName" -}}
+{{- with .Values.configmap }}
+  {{- with .entrypoint }}
+    {{- if .nameOverride }}
+      {{- .nameOverride | trunc 63 | trimSuffix "-" -}}
+    {{- else }}
+      {{- printf "%s-entrypoint" (include "srsran-cudu.fullname" $) | trunc 63 | trimSuffix "-" -}}
+    {{- end }}
+  {{- else }}
+    {{- printf "%s-entrypoint" (include "srsran-cudu.fullname" $) | trunc 63 | trimSuffix "-" -}}
+  {{- end }}
+{{- else }}
+  {{- printf "%s-entrypoint" (include "srsran-cudu.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "srsran-cudu.chart" -}}

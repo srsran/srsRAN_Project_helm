@@ -34,7 +34,7 @@ spec:
       volumes:
         - name: entrypoint-volume-srsgnb
           configMap:
-            name: srsgnb-entrypoint-configmap
+            name: {{ include "srsran-cudu.entrypointConfigmapName" . }}
             defaultMode: 0777
         {{- if .Values.o1.enable_srs_o1 }}
         - name: o1-gnb-config
@@ -45,12 +45,12 @@ spec:
             sizeLimit: 2Mi
         - name: o1-config-volume
           configMap:
-            name: o1-configmap
+            name: {{ include "srsran-cudu.o1ConfigmapName" . }}
             defaultMode: 0777
         {{- else }}
         - name: config-volume
           configMap:
-            name: srsgnb-configmap
+            name: {{ include "srsran-cudu.mainConfigmapName" . }}
         {{- end }}
         {{- if .Values.debugging.enabled }}
         - name: srs-host-volume

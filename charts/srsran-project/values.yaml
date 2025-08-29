@@ -19,6 +19,10 @@ imagePullSecrets:
 
 nameOverride: "srsran-project-cudu"
 fullnameOverride: "srsran-project-cudu-chart"
+configmap:
+  main: { nameOverride: "" }
+  o1: { nameOverride: "" }
+  entrypoint: { nameOverride: "" }
 
 serviceAccount:
   create: true
