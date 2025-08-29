@@ -19,13 +19,16 @@ stages:
   - publish
   - manifest
 
+variables:
+  TUNED_NAME: tuned-agent
+
 .docker-builder-tuned:
   extends: .docker-builder
   variables:
     CONTEXT: images/tuned
     VERSION: "${TUNED_VERSION}_${CT_VERSION}"
     BUILD_ARGS: "TUNED_VERSION=${TUNED_VERSION}"
-    NAME: tuned
+    NAME: ${TUNED_NAME}
     MULTI_ARCH_BUILD: "true"
     REGISTRY_URI: ""
     REGISTRY_ORG: $PUBLIC_CT_REGISTRY_URI
@@ -58,7 +61,7 @@ docker manifest ubuntu 24.04:
   variables:
     REGISTRY_URI: ""
     REGISTRY_ORG: $PUBLIC_CT_REGISTRY_URI
-    NAME: tuned
+    NAME: ${TUNED_NAME}
     VERSION: "${TUNED_VERSION}_${CT_VERSION}"
   needs:
     - job: build-and-publish-tuned
