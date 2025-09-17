@@ -149,6 +149,28 @@ entries:
     version: 1.0.0
   srsran-cu-du:
   - apiVersion: v2
+    appVersion: "25.04"
+    created: "2025-09-18T00:59:25.211760085+02:00"
+    description: Official srsRAN Project CU/DU Helm Chart
+    digest: d89fef0a546d149b044ebab60fdf3cc15f0562a0d3c3dbb70fc5545298ab4a32
+    home: https://docs.srsran.com/projects/project/en/latest/
+    icon: https://docs.srsran.com/en/latest/_static/logo.png
+    keywords:
+    - srsran
+    - 5g
+    - oran
+    - vran
+    - gnb
+    - mobile
+    kubeVersion: '>= 1.24.0-0'
+    name: srsran-cu-du
+    sources:
+    - https://github.com/srsran/srsran_project
+    type: application
+    urls:
+    - https://github.com/srsran/srsRAN_Project_helm/releases/download/srsran-cudu-2.2.0/srsran-cu-du-2.2.0.tgz
+    version: 2.2.0
+  - apiVersion: v2
     appVersion: 2024.10.1
     created: "2025-04-16T17:04:17.304034042+02:00"
     description: Official srsRAN Project CU/DU Helm Chart
@@ -225,4 +247,4 @@ entries:
     urls:
     - https://github.com/srsran/srsRAN_Project_helm/releases/download/tuned-0.5.0/tuned-0.5.0.tgz
     version: 0.5.0
-generated: "2025-09-18T00:25:53.541301609+02:00"
+generated: "2025-09-18T00:59:25.209847464+02:00"
