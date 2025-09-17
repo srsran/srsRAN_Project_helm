@@ -12,7 +12,7 @@ image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
   repository: softwareradiosystems/srsran-project
   pullPolicy: IfNotPresent
-  tag: split72_release_avx512
+  tag: release_avx512-11c9bbabb6__2025-09-15
 
 imagePullSecrets:
   - name: regcred
