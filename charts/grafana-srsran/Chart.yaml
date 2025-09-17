@@ -10,19 +10,19 @@ apiVersion: v2
 name: grafana-deployment
 description: A Helm chart to deploy Grafana for srsRAN
 type: application
-version: 1.2.0
-appVersion: "8.0.1"
+version: 1.3.0
+appVersion: "9.2.10"
 
 dependencies:
   - name: grafana
     repository: "https://grafana.github.io/helm-charts"
-    version: "8.0.1"
+    version: "9.2.10"
     alias: grafana
-  - name: influxdb2
+  - name: telegraf
     repository: "https://helm.influxdata.com/"
-    version: "2.1.2"
-    alias: influxdb
-  - name: metrics-server
+    version: "1.8.60"
+    alias: telegraf
+  - name: influxdb3
     repository: "https://srsran.github.io/srsRAN_Project_helm/"
-    version: "1.2.0"
-    alias: metrics-server
+    version: "1.0.0"
+    alias: influxdb3

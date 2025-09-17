@@ -9,8 +9,27 @@
 grafana:
   image:
     repository: softwareradiosystems/grafana
-    pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "11c9bbabb6__2025-09-15"
+  env:
+    GF_PORT: "3000"
+    GF_AUTH_ANONYMOUS_ENABLED: "true"
+    GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
+    GF_AUTH_ANONYMOUS_HIDE_VERSION: "true"
+    # GF_LOG_LEVEL: "warning"
+    GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/etc/dashboards/home.json"
+    GF_DASHBOARDS_MIN_REFRESH_INTERVAL: "1s"
+    GF_PLUGINS_PLUGIN_ADMIN_ENABLED: "false"
+    GF_SECURITY_ADMIN_USER: "admin"
+    GF_SECURITY_ADMIN_PASSWORD: "admin1234"
+    INFLUXDB3_EXTERNAL_URL: "http://influxdb3.srsran.svc.cluster.local:8081"
+    INFLUXDB3_AUTH_TOKEN: "fake-token-1234567890abcdef"
+    INFLUXDB3_BUCKET: "srsran"
+  service:
+    enabled: true
+    type: NodePort
+    port: 80
+    targetPort: 3000
+    nodePort: 30001
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -18,49 +37,102 @@ grafana:
         - name: InfluxDB
           type: influxdb
           access: proxy
-          url: http://grafana-influxdb.srsran.svc.cluster.local
+          url: http://influxdb3.srsran.svc.cluster.local:8081
           uid: JOSE3g9KVz
           jsonData:
-            version: Flux
-            organization: srs
-            defaultBucket: srsran
-            tlsSkipVerify: true
+            version: SQL
+            dbName: srsran
+            insecureGrpc: true
+            maxSeries: 100000
           secureJsonData:
-            token: 605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b
-  env:
-    GF_AUTH_ANONYMOUS_ENABLED: true
-  service:
-    enabled: true
-    type: NodePort
-    port: 80
-    targetPort: 3000
-    nodePort: 30001
+            token: "fake-token-1234567890abcdef"
 
-influxdb:
+influxdb3:
   image:
     repository: influxdb
-    tag: "2.7.4-alpine"
-  adminUser:
-    organization: "srs"
-    bucket: "srsran"
-    user: "admin"
-    retention_policy: "4d"
-    password: "admin1234"
-    token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
+    tag: "3.1.0-core"
+  service:
+    type: ClusterIP
+    port: 8081
+  args:
+    - --object-store=memory
+    - --data-dir=/var/lib/influxdb3
+    - --plugin-dir=/var/lib/influxdb3-plugins
+    - --node-id=node0
+    - --http-bind=0.0.0.0:8081
+    - --without-auth
+  database:
+    name: srsran
   persistence:
-    enabled: false  # Only for testing! Add a PVC provider for persistance!
+    enabled: true
+    type: hostPath
+    hostPath: /mnt/influxdb3
     accessMode: ReadWriteOnce
     size: 50Gi
-    mountPath: /var/lib/influxdb2
-    subPath: ""
+    mountPath: /var/lib/influxdb3
+    pluginMountPath: /var/lib/influxdb3-plugins
 
-metrics-server:
-  config:
-    port: 55555
-    bucket: srsran
-    testbed: default
-    url: http://grafana-influxdb.srsran.svc.cluster.local
-    org: srs
-    token: "605bc59413b7d5457d181ccf20f9fda15693f81b068d70396cc183081b264f3b"
-    serviceType: "ClusterIP"
-    # logLevel: "DEBUG"
+telegraf:
+  useImageConfig: true
+  image:
+    repo: "softwareradiosystems/telegraf"
+    tag: "11c9bbabb6__2025-09-15"
+  imagePullSecrets:
+    - name: regcred
+  args:
+    - "--config"
+    - "/etc/srs/telegraf.conf"
+  env:
+    - name: WS_URL
+      value: "srsran-project-cudu-chart-metrics.srsran.svc.cluster.local:8001"
+    - name: INFLUXDB3_EXTERNAL_URL
+      value: "http://influxdb3.srsran.svc.cluster.local:8081"
+    - name: INFLUXDB3_AUTH_TOKEN
+      value: "fake-token-1234567890abcdef"
+    - name: INFLUXDB3_BUCKET
+      value: "srsran"
+    - name: INFLUXDB3_RATE_LIMIT
+      value: "0"
+    - name: INFLUXDB3_RATE_LIMIT_PERIOD
+      value: "0s"
+    - name: INFLUXDB3_TESTBED
+      value: "k8s-cluster"
+    - name: TELEGRAF_INPUT_INTERVAL
+      value: "1s"
+    - name: TELEGRAF_OUTPUT_INTERVAL
+      value: "1s"
+    - name: TELEGRAF_BUFFER_LIMIT
+      value: "10000"
+    - name: TELEGRAF_QUIET
+      value: "true"
+    - name: TELEGRAF_DEBUG
+      value: "false"
+    - name: TELEGRAF_LOG_FILE
+      value: ""
+    - name: TELEGRAF_INPUT_BUFFER_SIZE
+      value: "1MiB"
+    - name: TELEGRAF_CLI_EXTRA_ARGS
+      value: ""
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 9273
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 9273
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  tolerations:
+    - key: "machine"
+      operator: "Equal"
+      value: "srskit-rack1"
+      effect: "NoSchedule"
+  service:
+    enabled: false
