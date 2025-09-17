@@ -70,6 +70,14 @@ nodeSelector: {}
 tolerations: {}
 affinity: {}
 
+metricsService:
+  enabled: false
+  type: ClusterIP
+  # loadBalancerIP: "10.0.0.123"
+  # Make sure this port matches the port in the gnb config
+  port: 8001
+  targetPort: 8001
+
 debugging:
   enabled: true
   preserveOldLogs: true
@@ -176,3 +184,12 @@ config:
       mac_filename: /tmp/gnb_mac.pcap
       ngap_enable: false
       ngap_filename: /tmp/gnb_ngap.pcap
+
+    metrics:
+      autostart_stdout_metrics: true
+      enable_json: false
+
+    remote_control:
+      bind_addr: 0.0.0.0
+      enabled: false
+      port: 8001
