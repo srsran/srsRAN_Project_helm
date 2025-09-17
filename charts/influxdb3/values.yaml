@@ -1,0 +1,47 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+image:
+  repository: influxdb
+  tag: "3.1.0-core"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8081
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 50Gi
+  mountPath: /var/lib/influxdb3
+  pluginMountPath: /var/lib/influxdb3-plugins
+  hostPath: /mnt/influxdb3
+
+env:
+  LOG_FILTER: error
+  INFLUXDB_NODE_ID: node0
+
+args:
+  - --object-store=memory
+  - --data-dir=/var/lib/influxdb3
+  - --plugin-dir=/var/lib/influxdb3-plugins
+  - --node-id=node0
+  - --http-bind=0.0.0.0:8081
+  - --without-auth
