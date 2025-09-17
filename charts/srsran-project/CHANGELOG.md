@@ -1,3 +1,19 @@
+# Changelog
+
+## 2.2.0 (September 18, 2025)
+### Added
+- Add service for Telegraf metrics collection
+- Refactor configMap naming to support multiple instances deployment
+### Changed
+- Refactor entrypoint script to update HAL section
+- Update entrypoint to return exit code of gNB process
+- Update PID of the gNB process before calling kill
+- Improve hostnetwork adaptation for gNB Pod
+- Fix symlink creation and path handling in entrypoint
+- Fix default value of PRESERVE_OLD_LOGS
+- Create symlink to current log folder
+- Save stdout in separate file
+
 ## 2.1.0 (April 16, 2025)
 ### Changed
 - Forward SIGINT in the gNB entrypoint script to child processes.
@@ -46,3 +62,4 @@
 ## 0.1.0 (September 29, 2023)
 ### Added
 - Initial release of the srsRAN Project Helm chart
+
