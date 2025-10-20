@@ -10,7 +10,7 @@
 # This Bash script monitors the phc2sys logfile and checks if
 # the rms value is below a specified threshold (upper_limit). It also checks if
 # the timestamp in the phc2sys logfile increases. It writes a health check
-# file (/tmp/healthcheck) in case the application is running correct. It has a timeout
+# file (/tmp/phc2sys-healthy) in case the application is running correct. It has a timeout
 # of 10 seconds of not receiving a valid NMEA messages. If the timeout is reached,
 # the health check file is removed and the applications terminates.
 
@@ -27,9 +27,9 @@ while true; do
     if [[ -z $last_line ]]; then
         echo "Warning: No new data found in $phc2sys_output_file. Check if the system is working properly."
         ((counter++))
-    elif [[ $last_line == *"CLOCK_REALTIME phc"* ]]; then
+    elif [[ $last_line == *"CLOCK_REALTIME rms"* ]]; then
         timestamp=$(echo "$last_line" | awk -F'[][]' '{print $2}' | sed 's/://' | cut -d'.' -f1)
-        last_value=$(echo "$last_line" | awk '/CLOCK_REALTIME phc offset/ {print $5}')
+        last_value=$(echo "$last_line" | awk '/CLOCK_REALTIME rms/ {print $4}')
 
         # Validate the timestamp and last_value
         if [[ -n $timestamp && $timestamp =~ ^[0-9]+$ ]] && [[ -n $last_value && $last_value =~ ^-?[0-9]+$ ]]; then
