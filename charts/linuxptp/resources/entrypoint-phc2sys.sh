@@ -15,12 +15,11 @@ NTP_SERVER=${2}
 # Function to clean up on SIGTERM
 cleanup() {
   echo "Received SIGTERM, stopping phc2sys..."
-  if [ -n "$phc2sys_pid" ] && kill -0 "$phc2sys_pid" 2>/dev/null; then
-    kill -TERM "$phc2sys_pid"
-    kill -TERM "$liveness_pid"
-    wait "$phc2sys_pid"
-    wait "$liveness_pid"
-  fi
+  [[ -n "${tee_pid:-}" ]] && kill -TERM "$tee_pid" 2>/dev/null || true
+  [[ -n "${phc2sys_pid:-}" ]] && kill -TERM "$phc2sys_pid" 2>/dev/null || true
+  wait "${tee_pid:-}"  2>/dev/null || true
+  wait "${phc2sys_pid:-}" 2>/dev/null || true
+  rm -f /tmp/phc2sys.pipe
   exit 0
 }
 
@@ -31,10 +30,19 @@ if [ -n "${NTP_SERVER}" ]; then
   phc_ctl ${INTERFACE} set
 fi
 
-phc2sys -s "${INTERFACE}" -w -m -f /etc/config/linuxptp.cfg &
+# make sure we always get lines promptly
+LOGFILE=/tmp/phc2sys.stdout
+PIPE=/tmp/phc2sys.pipe
+rm -f "$PIPE" && mkfifo "$PIPE"
+
+# start phc2sys, write to the fifo (add -u 1 for periodic lines)
+stdbuf -oL -eL phc2sys -s "${INTERFACE}" -c CLOCK_REALTIME -w -m -u 1 -f /etc/config/linuxptp.cfg \
+  >"$PIPE" 2>&1 &
 phc2sys_pid=$!
 
-cat "/proc/${phc2sys_pid}/fd/1" > /tmp/phc2sys.stdout &
+# tee from the fifo to a file (and to container stdout)
+tee -a "$LOGFILE" <"$PIPE" &
+tee_pid=$!
 
 liveness-phc2sys.sh /tmp/phc2sys.stdout &
 liveness_pid=$!
