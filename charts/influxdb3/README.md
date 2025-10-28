@@ -6,6 +6,22 @@ This Helm chart deploys a simple, single-node InfluxDB 3 instance in Kubernetes.
 
 ## Installing the Chart
 
+In case you want to use persistant storage using a hostPath volume, make sure the needed directory exists on your node and has the correct permissions (default: `/mnt/influxdb3-plugins`):
+
+```console
+sudo mkdir -p /mnt/influxdb3-plugins
+sudo chown -R 1000:1000 /mnt/influxdb3-plugins
+sudo chmod -R 0775 /mnt/influxdb3-plugins
+```
+
+In order to write to this directory make sure you have the following snippet in your values.yaml file:
+
+```yaml
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+```
+
 To install the chart with the release name `influxdb3`:
 
 ```console
