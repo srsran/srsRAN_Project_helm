@@ -105,19 +105,6 @@ spec:
             - name: PRESERVE_OLD_LOGS
               value: {{ .Values.debugging.preserveOldLogs | quote }}
           {{- end }}
-          {{- if and .Values.service .Values.service.type (eq .Values.service.type "LoadBalancer") }}
-          ports:
-            {{- if .Values.service.ports.n2 }}
-            - containerPort: {{ .Values.service.ports.n2.port }}
-              name: n2
-              protocol: {{ .Values.service.ports.n2.protocol}}
-            {{- end }}
-            {{- if .Values.service.ports.n3 }}
-            - containerPort: {{ .Values.service.ports.n3.port }}
-              name: n3
-              protocol: {{ .Values.service.ports.n3.protocol }}
-            {{- end }}
-          {{- end }}
           command: [ "/bin/bash" ]
           args: [ "-c", "/etc/entrypoint/entrypoint-srsgnb.sh /etc/config/gnb-config.yml" ]
           volumeMounts:
@@ -183,12 +170,6 @@ spec:
             - "/etc/config/gnb-config.yml"
             - "--template"
             - "gnb.yaml"
-          ports:
-            {{- if .Values.o1.enable_srs_o1 }}
-            - containerPort: {{ .Values.service.ports.o1.port }}
-              name: {{ .Values.service.ports.o1.name }}
-              protocol: TCP
-            {{- end }}
           volumeMounts:
             - name: o1-gnb-config
               mountPath: /etc/config
