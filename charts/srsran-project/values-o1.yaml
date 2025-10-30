@@ -1,6 +1,5 @@
 #
 # Copyright 2021-2025 Software Radio Systems Limited
-#
 # By using this file, you agree to the terms and conditions set
 # forth in the LICENSE file which can be found at the top level of
 # the distribution.
@@ -30,15 +29,18 @@ podAnnotations: {}
 podSecurityContext: {}
 
 securityContext:
+  allowPrivilegeEscalation: false
   capabilities:
-    add: ["SYS_NICE", "NET_ADMIN"]
-  privileged: true
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+    add:
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RAWIO
+      - NET_RAW
+      - SYS_NICE
+  privileged: false
 
 network:
-  hostNetwork: true
+  hostNetwork: false
 
 resources: {}
   # enable_hugepages_1gi: true
@@ -47,24 +49,24 @@ resources: {}
   #   cpu: 12
   #   memory: 16Gi
   #   hugepages-1Gi: 2Gi
+  #   intel.com/intel_sriov_dpdk: '1'
   # requests:
   #   cpu: 12
   #   memory: 16Gi
   #   hugepages-1Gi: 2Gi
+  #   intel.com/intel_sriov_dpdk: '1'
+
+sriovConfig:
+  enabled: false
+  extendedResourceName: "intel.com/intel_sriov_dpdk"
 
 nodeSelector: {}
-  # kubernetes.io/hostname: node1
-
-tolerations: {}
-  # - key: "purpose"
-  #   value: "manual-testing"
-  #   operator: "Equal"
-  #   effect: "NoSchedule"
-
+tolerations: []
 affinity: {}
 
 debugging:
-  enabled: true
+  enabled: false
+  preserveOldLogs: false
   storageCapacity: "100Mi"
   hostPath: "/mnt/debugging-logs"
   containerPath: "/tmp"
@@ -82,6 +84,9 @@ o1:
     resources: {}
     securityContext: {}
   netconfServer:
+    service:
+      type: NodePort
+      nodePort: 30830
     image:
       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/netconf
       pullPolicy: IfNotPresent
@@ -233,20 +238,18 @@ o1Config:
             <nRSectorCarrierRef>SCarr=not_used</nRSectorCarrierRef>
               <srs_nrcelldu_extensions xmlns="urn:srsran-nrcelldu-extension:1.0">
                 <srs_nrcelldu_ofh_extensions>
-                  <network_interface>lo</network_interface>
-                  <ru_mac_addr>00:11:22:33:44:55</ru_mac_addr>
-                  <du_mac_addr>aa:bb:cc:dd:ee:ff</du_mac_addr>
-                  <vlan_tag_cp>100</vlan_tag_cp>
-                  <vlan_tag_up>100</vlan_tag_up>
-                  <prach_port_id>[4, 5]</prach_port_id>
-                  <dl_port_id>[0, 1]</dl_port_id>
-                  <ul_port_id>[0, 1]</ul_port_id>
-                  <t1a_max_cp_dl>350</t1a_max_cp_dl>
-                  <t1a_min_cp_dl>200</t1a_min_cp_dl>
-                  <t1a_max_cp_ul>350</t1a_max_cp_ul>
-                  <t1a_min_cp_ul>200</t1a_min_cp_ul>
-                  <t1a_max_up>500</t1a_max_up>
-                  <t1a_min_up>0</t1a_min_up>
+                  <network_interface>0000:01:01.0</network_interface>
+                  <ru_mac_addr>e8:c7:4f:25:7f:d9</ru_mac_addr>
+                  <du_mac_addr>00:33:22:33:00:66</du_mac_addr>
+                  <prach_port_id>[0]</prach_port_id>
+                  <dl_port_id>[0,1,2,3]</dl_port_id>
+                  <ul_port_id>[0]</ul_port_id>
+                  <t1a_max_cp_dl>380</t1a_max_cp_dl>
+                  <t1a_min_cp_dl>180</t1a_min_cp_dl>
+                  <t1a_max_cp_ul>380</t1a_max_cp_ul>
+                  <t1a_min_cp_ul>180</t1a_min_cp_ul>
+                  <t1a_max_up>380</t1a_max_up>
+                  <t1a_min_up>180</t1a_min_up>
                   <ta4_max>500</ta4_max>
                   <ta4_min>0</ta4_min>
                   <compr_method_ul>BLOCK_FLOATING_POINT</compr_method_ul>
@@ -259,12 +262,12 @@ o1Config:
                   <enable_ul_static_compr_hdr>STATIC</enable_ul_static_compr_hdr>
                   <is_prach_cp_enabled>true</is_prach_cp_enabled>
                   <ignore_ecpri_payload_size>false</ignore_ecpri_payload_size>
-                  <ignore_ecpri_seq_id>false</ignore_ecpri_seq_id>
-                  <iq_scaling>5.0</iq_scaling>
+                  <ignore_ecpri_seq_id>true</ignore_ecpri_seq_id>
+                  <iq_scaling>3.0</iq_scaling>
                 </srs_nrcelldu_ofh_extensions>
                 <srs_nrcelldu_base_extensions>
-                  <nof_antennas_dl>2</nof_antennas_dl>
-                  <nof_antennas_ul>2</nof_antennas_ul>
+                  <nof_antennas_dl>4</nof_antennas_dl>
+                  <nof_antennas_ul>1</nof_antennas_ul>
                   <common_scs>KHZ_30</common_scs>
                 </srs_nrcelldu_base_extensions>            
                 <srs_nrcelldu_ssb_extensions>
@@ -272,56 +275,21 @@ o1Config:
                 </srs_nrcelldu_ssb_extensions>
                 <srs_nrcelldu_prach_extensions>
                   <prach_root_sequence_index>1</prach_root_sequence_index>
-                  <srs_hal_extensions>
-                    <eal_args>--lcores (0-1)@(0-11)</eal_args>
-                  </srs_hal_extensions>
                 </srs_nrcelldu_prach_extensions>
+                <srs_nrcelldu_pdsch_extensions>
+                  <mcs_table>qam256</mcs_table>
+                </srs_nrcelldu_pdsch_extensions>
+                <srs_nrcelldu_tdd_extensions>
+                  <dl_ul_tx_period>10</dl_ul_tx_period>
+                  <nof_dl_slots>7</nof_dl_slots>
+                  <nof_dl_symbols>6</nof_dl_symbols>
+                  <nof_ul_slots>2</nof_ul_slots>
+                  <nof_ul_symbols>4</nof_ul_symbols>
+                </srs_nrcelldu_tdd_extensions>
               </srs_nrcelldu_extensions>
           </attributes>
         </NRCellDU>
 
-    <!--
-        <NRCellDU xmlns="urn:3gpp:sa5:_3gpp-nr-nrm-nrcelldu">
-          <id>nrcelldu2</id>
-          <attributes>
-            <resourceType>PRB</resourceType>
-            <rRMPolicyMemberList>
-              <mcc>001</mcc>
-              <mnc>01</mnc>
-              <sd>ffffff</sd>
-              <sst>1</sst>
-            </rRMPolicyMemberList>
-            <priorityLabel>1</priorityLabel>
-            <cellLocalId>1</cellLocalId>
-            <administrativeState>UNLOCKED</administrativeState>
-            <pLMNInfoList>
-              <mcc>001</mcc>
-              <mnc>01</mnc>
-              <sd>ffffff</sd>
-              <sst>1</sst>
-            </pLMNInfoList>
-            <nRPCI>2</nRPCI>
-            <nRTAC>7</nRTAC>
-            <arfcnDL>368640</arfcnDL>
-            <arfcnUL>640000</arfcnUL>
-            <bSChannelBwDL>20</bSChannelBwDL>
-            <bSChannelBwUL>20</bSChannelBwUL>
-            <ssbFrequency>3000000</ssbFrequency>
-            <ssbPeriodicity>10</ssbPeriodicity>
-            <ssbSubCarrierSpacing>30</ssbSubCarrierSpacing>
-            <ssbOffset>0</ssbOffset>
-            <ssbDuration>1</ssbDuration>
-            <nRSectorCarrierRef>SCarr=not_used</nRSectorCarrierRef>
-            <srs_nrcelldu_extensions xmlns="urn:srsran-nrcelldu-extension:1.0">
-                <srs_nrcelldu_base_extensions>
-                  <nof_antennas_dl>2</nof_antennas_dl>
-                  <nof_antennas_ul>2</nof_antennas_ul>
-                  <common_scs>KHZ_15</common_scs>
-                </srs_nrcelldu_base_extensions>            
-              </srs_nrcelldu_extensions>
-            </attributes>
-        </NRCellDU>
-    -->
         <EP_F1C xmlns="urn:3gpp:sa5:_3gpp-nr-nrm-ep">
           <id>f1c1</id>
           <attributes>
@@ -339,297 +307,41 @@ o1Config:
           <attributes>
             <!-- f1u bind addresss -->
             <localAddress>
-              <ipAddress>10.11.13.112</ipAddress>
+              <ipAddress>10.12.1.151</ipAddress>
               <vlanId>101</vlanId>
             </localAddress>
             <!-- f1u connect ip4v/ipv6 address -->
             <remoteAddress>10.11.13.113</remoteAddress>
           </attributes>
         </EP_F1U>
+
+        <srs_gnbdufunction_extensions xmlns="urn:srsran-gnbdufunction-extension:1.0">
+          <srs_gnbdufunction_testmode_extensions>
+            <enabled>true</enabled>
+            <rnti>9</rnti>
+            <ri>4</ri>
+            <cqi>15</cqi>
+            <nof_ues>1</nof_ues>
+            <pdsch_active>true</pdsch_active>
+            <pusch_active>true</pusch_active>
+          </srs_gnbdufunction_testmode_extensions>
+          <srs_gnbdufunction_log_extensions>
+            <filename>/tmp/gnb.log</filename>
+            <all_level>warning</all_level>
+          </srs_gnbdufunction_log_extensions>
+          <srs_hal_extensions>
+            <eal_args>--lcores (0-1)@(0-11)</eal_args>
+          </srs_hal_extensions>
+          <srs_metrics_extensions>
+            <autostart_stdout_metrics>true</autostart_stdout_metrics>
+            <enable_json_metrics>true</enable_json_metrics>
+            <addr>grafana-metrics-server.srsran.svc.cluster.local</addr>
+            <port>55555</port>
+          </srs_metrics_extensions>
+        </srs_gnbdufunction_extensions>
+
       </GNBDUFunction>
     </ManagedElement>
-
-    <!-- RU/DU transport information -->
-    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
-      <interface>
-        <name>eth1.100</name>
-        <type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
-        <enabled>true</enabled>
-        <vlan-id xmlns="urn:o-ran:interfaces:1.0">100</vlan-id>
-        <mac-address xmlns="urn:o-ran:interfaces:1.0">aa:bb:cc:dd:ee:ff</mac-address>
-      </interface>
-    </interfaces>
-    <processing-elements xmlns="urn:o-ran:processing-element:1.0">
-      <transport-session-type>ETH-INTERFACE</transport-session-type>
-      <ru-elements>
-        <name>element1</name>
-        <transport-flow>
-          <interface-name>eth1.100</interface-name>
-          <eth-flow>
-            <ru-mac-address>aa:bb:cc:dd:ee:ff</ru-mac-address>
-            <vlan-id>100</vlan-id>
-            <o-du-mac-address>00:11:22:33:44:55</o-du-mac-address>
-          </eth-flow>
-        </transport-flow>
-      </ru-elements>
-    </processing-elements>
-
-    <!-- RU Uplane config -->
-    <user-plane-configuration xmlns="urn:o-ran:uplane-conf:1.0">
-      <low-level-tx-links>
-        <name>lltxlink0</name>
-        <processing-element>element1</processing-element>
-        <tx-array-carrier>txarraycarrier0</tx-array-carrier>
-        <low-level-tx-endpoint>slltx-endpoint0</low-level-tx-endpoint>
-      </low-level-tx-links>
-      <low-level-tx-links>
-        <name>lltxlink1</name>
-        <processing-element>element1</processing-element>
-        <tx-array-carrier>txarraycarrier0</tx-array-carrier>
-        <low-level-tx-endpoint>slltx-endpoint1</low-level-tx-endpoint>
-      </low-level-tx-links>
-      <low-level-tx-links>
-        <name>lltxlink2</name>
-        <processing-element>element1</processing-element>
-        <tx-array-carrier>txarraycarrier0</tx-array-carrier>
-        <low-level-tx-endpoint>slltx-endpoint2</low-level-tx-endpoint>
-      </low-level-tx-links>
-      <low-level-tx-links>
-        <name>lltxlink3</name>
-        <processing-element>element1</processing-element>
-        <tx-array-carrier>txarraycarrier0</tx-array-carrier>
-        <low-level-tx-endpoint>slltx-endpoint3</low-level-tx-endpoint>
-      </low-level-tx-links>
-      <low-level-rx-links>
-        <name>llrxlink0</name>
-        <processing-element>element1</processing-element>
-        <rx-array-carrier>rxarraycarrier0</rx-array-carrier>
-        <low-level-rx-endpoint>sllrx-endpoint0</low-level-rx-endpoint>
-      </low-level-rx-links>
-      <low-level-rx-links>
-        <name>llrxlink1</name>
-        <processing-element>element1</processing-element>
-        <rx-array-carrier>rxarraycarrier0</rx-array-carrier>
-        <low-level-rx-endpoint>sllrx-endpoint1</low-level-rx-endpoint>
-      </low-level-rx-links>
-      <low-level-rx-links>
-        <name>llrxlink2</name>
-        <processing-element>element1</processing-element>
-        <rx-array-carrier>rxarraycarrier0</rx-array-carrier>
-        <low-level-rx-endpoint>sllrx-endpoint2</low-level-rx-endpoint>
-      </low-level-rx-links>
-      <low-level-rx-links>
-        <name>llrxlink3</name>
-        <processing-element>element1</processing-element>
-        <rx-array-carrier>rxarraycarrier0</rx-array-carrier>
-        <low-level-rx-endpoint>sllrx-endpoint3</low-level-rx-endpoint>
-      </low-level-rx-links>
-      <low-level-tx-endpoints>
-        <name>slltx-endpoint0</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>0</eaxc-id>
-        </e-axcid>
-      </low-level-tx-endpoints>
-      <low-level-tx-endpoints>
-        <name>slltx-endpoint1</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>1</eaxc-id>
-        </e-axcid>
-      </low-level-tx-endpoints>
-      <low-level-tx-endpoints>
-        <name>slltx-endpoint2</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>2</eaxc-id>
-        </e-axcid>
-      </low-level-tx-endpoints>
-      <low-level-tx-endpoints>
-        <name>slltx-endpoint3</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>3</eaxc-id>
-        </e-axcid>
-      </low-level-tx-endpoints>
-      <low-level-rx-endpoints>
-        <name>sllrx-endpoint0</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <ul-fft-sampling-offsets>
-          <scs>KHZ_30</scs>
-        </ul-fft-sampling-offsets>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>0</eaxc-id>
-        </e-axcid>
-        <non-time-managed-delay-enabled>true</non-time-managed-delay-enabled>
-      </low-level-rx-endpoints>
-      <low-level-rx-endpoints>
-        <name>sllrx-endpoint1</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <ul-fft-sampling-offsets>
-          <scs>KHZ_30</scs>
-        </ul-fft-sampling-offsets>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>1</eaxc-id>
-        </e-axcid>
-        <non-time-managed-delay-enabled>true</non-time-managed-delay-enabled>
-      </low-level-rx-endpoints>
-      <low-level-rx-endpoints>
-        <name>sllrx-endpoint2</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <ul-fft-sampling-offsets>
-          <scs>KHZ_30</scs>
-        </ul-fft-sampling-offsets>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>2</eaxc-id>
-        </e-axcid>
-        <non-time-managed-delay-enabled>true</non-time-managed-delay-enabled>
-      </low-level-rx-endpoints>
-      <low-level-rx-endpoints>
-        <name>sllrx-endpoint3</name>
-        <compression>
-          <iq-bitwidth>9</iq-bitwidth>
-          <compression-type>STATIC</compression-type>
-        </compression>
-        <cp-length>352</cp-length>
-        <cp-length-other>288</cp-length-other>
-        <offset-to-absolute-frequency-center>0</offset-to-absolute-frequency-center>
-        <number-of-prb-per-scs>
-          <scs>KHZ_30</scs>
-          <number-of-prb>273</number-of-prb>
-        </number-of-prb-per-scs>
-        <ul-fft-sampling-offsets>
-          <scs>KHZ_30</scs>
-        </ul-fft-sampling-offsets>
-        <e-axcid>
-          <o-du-port-bitmask>65024</o-du-port-bitmask>
-          <band-sector-bitmask>448</band-sector-bitmask>
-          <ccid-bitmask>56</ccid-bitmask>
-          <ru-port-bitmask>7</ru-port-bitmask>
-          <eaxc-id>3</eaxc-id>
-        </e-axcid>
-        <non-time-managed-delay-enabled>true</non-time-managed-delay-enabled>
-      </low-level-rx-endpoints>
-      <tx-array-carriers>
-        <name>txarraycarrier0</name>
-        <absolute-frequency-center>640000</absolute-frequency-center>
-        <center-of-channel-bandwidth>3600000000</center-of-channel-bandwidth>
-        <channel-bandwidth>100000000</channel-bandwidth>
-        <active>INACTIVE</active>
-        <gain>27.0</gain>
-        <downlink-radio-frame-offset>0</downlink-radio-frame-offset>
-        <downlink-sfn-offset>0</downlink-sfn-offset>
-      </tx-array-carriers>
-      <rx-array-carriers>
-        <name>rxarraycarrier0</name>
-        <absolute-frequency-center>640000</absolute-frequency-center>
-        <center-of-channel-bandwidth>3600000000</center-of-channel-bandwidth>
-        <channel-bandwidth>100000000</channel-bandwidth>
-        <active>INACTIVE</active>
-        <downlink-radio-frame-offset>0</downlink-radio-frame-offset>
-        <downlink-sfn-offset>0</downlink-sfn-offset>
-        <gain-correction>0.0</gain-correction>
-        <n-ta-offset>25600</n-ta-offset>
-      </rx-array-carriers>
-    </user-plane-configuration>
 
     <!-- mandatory user -->
     <users xmlns="urn:o-ran:user-mgmt:1.0">

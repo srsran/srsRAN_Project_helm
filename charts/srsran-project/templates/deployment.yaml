@@ -183,7 +183,7 @@ spec:
           ports:
             - name: netconf
               containerPort: {{ .Values.o1.o1Port }}
-              protocol: {{ .Values.service.ports.o1.protocol }}
+              protocol: TCP
           command: [ "/usr/local/bin/entrypoint.sh" ]
           args:
             - "/etc/netconf/o1-config.xml"

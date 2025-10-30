@@ -1,0 +1,29 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+{{- if and .Values.o1.enable_srs_o1 .Values.o1.netconfServer.service }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "srsran-cudu.fullname" . }}-o1
+  labels:
+    {{- include "srsran-cudu.labels" . | nindent 4 }}
+    app.kubernetes.io/component: o1-netconf
+spec:
+  type: {{ .Values.o1.netconfServer.service.type | default "NodePort" }}
+  selector:
+    {{- include "srsran-cudu.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: o1
+      port: {{ .Values.o1.o1Port }}
+      targetPort: {{ .Values.o1.o1Port }}
+      protocol: TCP
+      {{- if and (eq (.Values.o1.netconfServer.service.type | default "NodePort") "NodePort") (.Values.o1.netconfServer.service.nodePort) }}
+      nodePort: {{ .Values.o1.netconfServer.service.nodePort }}
+      {{- end }}
+{{- end }}
