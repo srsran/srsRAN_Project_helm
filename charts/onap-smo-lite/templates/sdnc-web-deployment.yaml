@@ -1,0 +1,75 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+{{- $sdnrHost := default (printf "%s-sdnr" (include "onap-smo-lite.fullname" .)) .Values.sdncWeb.env.sdnrHost }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "onap-smo-lite.fullname" . }}-sdnc-web
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sdnc-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "onap-smo-lite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: sdnc-web
+  template:
+    metadata:
+      labels:
+        {{- include "onap-smo-lite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: sdnc-web
+      {{- with .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: sdnc-web
+          image: "{{ .Values.sdncWeb.image.repository }}:{{ .Values.sdncWeb.image.tag }}"
+          imagePullPolicy: {{ .Values.sdncWeb.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.sdncWeb.service.port }}
+              protocol: TCP
+          env:
+            - name: ENABLE_OAUTH
+              value: {{ ternary "true" "false" .Values.sdncWeb.env.enableOAuth | quote }}
+            - name: SDNRHOST
+              value: {{ $sdnrHost | quote }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          {{- with .Values.sdncWeb.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

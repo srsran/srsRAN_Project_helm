@@ -1,0 +1,195 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+global:
+  imagePullSecrets: []
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+sdncWeb:
+  image:
+    repository: nexus3.onap.org:10001/onap/sdnc-web-image
+    tag: 2.8.0
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30080
+  env:
+    enableOAuth: false
+    sdnrHost: ""
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: sdnc-web.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  resources: {}
+
+sdnr:
+  image:
+    repository: nexus3.onap.org:10001/onap/sdnc-image
+    tag: 2.6.1
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8181
+  adminCredentials:
+    username: root
+    password: root
+    existingSecret: ""
+  configDir: /opt/onap/ccsdk/data/properties
+  javaOpts: "-Xms256m -Xmx4g"
+  env:
+    sdnrControllerId: c94bbd5f-d456-44bd-aa7a-47b274f73762
+    a1AdapterNorthbound: "false"
+    ccsdkReplicas: "0"
+    domain: ""
+    enableOAuth: "false"
+    sdnrDbUrl: ""
+    sdnrDbType: ELASTICSEARCH
+    sdnrDm: "false"
+    sdnrInit: "true"
+    sdnrOnly: "true"
+    sdnrWt: "true"
+    sdnrAsyncHandling: "true"
+    sdnrAsyncPoolSize: "200"
+    sdnrNetconfCallHomeEnabled: "true"
+  persistence:
+    enabled: false
+    existingClaim: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+    storageClass: ""
+  config:
+    devicemanager: |-
+      [aai]
+      aaiPropertiesFile=null
+      aaiUrl=off
+      aaiHeaders=["X-TransactionId: 9999"]
+      aaiDeleteOnMountpointRemove=false
+      aaiTrustAllCerts=false
+      aaiApiVersion=aai/v13
+      aaiClientConnectionTimeout=30000
+      aaiApplicationId=SDNR
+      aaiReadTimeout=60000
+      aaiUserCredentials=
+      aaiPcks12ClientCertFile=
+      aaiPcks12ClientCertPassphrase=
+
+      [devicemonitor]
+      SeverityconnectionLossOAM=Major
+      SeverityconnectionLossMediator=Major
+      SeverityconnectionLossNeOAM=Major
+
+      [dmonf]
+      pollAlarms=false
+
+      [toggleAlarmFilter]
+      taEnabled=true
+      taDelay=3000
+
+      [housekeeping]
+      hkEnabled=false
+
+      [dcae]
+      dcaeUrl=off
+      dcaeUserCredentials=admin:admin
+      dcaeHeartbeatPeriodSeconds=120
+
+      [pm]
+      pmEnabled=true
+
+      [VESCollector]
+      VES_COLLECTOR_ENABLED=false
+      VES_COLLECTOR_TLS_ENABLED=false
+      VES_COLLECTOR_TRUST_ALL_CERTS=false
+      VES_COLLECTOR_USERNAME=sample1
+      VES_COLLECTOR_PASSWORD=sample1
+      VES_COLLECTOR_IP=127.0.0.1
+      VES_COLLECTOR_PORT=8080
+      VES_COLLECTOR_VERSION=v7
+      REPORTING_ENTITY_NAME=ONAP SDN-R
+      EVENTLOG_MSG_DETAIL=SHORT
+
+      [dmonf14]
+      useDomApi=${SDNR_ONF14_USEDOMAPI}
+  configMountPath: /opt/opendaylight/etc
+  resources: {}
+
+sdnrRegistrar:
+  config: |-
+    [stndDefinedFault]
+    topic=unauthenticated.SEC_3GPP_FAULTSUPERVISION_OUTPUT
+    consumerGroup=myG
+    consumerID=C1
+    timeout=20000
+    limit=10000
+    fetchPause=5000
+
+    [general]
+    baseUrl=http://localhost:8181
+    sdnrUser=admin
+    sdnrPasswd=${ODL_ADMIN_PASSWORD}
+
+    [strimzi-kafka]
+    strimziEnabled=true
+    bootstrapServers=kafka:9092
+    securityProtocol=PLAINTEXT
+    saslMechanism=PLAIN
+    saslJaasConfig=PLAIN
+
+    [fault]
+    topic=unauthenticated.SEC_FAULT_OUTPUT
+    consumerGroup=myG
+    consumerID=C1
+    timeout=20000
+    limit=10000
+    fetchPause=5000
+
+    [provisioning]
+    topic=unauthenticated.SEC_3GPP_PROVISIONING_OUTPUT
+    consumerGroup=myG
+    consumerID=C1
+    timeout=20000
+    limit=10000
+    fetchPause=5000
+
+    [pnfRegistration]
+    topic=unauthenticated.VES_PNFREG_OUTPUT
+    consumerGroup=myG
+    consumerID=C1
+    timeout=20000
+    limit=10000
+    fetchPause=5000
+
+sdnrdb:
+  image:
+    repository: docker.elastic.co/elasticsearch/elasticsearch-oss
+    tag: 7.9.3
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9200
+  env:
+    discoveryType: single-node
+  persistence:
+    enabled: false
+    existingClaim: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+    storageClass: ""
+  resources: {}

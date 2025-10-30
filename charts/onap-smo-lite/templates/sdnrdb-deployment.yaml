@@ -1,0 +1,86 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "onap-smo-lite.fullname" . }}-sdnrdb
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sdnrdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "onap-smo-lite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: sdnrdb
+  template:
+    metadata:
+      labels:
+        {{- include "onap-smo-lite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: sdnrdb
+      {{- with .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: sdnrdb
+          image: "{{ .Values.sdnrdb.image.repository }}:{{ .Values.sdnrdb.image.tag }}"
+          imagePullPolicy: {{ .Values.sdnrdb.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.sdnrdb.service.port }}
+              protocol: TCP
+          args:
+            - "bin/elasticsearch"
+            - "-E"
+            - "discovery.type={{ .Values.sdnrdb.env.discoveryType }}"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          {{- with .Values.sdnrdb.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+      volumes:
+        - name: data
+          {{- if .Values.sdnrdb.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-sdnrdb" (include "onap-smo-lite.fullname" .)) .Values.sdnrdb.persistence.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

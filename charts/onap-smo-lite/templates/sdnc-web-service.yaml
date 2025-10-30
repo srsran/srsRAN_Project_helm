@@ -1,0 +1,27 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "onap-smo-lite.fullname" . }}-sdnc-web
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sdnc-web
+spec:
+  type: {{ .Values.sdncWeb.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.sdncWeb.service.port }}
+      targetPort: http
+      {{- if and (eq .Values.sdncWeb.service.type "NodePort") .Values.sdncWeb.service.nodePort }}
+      nodePort: {{ .Values.sdncWeb.service.nodePort }}
+      {{- end }}
+  selector:
+    {{- include "onap-smo-lite.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: sdnc-web

@@ -1,0 +1,117 @@
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+{{- $adminSecretName := default (printf "%s-sdnr-admin" (include "onap-smo-lite.fullname" .)) .Values.sdnr.adminCredentials.existingSecret -}}
+{{- $sdnrDbUrl := default (printf "http://%s-sdnrdb:%d" (include "onap-smo-lite.fullname" .) (int .Values.sdnrdb.service.port)) .Values.sdnr.env.sdnrDbUrl }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "onap-smo-lite.fullname" . }}-sdnr
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sdnr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "onap-smo-lite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: sdnr
+  template:
+    metadata:
+      labels:
+        {{- include "onap-smo-lite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: sdnr
+      {{- with .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: sdnr
+          image: "{{ .Values.sdnr.image.repository }}:{{ .Values.sdnr.image.tag }}"
+          imagePullPolicy: {{ .Values.sdnr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.sdnr.service.port }}
+              protocol: TCP
+          env:
+            - name: SDNRCONTROLLERID
+              value: {{ .Values.sdnr.env.sdnrControllerId | quote }}
+            - name: A1_ADAPTER_NORTHBOUND
+              value: {{ .Values.sdnr.env.a1AdapterNorthbound | quote }}
+            - name: CCSDK_REPLICAS
+              value: {{ .Values.sdnr.env.ccsdkReplicas | quote }}
+            - name: DOMAIN
+              value: {{ .Values.sdnr.env.domain | quote }}
+            - name: ENABLE_OAUTH
+              value: {{ .Values.sdnr.env.enableOAuth | quote }}
+            - name: ODL_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $adminSecretName }}
+                  key: username
+            - name: ODL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $adminSecretName }}
+                  key: password
+            - name: ODL_CERT_DIR
+              value: /opt/opendaylight/current/certs
+            - name: SDNC_CONFIG_DIR
+              value: {{ .Values.sdnr.configDir | quote }}
+            - name: SDNRDBURL
+              value: {{ $sdnrDbUrl | quote }}
+            - name: SDNRDBTYPE
+              value: {{ .Values.sdnr.env.sdnrDbType | quote }}
+            - name: SDNRDM
+              value: {{ .Values.sdnr.env.sdnrDm | quote }}
+            - name: SDNRINIT
+              value: {{ .Values.sdnr.env.sdnrInit | quote }}
+            - name: SDNRONLY
+              value: {{ .Values.sdnr.env.sdnrOnly | quote }}
+            - name: SDNRWT
+              value: {{ .Values.sdnr.env.sdnrWt | quote }}
+            - name: SDNR_ASYNC_HANDLING
+              value: {{ .Values.sdnr.env.sdnrAsyncHandling | quote }}
+            - name: SDNR_ASYNC_POOLSIZE
+              value: {{ .Values.sdnr.env.sdnrAsyncPoolSize | quote }}
+            - name: SDNR_NETCONF_CALLHOME_ENABLED
+              value: {{ .Values.sdnr.env.sdnrNetconfCallHomeEnabled | quote }}
+            - name: JAVA_OPTS
+              value: {{ .Values.sdnr.javaOpts | quote }}
+          volumeMounts:
+            - name: sdnr-config
+              mountPath: {{ printf "%s/devicemanager.properties" .Values.sdnr.configMountPath | quote }}
+              subPath: devicemanager.properties
+            - name: sdnr-config
+              mountPath: {{ printf "%s/mountpoint-registrar.properties" .Values.sdnr.configMountPath | quote }}
+              subPath: mountpoint-registrar.properties
+          {{- with .Values.sdnr.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: sdnr-config
+          configMap:
+            name: {{ include "onap-smo-lite.fullname" . }}-sdnr-config

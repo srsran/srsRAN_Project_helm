@@ -1,0 +1,43 @@
+{{- if .Values.sdncWeb.ingress.enabled }}
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "onap-smo-lite.fullname" . }}-sdnc-web
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sdnc-web
+  {{- with .Values.sdncWeb.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.sdncWeb.ingress.className }}
+  ingressClassName: {{ .Values.sdncWeb.ingress.className }}
+  {{- end }}
+  rules:
+    {{- range .Values.sdncWeb.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "onap-smo-lite.fullname" $ }}-sdnc-web
+                port:
+                  number: {{ $.Values.sdncWeb.service.port }}
+          {{- end }}
+    {{- end }}
+  {{- if .Values.sdncWeb.ingress.tls }}
+  tls:
+    {{- toYaml .Values.sdncWeb.ingress.tls | nindent 4 }}
+  {{- end }}
+{{- end }}
