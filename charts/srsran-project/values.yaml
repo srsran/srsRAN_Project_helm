@@ -92,24 +92,6 @@ o1:
 #   enabled: false
 #   extendedResourceName: "intel.com/intel_sriov_netdevice"
 
-# service:
-#   type: LoadBalancer
-#   LoadBalancerIP: "127.0.0.1"  # external IP of the LoadBalancer service
-#   extendedResourceName: "intel.com/intel_sriov_netdevice"
-#   ports:
-#     n2:
-#       port: 38412
-#       outport: 38412
-#       protocol: SCTP
-#     n3:
-#       port: 2152
-#       outport: 32152
-#       protocol: UDP
-#     o1:
-#       port: 830
-#       outport: 830
-#       protocol: TCP
-
 config:
   gnb-config.yml: |-
     cu_cp:
