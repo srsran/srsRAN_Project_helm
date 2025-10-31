@@ -166,6 +166,18 @@ spec:
             - "/usr/src/app/o1_adapter.py"
             - "--host"
             - {{ .Values.o1.netconfServerAddr }}
+            - "--ves_host"
+            - {{ .Values.o1.ves.host | quote }}
+            - "--ves_port"
+            - {{ .Values.o1.ves.port | quote }}
+            - "--ves_username"
+            - {{ .Values.o1.ves.username | quote }}
+            - "--ves_password"
+            - {{ .Values.o1.ves.password | quote }}
+            {{- if .Values.o1.oamIpv4Address }}
+            - "--oam_ipv4_address"
+            - {{ .Values.o1.oamIpv4Address | quote }}
+            {{- end }}
             - "--config"
             - "/etc/config/gnb-config.yml"
             - "--template"

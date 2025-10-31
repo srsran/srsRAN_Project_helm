@@ -76,6 +76,12 @@ o1:
   netconfServerAddr: "localhost"
   o1Port: 830
   healthcheckPort: 5000
+  oamIpv4Address: ""
+  ves:
+    host: "localhost"
+    port: 8443
+    username: "sample1"
+    password: "sample1"
   o1Adapter:
     image:
       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/o1_adapter
