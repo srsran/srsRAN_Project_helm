@@ -1,0 +1,31 @@
+{{- if .Values.vesCollector.enabled }}
+##
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+{{ $collectorProps := .Values.vesCollector.config.collectorProperties }}
+{{ if eq (trim $collectorProps) "" }}
+  {{ $collectorProps = include "onap-smo-lite.vesCollector.defaultCollectorProperties" . }}
+{{ end }}
+{{ $collectorProps = tpl $collectorProps $ }}
+{{ $dmaapConfig := .Values.vesCollector.config.dmaapConfig }}
+{{ if eq (trim $dmaapConfig) "" }}
+  {{ $dmaapConfig = include "onap-smo-lite.vesCollector.defaultDmaapConfig" . }}
+{{ end }}
+{{ $dmaapConfig = tpl $dmaapConfig $ }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "ves-collector-config") }}
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+data:
+  collector.properties: |-
+    {{- $collectorProps | nindent 4 }}
+  ves-dmaap-config.json: |-
+    {{- $dmaapConfig | nindent 4 }}
+{{- end }}

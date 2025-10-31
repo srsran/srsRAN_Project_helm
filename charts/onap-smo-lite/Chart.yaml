@@ -10,5 +10,5 @@ apiVersion: v2
 name: onap-smo-lite
 description: Lightweight ONAP SMO stack with SDNC web UI, SDNR controller, and SDNR database.
 type: application
-version: 0.1.0
+version: 0.3.0
 appVersion: "1.0.0"

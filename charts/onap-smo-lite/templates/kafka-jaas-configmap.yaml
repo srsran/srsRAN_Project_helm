@@ -1,0 +1,28 @@
+{{- if and .Values.kafka.enabled .Values.kafka.auth.enabled }}
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "kafka-jaas") }}
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+data:
+  zk_server_jaas.conf: |-
+    Server {
+       org.apache.zookeeper.server.auth.DigestLoginModule required
+       user_{{ .Values.kafka.auth.username }}={{ .Values.kafka.auth.password }};
+    };
+  zk_client_jaas.conf: |-
+    Client {
+       org.apache.zookeeper.server.auth.DigestLoginModule required
+       username="{{ .Values.kafka.auth.username }}"
+       password="{{ .Values.kafka.auth.password }}";
+    };
+{{- end }}

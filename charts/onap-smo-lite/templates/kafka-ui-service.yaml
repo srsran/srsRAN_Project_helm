@@ -1,0 +1,30 @@
+{{- if .Values.kafkaUi.enabled }}
+##
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "kafka-ui") }}
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kafka-ui
+spec:
+  type: {{ .Values.kafkaUi.service.type }}
+  selector:
+    {{- include "onap-smo-lite.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: kafka-ui
+  ports:
+    - name: http
+      port: {{ .Values.kafkaUi.service.port }}
+      targetPort: http
+      protocol: TCP
+      {{- if and (eq .Values.kafkaUi.service.type "NodePort") .Values.kafkaUi.service.nodePort }}
+      nodePort: {{ .Values.kafkaUi.service.nodePort }}
+      {{- end }}
+{{- end }}

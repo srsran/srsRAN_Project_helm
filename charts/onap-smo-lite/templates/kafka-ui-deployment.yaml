@@ -1,4 +1,5 @@
-#
+{{- if .Values.kafkaUi.enabled }}
+##
 # Copyright 2021-2025 Software Radio Systems Limited
 #
 # By using this file, you agree to the terms and conditions set
@@ -9,21 +10,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "onap-smo-lite.fullname" . }}-sdnc-web
+  name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "kafka-ui") }}
   labels:
     {{- include "onap-smo-lite.labels" . | nindent 4 }}
-    app.kubernetes.io/component: sdnc-web
+    app.kubernetes.io/component: kafka-ui
 spec:
   replicas: 1
   selector:
     matchLabels:
       {{- include "onap-smo-lite.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: sdnc-web
+      app.kubernetes.io/component: kafka-ui
   template:
     metadata:
       labels:
         {{- include "onap-smo-lite.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: sdnc-web
+        app.kubernetes.io/component: kafka-ui
       {{- with .Values.global.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -46,29 +47,25 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: sdnc-web
-          image: "{{ .Values.sdncWeb.image.repository }}:{{ .Values.sdncWeb.image.tag }}"
-          imagePullPolicy: {{ .Values.sdncWeb.image.pullPolicy }}
+        - name: kafka-ui
+          image: "{{ .Values.kafkaUi.image.repository }}:{{ .Values.kafkaUi.image.tag }}"
+          imagePullPolicy: {{ .Values.kafkaUi.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.sdncWeb.service.port }}
+              containerPort: {{ .Values.kafkaUi.service.port }}
               protocol: TCP
           env:
-            - name: ENABLE_OAUTH
-              value: {{ ternary "true" "false" .Values.sdncWeb.env.enableOAuth | quote }}
-            - name: SDNRHOST
-              value: {{ tpl .Values.sdncWeb.env.sdnrHost . | quote }}
-          readinessProbe:
-            tcpSocket:
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          livenessProbe:
-            tcpSocket:
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 20
-          {{- with .Values.sdncWeb.resources }}
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: kafka
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: {{ default "" .Values.kafkaUi.env.bootstrapServers | quote }}
+            - name: DYNAMIC_CONFIG_ENABLED
+              value: {{ .Values.kafkaUi.env.dynamicConfigEnabled | quote }}
+            {{- with .Values.kafkaUi.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.kafkaUi.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+{{- end }}

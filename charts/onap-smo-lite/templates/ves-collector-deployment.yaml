@@ -1,0 +1,83 @@
+{{- if .Values.vesCollector.enabled }}
+##
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "ves-collector") }}
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ves-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "onap-smo-lite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ves-collector
+  template:
+    metadata:
+      labels:
+        {{- include "onap-smo-lite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: ves-collector
+      {{- with .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: ves-collector
+          image: "{{ .Values.vesCollector.image.repository }}:{{ .Values.vesCollector.image.tag }}"
+          imagePullPolicy: {{ .Values.vesCollector.image.pullPolicy }}
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: {{ default "" .Values.vesCollector.env.bootstrapServers | quote }}
+            {{- $dmaapHost := trim (default "" .Values.vesCollector.env.dmaapHost) }}
+            {{- if $dmaapHost }}
+            - name: DMAAPHOST
+              value: {{ $dmaapHost | quote }}
+            {{- end }}
+            {{- with .Values.vesCollector.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: https
+              containerPort: {{ .Values.vesCollector.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: ves-config
+              mountPath: /opt/app/VESCollector/etc/collector.properties
+              subPath: collector.properties
+            - name: ves-config
+              mountPath: /opt/app/VESCollector/etc/ves-dmaap-config.json
+              subPath: ves-dmaap-config.json
+          {{- with .Values.vesCollector.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: ves-config
+          configMap:
+            name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "ves-collector-config") }}
+{{- end }}

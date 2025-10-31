@@ -15,9 +15,9 @@ metadata:
 data:
   devicemanager.properties: |-
     {{- with .Values.sdnr.config.devicemanager }}
-    {{- . | nindent 4 }}
+    {{- tpl . $ | nindent 4 }}
     {{- end }}
   mountpoint-registrar.properties: |-
     {{- with .Values.sdnrRegistrar.config }}
-    {{- . | nindent 4 }}
+    {{- tpl . $ | nindent 4 }}
     {{- end }}

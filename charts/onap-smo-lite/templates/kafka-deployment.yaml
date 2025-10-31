@@ -1,0 +1,119 @@
+{{- if .Values.kafka.enabled }}
+#
+# Copyright 2021-2025 Software Radio Systems Limited
+#
+# By using this file, you agree to the terms and conditions set
+# forth in the LICENSE file which can be found at the top level of
+# the distribution.
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "kafka") }}
+  labels:
+    {{- include "onap-smo-lite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "onap-smo-lite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: kafka
+  template:
+    metadata:
+      labels:
+        {{- include "onap-smo-lite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: kafka
+      {{- with .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: kafka
+          image: "{{ .Values.kafka.image.repository }}:{{ .Values.kafka.image.tag }}"
+          imagePullPolicy: {{ .Values.kafka.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - >-
+              bin/kafka-server-start.sh config/server.properties
+              --override listeners={{ .Values.kafka.config.listeners }}
+              --override advertised.listeners={{ tpl .Values.kafka.config.advertisedListeners . }}
+              --override zookeeper.connect={{ tpl .Values.kafka.env.KAFKA_ZOOKEEPER_CONNECT . }}
+              --override listener.security.protocol.map={{ .Values.kafka.config.listenerSecurityProtocolMap }}
+              --override inter.broker.listener.name={{ .Values.kafka.config.interBrokerListenerName }}
+              --override offsets.topic.replication.factor={{ .Values.kafka.config.replicationFactor }}
+              --override offsets.topic.num.partitions={{ .Values.kafka.config.numPartitions }}
+          ports:
+            - name: broker
+              containerPort: {{ .Values.kafka.service.port }}
+              protocol: TCP
+          env:
+            - name: LOG_DIR
+              value: {{ .Values.kafka.env.LOG_DIR | quote }}
+            - name: enableCadi
+              value: {{ .Values.kafka.env.enableCadi | quote }}
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: {{ tpl .Values.kafka.env.KAFKA_ZOOKEEPER_CONNECT . | quote }}
+            - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
+              value: {{ .Values.kafka.env.KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS | quote }}
+            - name: KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS
+              value: {{ .Values.kafka.env.KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS | quote }}
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: {{ .Values.kafka.config.listenerSecurityProtocolMap | quote }}
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: {{ tpl .Values.kafka.config.advertisedListeners . | quote }}
+            - name: KAFKA_LISTENERS
+              value: {{ .Values.kafka.config.listeners | quote }}
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: {{ .Values.kafka.config.interBrokerListenerName | quote }}
+            - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE
+              value: {{ .Values.kafka.env.KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE | quote }}
+            - name: KAFKA_ZOOKEEPER_SET_ACL
+              value: {{ .Values.kafka.env.KAFKA_ZOOKEEPER_SET_ACL | quote }}
+            - name: KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS
+              value: {{ .Values.kafka.env.KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS | quote }}
+            {{- with .Values.kafka.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if .Values.kafka.auth.enabled }}
+            - name: KAFKA_OPTS
+              value: -Djava.security.auth.login.config=/etc/kafka/secrets/jaas/zk_client_jaas.conf
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.kafka.auth.enabled }}
+            - name: kafka-jaas
+              mountPath: /etc/kafka/secrets/jaas
+            {{- end }}
+          {{- with .Values.kafka.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- if .Values.kafka.auth.enabled }}
+        - name: kafka-jaas
+          configMap:
+            name: {{ include "onap-smo-lite.componentName" (dict "root" . "component" "kafka-jaas") }}
+            items:
+              - key: zk_client_jaas.conf
+                path: zk_client_jaas.conf
+        {{- end }}
+{{- end }}

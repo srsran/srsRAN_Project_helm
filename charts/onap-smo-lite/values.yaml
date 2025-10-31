@@ -113,14 +113,14 @@ sdnr:
       pmEnabled=true
 
       [VESCollector]
-      VES_COLLECTOR_ENABLED=false
-      VES_COLLECTOR_TLS_ENABLED=false
-      VES_COLLECTOR_TRUST_ALL_CERTS=false
-      VES_COLLECTOR_USERNAME=sample1
-      VES_COLLECTOR_PASSWORD=sample1
-      VES_COLLECTOR_IP=127.0.0.1
-      VES_COLLECTOR_PORT=8080
-      VES_COLLECTOR_VERSION=v7
+      VES_COLLECTOR_ENABLED={{ ternary "true" "false" .Values.vesCollector.enabled }}
+      VES_COLLECTOR_TLS_ENABLED={{ ternary "true" "false" .Values.vesCollector.tls.enabled }}
+      VES_COLLECTOR_TRUST_ALL_CERTS={{ ternary "true" "false" .Values.vesCollector.tls.trustAll }}
+      VES_COLLECTOR_USERNAME={{ .Values.vesCollector.credentials.username }}
+      VES_COLLECTOR_PASSWORD={{ .Values.vesCollector.credentials.password }}
+      VES_COLLECTOR_IP={{ include "onap-smo-lite.vesCollectorHost" . }}
+      VES_COLLECTOR_PORT={{ .Values.vesCollector.service.port }}
+      VES_COLLECTOR_VERSION={{ .Values.vesCollector.version }}
       REPORTING_ENTITY_NAME=ONAP SDN-R
       EVENTLOG_MSG_DETAIL=SHORT
 
@@ -140,13 +140,13 @@ sdnrRegistrar:
     fetchPause=5000
 
     [general]
-    baseUrl=http://localhost:8181
+    baseUrl=http://{{ include "onap-smo-lite.componentName" (dict "root" . "component" "sdnr") }}:{{ .Values.sdnr.service.port }}
     sdnrUser=admin
     sdnrPasswd=${ODL_ADMIN_PASSWORD}
 
     [strimzi-kafka]
-    strimziEnabled=true
-    bootstrapServers=kafka:9092
+    strimziEnabled={{ ternary "true" "false" .Values.kafka.enabled }}
+    bootstrapServers={{ include "onap-smo-lite.kafkaHost" . }}:{{ .Values.kafka.service.port }}
     securityProtocol=PLAINTEXT
     saslMechanism=PLAIN
     saslJaasConfig=PLAIN
@@ -174,6 +174,109 @@ sdnrRegistrar:
     timeout=20000
     limit=10000
     fetchPause=5000
+
+zookeeper:
+  enabled: true
+  image:
+    repository: quay.io/strimzi/kafka
+    tag: 0.43.0-kafka-3.8.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 2181
+  env:
+    LOG_DIR: /tmp/logs
+    ZOOKEEPER_REPLICAS: "1"
+    ZOOKEEPER_TICK_TIME: "2000"
+    ZOOKEEPER_SYNC_LIMIT: "5"
+    ZOOKEEPER_INIT_LIMIT: "10"
+    ZOOKEEPER_MAX_CLIENT_CNXNS: "200"
+    ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: "3"
+    ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "24"
+    ZOOKEEPER_CLIENT_PORT: "2181"
+  extraEnv: []
+  resources: {}
+
+kafka:
+  enabled: true
+  image:
+    repository: quay.io/strimzi/kafka
+    tag: 0.43.0-kafka-3.8.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9092
+  config:
+    interBrokerListenerName: PLAINTEXT
+    listenerSecurityProtocolMap: PLAINTEXT:PLAINTEXT,INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT
+    listeners: PLAINTEXT://0.0.0.0:9092
+    advertisedListeners: ""
+    replicationFactor: 1
+    numPartitions: 2
+  env:
+    LOG_DIR: /tmp/logs
+    enableCadi: "false"
+    KAFKA_ZOOKEEPER_CONNECT: ""
+    KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: "40000"
+    KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS: "40000"
+    KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+    KAFKA_ZOOKEEPER_SET_ACL: "true"
+    KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: "2"
+  auth:
+    enabled: true
+    username: kafka
+    password: kafka_secret
+  extraEnv: []
+  resources: {}
+
+kafkaUi:
+  enabled: true
+  image:
+    repository: provectuslabs/kafka-ui
+    tag: v0.7.2
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30085
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: kafka-ui.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  env:
+    dynamicConfigEnabled: "true"
+  extraEnv: []
+  resources: {}
+
+vesCollector:
+  enabled: true
+  image:
+    repository: nexus3.onap.org:10001/onap/org.onap.dcaegen2.collectors.ves.vescollector
+    tag: 1.12.4
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8443
+  env:
+    bootstrapServers: ""
+  tls:
+    enabled: false
+    trustAll: true
+  credentials:
+    username: sample1
+    password: sample1
+  version: v7
+  config:
+    collectorProperties: |-
+    dmaapConfig: |-
+  extraEnv: []
+  resources: {}
 
 sdnrdb:
   image:

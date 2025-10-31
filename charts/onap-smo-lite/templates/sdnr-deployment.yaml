@@ -6,8 +6,7 @@
 # the distribution.
 #
 
-{{- $adminSecretName := default (printf "%s-sdnr-admin" (include "onap-smo-lite.fullname" .)) .Values.sdnr.adminCredentials.existingSecret -}}
-{{- $sdnrDbUrl := default (printf "http://%s-sdnrdb:%d" (include "onap-smo-lite.fullname" .) (int .Values.sdnrdb.service.port)) .Values.sdnr.env.sdnrDbUrl }}
+{{- $adminSecretName := default (printf "%s-sdnr-admin" (include "onap-smo-lite.fullname" .)) .Values.sdnr.adminCredentials.existingSecret }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -81,7 +80,7 @@ spec:
             - name: SDNC_CONFIG_DIR
               value: {{ .Values.sdnr.configDir | quote }}
             - name: SDNRDBURL
-              value: {{ $sdnrDbUrl | quote }}
+              value: {{ tpl .Values.sdnr.env.sdnrDbUrl . | quote }}
             - name: SDNRDBTYPE
               value: {{ .Values.sdnr.env.sdnrDbType | quote }}
             - name: SDNRDM
