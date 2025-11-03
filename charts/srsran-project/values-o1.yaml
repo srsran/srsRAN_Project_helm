@@ -11,7 +11,7 @@ image:
   # Check https://hub.docker.com/u/softwareradiosystems for available images
   repository: softwareradiosystems/srsran-project
   pullPolicy: IfNotPresent
-  tag: split72_release_avx512
+  tag: release_avx512-8e4f0bed05__2025-10-24
 
 imagePullSecrets:
   - name: regcred
@@ -57,7 +57,7 @@ resources: {}
   #   intel.com/intel_sriov_dpdk: '1'
 
 sriovConfig:
-  enabled: false
+  enabled: true
   extendedResourceName: "intel.com/intel_sriov_dpdk"
 
 nodeSelector: {}
@@ -71,14 +71,26 @@ debugging:
   hostPath: "/mnt/debugging-logs"
   containerPath: "/tmp"
 
+metricsService:
+  enabled: true
+  type: ClusterIP
+  # loadBalancerIP: "10.0.0.123"
+  # Make sure this port matches the port in the gnb config
+  port: 8001
+  targetPort: 8001
+
 o1:
   enable_srs_o1: true
   netconfServerAddr: "localhost"
   o1Port: 830
   healthcheckPort: 5000
-  oamIpv4Address: ""
-  ves:
+  oamIpv4Address: "onap-smo-ves-collector.onap.svc.srsk8s.bcn"
+  log_level: "DEBUG"  # available log levels: CRITICAL, FATAL, ERROR, WARN, WARNING, INFO, DEBUG, NOTSET
+  ws:
     host: "localhost"
+    port: 8001
+  ves:
+    host: "onap-smo-ves-collector.onap.svc.srsk8s.bcn"
     port: 8443
     username: "sample1"
     password: "sample1"
@@ -86,7 +98,7 @@ o1:
     image:
       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/o1_adapter
       pullPolicy: IfNotPresent
-      tag: latest
+      tag: 9f565237
     resources: {}
     securityContext: {}
   netconfServer:
@@ -96,13 +108,30 @@ o1:
     image:
       repository: registry.gitlab.com/softwareradiosystems/srsran_5g_enterprise/netconf
       pullPolicy: IfNotPresent
-      tag: latest
+      tag: 9f565237
     resources: {}
     securityContext: {}
 
 o1Config:
   o1-config.xml: |-
     <?xml version="1.0" encoding="UTF-8"?>
+
+    <RRMPolicyRatio xmlns="urn:3gpp:sa5:_3gpp-nr-nrm-rrmpolicy">
+      <id>rrm_policy1</id>
+      <attributes>
+        <resourceType>PRB</resourceType>
+        <rRMPolicyMemberList>
+          <mcc>001</mcc>
+          <mnc>01</mnc>
+          <sd>111111</sd>
+          <sst>1</sst>
+        </rRMPolicyMemberList>
+        <rRMPolicyMaxRatio>100</rRMPolicyMaxRatio>
+        <rRMPolicyMinRatio>0</rRMPolicyMinRatio>
+        <rRMPolicyDedicatedRatio>0</rRMPolicyDedicatedRatio>
+      </attributes>
+    </RRMPolicyRatio>
+
     <!-- Main DU base config -->
     <ManagedElement xmlns="urn:3gpp:sa5:_3gpp-common-managed-element">
       <id>ran1</id>
@@ -118,7 +147,7 @@ o1Config:
             <rRMPolicyMemberList>
               <mcc>001</mcc>
               <mnc>01</mnc>
-              <sd>ffffff</sd>
+              <sd>111111</sd>
               <sst>1</sst>
             </rRMPolicyMemberList>
             <gNBId>1</gNBId>
@@ -145,30 +174,14 @@ o1Config:
             </attributes>
           </PerfMetricJob>
 
-          <!-- No cell specific CU config required
-          <NRCellCU xmlns="urn:3gpp:sa5:_3gpp-nr-nrm-nrcellcu">
-            <id>nrcell1</id>
-            <attributes>
-            <cellLocalId>100</cellLocalId>
-              <pLMNInfoList>
-                <mcc>001</mcc>
-                <mnc>01</mnc>
-                <sd>ffffff</sd>
-                <sst>1</sst>
-              </pLMNInfoList>
-              <priorityLabel>1</priorityLabel>
-            </attributes>
-          </NRCellCU>
-          -->
-
           <EP_NgC xmlns="urn:3gpp:sa5:_3gpp-nr-nrm-ep">
             <id>ngc1</id>
             <attributes>
               <localAddress>
-                <ipAddress>10.53.1.1</ipAddress>
+                <ipAddress>127.0.0.1</ipAddress>
                 <vlanId>0</vlanId>
               </localAddress>
-              <remoteAddress>10.53.1.2</remoteAddress>
+              <remoteAddress>127.0.1.100</remoteAddress>
             </attributes>
           </EP_NgC>
 
@@ -182,7 +195,7 @@ o1Config:
           <rRMPolicyMemberList>
             <mcc>001</mcc>
             <mnc>01</mnc>
-            <sd>ffffff</sd>
+            <sd>111111</sd>
             <sst>1</sst>
           </rRMPolicyMemberList>
           <gNBId>1</gNBId>
@@ -190,7 +203,7 @@ o1Config:
           <pLMNInfoList>
             <mcc>001</mcc>
             <mnc>01</mnc>
-            <sd>ffffff</sd>
+            <sd>111111</sd>
             <sst>1</sst>
           </pLMNInfoList>
         </attributes>
@@ -203,7 +216,7 @@ o1Config:
           <rRMPolicyMemberList>
               <mcc>001</mcc>
               <mnc>01</mnc>
-              <sd>ffffff</sd>
+              <sd>111111</sd>
               <sst>1</sst>
           </rRMPolicyMemberList>
           <gNBId>411</gNBId>
@@ -218,22 +231,22 @@ o1Config:
             <rRMPolicyMemberList>
               <mcc>001</mcc>
               <mnc>01</mnc>
-              <sd>ffffff</sd>
+              <sd>111111</sd>
               <sst>1</sst>
             </rRMPolicyMemberList>
             <priorityLabel>1</priorityLabel>
-            <cellLocalId>1</cellLocalId>
+            <cellLocalId>0</cellLocalId>
             <administrativeState>UNLOCKED</administrativeState>
             <pLMNInfoList>
               <mcc>001</mcc>
               <mnc>01</mnc>
-              <sd>ffffff</sd>
+              <sd>111111</sd>
               <sst>1</sst>
             </pLMNInfoList>
             <nRPCI>1</nRPCI>
             <nRTAC>7</nRTAC>
-            <arfcnDL>640000</arfcnDL>
-            <arfcnUL>640000</arfcnUL>
+            <arfcnDL>632192</arfcnDL>
+            <arfcnUL>632192</arfcnUL>
             <bSChannelBwDL>100</bSChannelBwDL>
             <bSChannelBwUL>100</bSChannelBwUL>
             <ssbFrequency>3000000</ssbFrequency>
@@ -245,45 +258,50 @@ o1Config:
               <srs_nrcelldu_extensions xmlns="urn:srsran-nrcelldu-extension:1.0">
                 <srs_nrcelldu_ofh_extensions>
                   <network_interface>0000:01:01.0</network_interface>
-                  <ru_mac_addr>e8:c7:4f:25:7f:d9</ru_mac_addr>
-                  <du_mac_addr>00:33:22:33:00:66</du_mac_addr>
-                  <prach_port_id>[0]</prach_port_id>
+                  <ru_mac_addr>70:b3:d5:e1:5d:67</ru_mac_addr>
+                  <du_mac_addr>50:7c:6f:55:c8:08</du_mac_addr>
+                  <enable_promiscuous>true</enable_promiscuous>
+                  <check_link_status>true</check_link_status>
+                  <vlan_tag_cp>18</vlan_tag_cp>
+                  <vlan_tag_up>18</vlan_tag_up>
+                  <prach_port_id>[4,5,6,7]</prach_port_id>
                   <dl_port_id>[0,1,2,3]</dl_port_id>
-                  <ul_port_id>[0]</ul_port_id>
-                  <t1a_max_cp_dl>380</t1a_max_cp_dl>
-                  <t1a_min_cp_dl>180</t1a_min_cp_dl>
-                  <t1a_max_cp_ul>380</t1a_max_cp_ul>
-                  <t1a_min_cp_ul>180</t1a_min_cp_ul>
-                  <t1a_max_up>380</t1a_max_up>
-                  <t1a_min_up>180</t1a_min_up>
-                  <ta4_max>500</ta4_max>
-                  <ta4_min>0</ta4_min>
+                  <ul_port_id>[0,1,2,3]</ul_port_id>
+                  <t1a_max_cp_dl>490</t1a_max_cp_dl>
+                  <t1a_min_cp_dl>350</t1a_min_cp_dl>
+                  <t1a_max_cp_ul>336</t1a_max_cp_ul>
+                  <t1a_min_cp_ul>285</t1a_min_cp_ul>
+                  <t1a_max_up>280</t1a_max_up>
+                  <t1a_min_up>150</t1a_min_up>
+                  <ta4_max>350</ta4_max>
+                  <ta4_min>80</ta4_min>
                   <compr_method_ul>BLOCK_FLOATING_POINT</compr_method_ul>
                   <compr_bitwidth_ul>9</compr_bitwidth_ul>
                   <compr_method_dl>BLOCK_FLOATING_POINT</compr_method_dl>
                   <compr_bitwidth_dl>9</compr_bitwidth_dl>
                   <compr_method_prach>BLOCK_FLOATING_POINT</compr_method_prach>
                   <compr_bitwidth_prach>9</compr_bitwidth_prach>
-                  <enable_dl_static_compr_hdr>STATIC</enable_dl_static_compr_hdr>
-                  <enable_ul_static_compr_hdr>STATIC</enable_ul_static_compr_hdr>
+                  <enable_dl_static_compr_hdr>DYNAMIC</enable_dl_static_compr_hdr>
+                  <enable_ul_static_compr_hdr>DYNAMIC</enable_ul_static_compr_hdr>
                   <is_prach_cp_enabled>true</is_prach_cp_enabled>
                   <ignore_ecpri_payload_size>false</ignore_ecpri_payload_size>
-                  <ignore_ecpri_seq_id>true</ignore_ecpri_seq_id>
-                  <iq_scaling>3.0</iq_scaling>
+                  <ignore_ecpri_seq_id>false</ignore_ecpri_seq_id>
+                  <iq_scaling>10.0</iq_scaling>
                 </srs_nrcelldu_ofh_extensions>
                 <srs_nrcelldu_base_extensions>
                   <nof_antennas_dl>4</nof_antennas_dl>
-                  <nof_antennas_ul>1</nof_antennas_ul>
+                  <nof_antennas_ul>4</nof_antennas_ul>
                   <common_scs>KHZ_30</common_scs>
                 </srs_nrcelldu_base_extensions>            
                 <srs_nrcelldu_ssb_extensions>
-                  <ssb_block_power_dbm>-16</ssb_block_power_dbm>
+                  <ssb_block_power_dbm>0</ssb_block_power_dbm>
                 </srs_nrcelldu_ssb_extensions>
                 <srs_nrcelldu_prach_extensions>
+                  <prach_config_index>159</prach_config_index>
                   <prach_root_sequence_index>1</prach_root_sequence_index>
                 </srs_nrcelldu_prach_extensions>
                 <srs_nrcelldu_pdsch_extensions>
-                  <mcs_table>qam256</mcs_table>
+                  <mcs_table>qam64</mcs_table>
                 </srs_nrcelldu_pdsch_extensions>
                 <srs_nrcelldu_tdd_extensions>
                   <dl_ul_tx_period>10</dl_ul_tx_period>
@@ -313,7 +331,7 @@ o1Config:
           <attributes>
             <!-- f1u bind addresss -->
             <localAddress>
-              <ipAddress>10.12.1.151</ipAddress>
+              <ipAddress>10.11.13.112</ipAddress>
               <vlanId>101</vlanId>
             </localAddress>
             <!-- f1u connect ip4v/ipv6 address -->
@@ -324,7 +342,7 @@ o1Config:
         <srs_gnbdufunction_extensions xmlns="urn:srsran-gnbdufunction-extension:1.0">
           <srs_gnbdufunction_testmode_extensions>
             <enabled>true</enabled>
-            <rnti>9</rnti>
+            <rnti>68</rnti>
             <ri>4</ri>
             <cqi>15</cqi>
             <nof_ues>1</nof_ues>
@@ -336,13 +354,31 @@ o1Config:
             <all_level>warning</all_level>
           </srs_gnbdufunction_log_extensions>
           <srs_hal_extensions>
-            <eal_args>--lcores (0-1)@(0-11)</eal_args>
+            <eal_args>--lcores (0-1)@(0-23)</eal_args>
           </srs_hal_extensions>
+
+          <srs_remote_control_extensions>
+            <enabled>true</enabled>
+            <bind_addr>0.0.0.0</bind_addr>
+          </srs_remote_control_extensions>
+
           <srs_metrics_extensions>
             <autostart_stdout_metrics>true</autostart_stdout_metrics>
-            <enable_json_metrics>true</enable_json_metrics>
-            <addr>grafana-metrics-server.srsran.svc.cluster.local</addr>
-            <port>55555</port>
+            <enable_json>true</enable_json>
+            <enable_log>false</enable_log>
+            <periodicity>
+              <du_report_period>1000</du_report_period>
+              <cu_up_report_period>1000</cu_up_report_period>
+              <cu_cp_report_period>1000</cu_cp_report_period>
+            </periodicity>
+            <layers>
+              <enable_ru>true</enable_ru>
+              <enable_sched>true</enable_sched>
+              <enable_rlc>false</enable_rlc>
+              <enable_mac>false</enable_mac>
+              <enable_pdcp>false</enable_pdcp>
+              <enable_du_low>false</enable_du_low>
+            </layers>
           </srs_metrics_extensions>
         </srs_gnbdufunction_extensions>
 
