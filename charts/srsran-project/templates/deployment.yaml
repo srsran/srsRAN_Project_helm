@@ -174,10 +174,16 @@ spec:
             - {{ .Values.o1.ves.username | quote }}
             - "--ves_password"
             - {{ .Values.o1.ves.password | quote }}
+            - "--ws_host"
+            - {{ .Values.o1.ws.host | quote }}
+            - "--ws_port"
+            - {{ .Values.o1.ws.port | quote }}
             {{- if .Values.o1.oamIpv4Address }}
             - "--oam_ipv4_address"
             - {{ .Values.o1.oamIpv4Address | quote }}
             {{- end }}
+            - "--loglevel"
+            - {{ .Values.o1.log_level | quote }}
             - "--config"
             - "/etc/config/gnb-config.yml"
             - "--template"
