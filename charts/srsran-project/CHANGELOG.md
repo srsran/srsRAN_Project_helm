@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.3.0 (November 04, 2025)
+### Added
+- Expose a dedicated `*-o1` Service when the O1 bundle is enabled
+- Package the CU/DU entrypoint helper in its own ConfigMap
+
+### Changed
+- Update the default CU/DU example config to comply with srsRAN 25.04
+    - rotate log/pcap directories
+    - derive HAL CPU sets from cgroup limits
+    - map SR-IOV BDFs to cells before starting the gNB
+- Update the O1 adapter arguments to comply with the new syntax
+
 ## 2.2.0 (September 18, 2025)
 ### Added
 - Add service for Telegraf metrics collection
@@ -62,4 +74,3 @@
 ## 0.1.0 (September 29, 2023)
 ### Added
 - Initial release of the srsRAN Project Helm chart
-
