@@ -16,7 +16,7 @@ global:
 sdncWeb:
   image:
     repository: nexus3.onap.org:10001/onap/sdnc-web-image
-    tag: 2.8.0
+    tag: 3.1.1-STAGING-latest
     pullPolicy: IfNotPresent
   service:
     type: NodePort
@@ -24,7 +24,7 @@ sdncWeb:
     nodePort: 30080
   env:
     enableOAuth: false
-    sdnrHost: ""
+    sdnrHost: "onap-smo-sdnr.onap.svc.srsk8s.bcn"
   ingress:
     enabled: false
     className: ""
@@ -40,7 +40,7 @@ sdncWeb:
 sdnr:
   image:
     repository: nexus3.onap.org:10001/onap/sdnc-image
-    tag: 2.6.1
+    tag: 3.1.1-STAGING-latest
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -57,7 +57,7 @@ sdnr:
     ccsdkReplicas: "0"
     domain: ""
     enableOAuth: "false"
-    sdnrDbUrl: ""
+    sdnrDbUrl: "http://onap-smo-sdnrdb.onap.svc.srsk8s.bcn:9200"
     sdnrDbType: ELASTICSEARCH
     sdnrDm: "false"
     sdnrInit: "true"
@@ -106,21 +106,21 @@ sdnr:
 
       [dcae]
       dcaeUrl=off
-      dcaeUserCredentials=admin:admin
+      dcaeUserCredentials=root:root
       dcaeHeartbeatPeriodSeconds=120
 
       [pm]
       pmEnabled=true
 
       [VESCollector]
-      VES_COLLECTOR_ENABLED={{ ternary "true" "false" .Values.vesCollector.enabled }}
-      VES_COLLECTOR_TLS_ENABLED={{ ternary "true" "false" .Values.vesCollector.tls.enabled }}
-      VES_COLLECTOR_TRUST_ALL_CERTS={{ ternary "true" "false" .Values.vesCollector.tls.trustAll }}
-      VES_COLLECTOR_USERNAME={{ .Values.vesCollector.credentials.username }}
-      VES_COLLECTOR_PASSWORD={{ .Values.vesCollector.credentials.password }}
-      VES_COLLECTOR_IP={{ include "onap-smo-lite.vesCollectorHost" . }}
-      VES_COLLECTOR_PORT={{ .Values.vesCollector.service.port }}
-      VES_COLLECTOR_VERSION={{ .Values.vesCollector.version }}
+      VES_COLLECTOR_ENABLED=false
+      VES_COLLECTOR_TLS_ENABLED=false
+      VES_COLLECTOR_TRUST_ALL_CERTS=false
+      VES_COLLECTOR_USERNAME=sample1
+      VES_COLLECTOR_PASSWORD=sample1
+      VES_COLLECTOR_IP=onap-smo-ves-collector.onap.svc.srsk8s.bcn
+      VES_COLLECTOR_PORT=8443
+      VES_COLLECTOR_VERSION=v7
       REPORTING_ENTITY_NAME=ONAP SDN-R
       EVENTLOG_MSG_DETAIL=SHORT
 
@@ -140,13 +140,13 @@ sdnrRegistrar:
     fetchPause=5000
 
     [general]
-    baseUrl=http://{{ include "onap-smo-lite.componentName" (dict "root" . "component" "sdnr") }}:{{ .Values.sdnr.service.port }}
-    sdnrUser=admin
-    sdnrPasswd=${ODL_ADMIN_PASSWORD}
+    baseUrl=http://onap-smo-sdnr.onap.svc.srsk8s.bcn:8181
+    sdnrUser=root
+    sdnrPasswd=root
 
     [strimzi-kafka]
-    strimziEnabled={{ ternary "true" "false" .Values.kafka.enabled }}
-    bootstrapServers={{ include "onap-smo-lite.kafkaHost" . }}:{{ .Values.kafka.service.port }}
+    strimziEnabled=true
+    bootstrapServers=onap-smo-kafka.onap.svc.srsk8s.bcn:9092
     securityProtocol=PLAINTEXT
     saslMechanism=PLAIN
     saslJaasConfig=PLAIN
@@ -174,6 +174,25 @@ sdnrRegistrar:
     timeout=20000
     limit=10000
     fetchPause=5000
+
+sdnrdb:
+  image:
+    repository: docker.elastic.co/elasticsearch/elasticsearch-oss
+    tag: 7.9.3
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9200
+  env:
+    discoveryType: single-node
+  persistence:
+    enabled: false
+    existingClaim: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+    storageClass: ""
+  resources: {}
 
 zookeeper:
   enabled: true
@@ -210,22 +229,22 @@ kafka:
     interBrokerListenerName: PLAINTEXT
     listenerSecurityProtocolMap: PLAINTEXT:PLAINTEXT,INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT
     listeners: PLAINTEXT://0.0.0.0:9092
-    advertisedListeners: ""
+    advertisedListeners: "PLAINTEXT://onap-smo-kafka.onap.svc.srsk8s.bcn:9092"
     replicationFactor: 1
     numPartitions: 2
   env:
     LOG_DIR: /tmp/logs
     enableCadi: "false"
-    KAFKA_ZOOKEEPER_CONNECT: ""
+    KAFKA_ZOOKEEPER_CONNECT: "onap-smo-zookeeper.onap.svc.srsk8s.bcn:2181"
     KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: "40000"
     KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS: "40000"
     KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
     KAFKA_ZOOKEEPER_SET_ACL: "true"
     KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: "2"
   auth:
-    enabled: true
-    username: kafka
-    password: kafka_secret
+    enabled: false
+    username: ""
+    password: ""
   extraEnv: []
   resources: {}
 
@@ -264,35 +283,261 @@ vesCollector:
     type: ClusterIP
     port: 8443
   env:
-    bootstrapServers: ""
+    bootstrapServers: "onap-smo-kafka.onap.svc.srsk8s.bcn:9092"
+    dmaapHost: ""
   tls:
     enabled: false
-    trustAll: true
+    trustAll: false
   credentials:
     username: sample1
     password: sample1
   version: v7
   config:
-    collectorProperties: |-
-    dmaapConfig: |-
-  extraEnv: []
-  resources: {}
-
-sdnrdb:
-  image:
-    repository: docker.elastic.co/elasticsearch/elasticsearch-oss
-    tag: 7.9.3
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 9200
-  env:
-    discoveryType: single-node
-  persistence:
-    enabled: false
-    existingClaim: ""
-    accessModes:
-      - ReadWriteOnce
-    size: 5Gi
-    storageClass: ""
-  resources: {}
+    collectorProperties: |
+      collector.service.secure.port=8443
+      auth.method=certBasicAuth
+      header.authlist=sample1,$2a$10$0buh.2WeYwN868YMwnNNEuNEAMNYVU9.FSMJGyIKV3dGET/7oGOi6
+      collector.keystore.file.location=etc/keystore
+      collector.keystore.passwordfile=etc/passwordfile
+      collector.cert.subject.matcher=etc/certSubjectMatcher.properties
+      collector.truststore.file.location=etc/truststore
+      collector.truststore.passwordfile=etc/trustpasswordfile
+      collector.schema.checkflag=1
+      collector.schema.file={"v1":"./etc/CommonEventFormat_27.2.json","v2":"./etc/CommonEventFormat_27.2.json","v3":"./etc/CommonEventFormat_27.2.json","v4":"./etc/CommonEventFormat_27.2.json","v5":"./etc/CommonEventFormat_28.4.1.json","v7":"./etc/CommonEventFormat_30.2.1_ONAP.json"}
+      collector.externalSchema.checkflag=1
+      collector.externalSchema.schemasLocation=etc/externalRepo/
+      collector.externalSchema.mappingFileLocation=etc/externalRepo/schema-map.json
+      event.externalSchema.schemaRefPath=$.event.stndDefinedFields.schemaReference
+      event.externalSchema.stndDefinedDataPath=$.event.stndDefinedFields.data
+      collector.dmaap.streamid=fault=ves-fault|syslog=ves-syslog|heartbeat=ves-heartbeat|measurementsForVfScaling=ves-measurement|mobileFlow=ves-mobileflow|other=ves-other|stateChange=ves-statechange|thresholdCrossingAlert=ves-thresholdCrossingAlert|voiceQuality=ves-voicequality|sipSignaling=ves-sipsignaling|notification=ves-notification|pnfRegistration=ves-pnfRegistration|3GPP-FaultSupervision=ves-3gpp-fault-supervision|3GPP-Heartbeat=ves-3gpp-heartbeat|3GPP-Provisioning=ves-3gpp-provisioning|3GPP-PerformanceAssurance=ves-3gpp-performance-assurance|o-ran-sc-du-hello-world-pm-streaming-oas3=ves-o-ran-sc-du-hello-world-pm-streaming-oas3|o1-notify-pnf-registration=ves-o1-notify-pnf-registration
+      collector.dmaapfile=etc/ves-dmaap-config.json
+      collector.description.api.version.location=etc/api_version_description.json
+      event.transform.flag=0
+      collector.dynamic.config.update.frequency=5
+    dmaapConfig: |
+      {
+          "ves-syslog": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-statechange": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-thresholdCrossingAlert": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-heartbeat": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_HEARTBEAT_OUTPUT/"
+              }
+          },
+          "ves-other": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_OTHER_OUTPUT/"
+              }
+          },
+          "ves-mobileflow": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-sipsignaling": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-voicequality": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-fault": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_FAULT_OUTPUT/"
+              }
+          },
+          "ves-measurement": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.VES_MEASUREMENT_OUTPUT/"
+              }
+          },
+          "ves-3gpp-fault-supervision": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_3GPP_FAULTSUPERVISION_OUTPUT/"
+              }
+          },
+          "ves-3gpp-provisioning": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_3GPP_PROVISIONING_OUTPUT/"
+              }
+          },
+          "ves-3gpp-heartbeat": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_3GPP_HEARTBEAT_OUTPUT/"
+              }
+          },
+          "ves-3gpp-performance-assurance": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_3GPP_PERFORMANCEASSURANCE_OUTPUT/"
+              }
+          },
+          "ves-syslog-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-statechange-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-thresholdCrossingAlert-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-heartbeat-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-other-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-mobileflow-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-sipsignaling-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTSves7_valid_ip_v4.json-DEV"
+              }
+          },
+          "ves-voicequality-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-fault-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-measurement-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-3gpp-fault-supervision-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_3GPP_FAULTSUPERVISION_OUTPUT/"
+              }
+          },
+          "ves-3gpp-provisioning-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.SEC_3GPP_FAULTSUPERVISION_OUTPUT/"
+              }
+          },
+          "ves-3gpp-heartbeat-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-3gpp-performance-assurance-secondary": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/DCAE-SE-COLLECTOR-EVENTS-DEV"
+              }
+          },
+          "ves-pnfRegistration": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.VES_PNFREG_OUTPUT/"
+              }
+          },
+          "ves-o1-notify-pnf-registration": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.VES_O1_NOTIFY_PNF_REGISTRATION_OUTPUT/"
+              }
+          },
+          "ves-o-ran-sc-du-hello-world-pm-streaming-oas3": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.VES_O_RAN_SC_HELLO_WORLD_PM_STREAMING_OUTPUT/"
+              }
+          },
+          "ves-file-ready": {
+              "type": "message_router",
+              "dmaap_info": {
+                  "location": "mtl5",
+                  "topic_url": "http://dmaap-message-router:3904/events/unauthenticated.VES_FILE_READY_OUTPUT/"
+              }
+          }
+      }
