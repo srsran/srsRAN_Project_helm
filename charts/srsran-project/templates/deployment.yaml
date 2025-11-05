@@ -164,8 +164,10 @@ spec:
           command: [ "/usr/local/bin/python3" ]
           args:
             - "/usr/src/app/o1_adapter.py"
-            - "--host"
+            - "--netconf_host"
             - {{ .Values.o1.netconfServerAddr }}
+            - "--netconf_port"
+            - {{ .Values.o1.o1Port | quote }}
             - "--ves_host"
             - {{ .Values.o1.ves.host | quote }}
             - "--ves_port"
