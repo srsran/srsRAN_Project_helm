@@ -9,7 +9,7 @@
 ARG LINUXPTP_VERSION=v4.4
 FROM ubuntu:24.04 AS builder
 
-RUN apt update && apt install -y git make gcc musl-dev ntpdate && \
+RUN apt update && apt install -y git make gcc musl-dev && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -27,7 +27,7 @@ COPY --from=builder /linuxptp-agent/linuxptp/pmc /usr/local/bin/
 COPY --from=builder /linuxptp-agent/linuxptp/ts2phc /usr/local/bin/
 COPY scripts/ /usr/local/bin/
 
-RUN apt update && apt install -y musl-dev bc && \
+RUN apt update && apt install -y musl-dev bc ntpdate && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
     ldconfig
