@@ -24,6 +24,7 @@ FROM ubuntu:24.04
 COPY --from=builder /linuxptp-agent/linuxptp/ptp4l /usr/local/bin/
 COPY --from=builder /linuxptp-agent/linuxptp/phc2sys /usr/local/bin/
 COPY --from=builder /linuxptp-agent/linuxptp/pmc /usr/local/bin/
+COPY --from=builder /linuxptp-agent/linuxptp/phc_ctl /usr/local/bin/
 COPY --from=builder /linuxptp-agent/linuxptp/ts2phc /usr/local/bin/
 COPY scripts/ /usr/local/bin/
 
