@@ -225,10 +225,11 @@ terminate() {
   fi
   exit 0
 }
-
 trap terminate SIGTERM SIGINT
 
 PRESERVE_OLD_LOGS="${PRESERVE_OLD_LOGS:-false}"
+CONFIG_CREATE_TIMEOUT=30  # in seconds
+ENABLE_SRS_O1="${ENABLE_SRS_O1:-false}"
 
 # Use RESOURCE_EXTENDED if provided; otherwise, default to intel.com/intel_sriov_netdevice.
 RESOURCE_EXTENDED="${RESOURCE_EXTENDED:-intel.com/intel_sriov_netdevice}"
@@ -245,23 +246,38 @@ if [ -z "$CONFIG_FILE" ]; then
   exit 1
 fi
 
-# Move config file to a temporary location.
-UPDATED_CONFIG="/tmp/gnb-config.yml"
-cp "$CONFIG_FILE" "$UPDATED_CONFIG"
-
-inject_ip_overrides "$UPDATED_CONFIG"
-
-# Update hal eal_args if present
-update_hal_eal_args "$UPDATED_CONFIG"
-
-# If the device list is set, update each cell's network_interface and du_mac_addr using function
-if [ -n "${DEVICE_LIST}" ]; then
-  update_network_interfaces_and_macs "$UPDATED_CONFIG" "${DEVICE_LIST}"
-fi
-
-echo "Configuration file updated and placed in $UPDATED_CONFIG"
-
 while true; do
+  if [ "$ENABLE_SRS_O1" = "true" ]; then
+    # Wait for config file to be created
+    elapsed=0
+    while [ ! -f "$CONFIG_FILE" ] && [ $elapsed -lt "$CONFIG_CREATE_TIMEOUT" ]; do
+      echo "Waiting for config file to be created by O1..."
+      sleep 1
+      elapsed=$((elapsed + 1))
+    done
+
+    if [ ! -f "$CONFIG_FILE" ]; then
+      echo "Timeout reached after ${CONFIG_CREATE_TIMEOUT}s waiting for ${CONFIG_FILE}" >&2
+      exit 1
+    fi
+  fi
+  
+  # Move config file to a temporary location.
+  UPDATED_CONFIG="/tmp/gnb-config.yml"
+  cp "$CONFIG_FILE" "$UPDATED_CONFIG"
+
+  inject_ip_overrides "$UPDATED_CONFIG"
+
+  # Update hal eal_args if present
+  update_hal_eal_args "$UPDATED_CONFIG"
+
+  # If the device list is set, update each cell's network_interface and du_mac_addr using function
+  if [ -n "${DEVICE_LIST}" ]; then
+    update_network_interfaces_and_macs "$UPDATED_CONFIG" "${DEVICE_LIST}"
+  fi
+
+  echo "Configuration file updated and placed in $UPDATED_CONFIG"
+
   if [ "$PRESERVE_OLD_LOGS" = "true" ]; then
     CURR_LOG_PATH=$(update_config_paths "$UPDATED_CONFIG")
     {
@@ -275,7 +291,14 @@ while true; do
   wait "$pipe_pid"
   exit_code=$?
   echo "gNB exited with code $exit_code"
+  
+  # If exit with non-zero, exit the loop
   if [ $exit_code -ne 0 ]; then
     exit $exit_code
+  fi
+
+  # Clean up config file in case O1 is enabled
+  if [ "$ENABLE_SRS_O1" = "true" ] && [ -f "$CONFIG_FILE" ]; then
+    rm -f "$CONFIG_FILE"
   fi
 done

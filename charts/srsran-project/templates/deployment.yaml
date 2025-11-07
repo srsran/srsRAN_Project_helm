@@ -105,6 +105,8 @@ spec:
             - name: PRESERVE_OLD_LOGS
               value: {{ .Values.debugging.preserveOldLogs | quote }}
           {{- end }}
+            - name: ENABLE_SRS_O1
+              value: '{{ default false .Values.o1.enable_srs_o1 }}'
           command: [ "/bin/bash" ]
           args: [ "-c", "/etc/entrypoint/entrypoint-srsgnb.sh /etc/config/gnb-config.yml" ]
           volumeMounts:
