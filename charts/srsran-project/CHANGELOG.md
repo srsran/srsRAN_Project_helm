@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.1 (November 06, 2025)
+
+### Changed
+- Fixed issue with restart behaviour when O1 is enabled
+
 ## 2.3.0 (November 04, 2025)
 ### Added
 - Expose a dedicated `*-o1` Service when the O1 bundle is enabled
