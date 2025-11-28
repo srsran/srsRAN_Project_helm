@@ -74,8 +74,11 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ template "srsran-cudu.image" .Values.image }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.resources }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- $res := .Values.resources }}
+            {{- toYaml (omit $res "enable_hugepages_1gi" "enable_hugepages_2mi") | nindent 12 }}
+          {{- end }}
           {{- if .Values.o1.enable_srs_o1 }}
           livenessProbe:
             httpGet:
