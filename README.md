@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> Project transition notice: srsRAN Project is now [OCUDU](https://ocudu.org). As of December 2025, all development has transitioned to the new [repository](https://gitlab.com/ocudu/). This repository will be archived and is no longer maintained. For details and discussion, see the post [here](https://github.com/srsran/srsRAN_Project/discussions/1470).
+
+---
+
 # srsRAN Kubernetes Helm Charts
 
 # [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
